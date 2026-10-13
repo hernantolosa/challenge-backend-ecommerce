@@ -4,15 +4,15 @@ import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
 import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
-import { type StockLevelView } from '@stock/application/dto/stock-level.view';
+import { type StockLevelDto } from '@stock/application/dto/stock-level.dto';
 import { type GetStockLevelError } from '@stock/application/errors/get-stock-level.error';
-import { toStockLevelView } from '@stock/application/mappers/stock-level-view.mapper';
+import { toStockLevelDto } from '@stock/application/mappers/stock-level-dto.mapper';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
 
 export class GetStockLevel {
   constructor(private readonly levels: StockLevelReader) {}
 
-  async execute(rawSku: string): Promise<Result<StockLevelView, GetStockLevelError>> {
+  async execute(rawSku: string): Promise<Result<StockLevelDto, GetStockLevelError>> {
     const sku = Sku.make(rawSku);
 
     switch (sku.kind) {
@@ -25,10 +25,10 @@ export class GetStockLevel {
     }
   }
 
-  private async findStockLevel(sku: Sku): Promise<Result<StockLevelView, GetStockLevelError>> {
+  private async findStockLevel(sku: Sku): Promise<Result<StockLevelDto, GetStockLevelError>> {
     const level = await this.levels.findLevel(sku);
     if (level === null) return Err.make(VariantNotFound.make(sku.value));
 
-    return Ok.make(toStockLevelView(level));
+    return Ok.make(toStockLevelDto(level));
   }
 }

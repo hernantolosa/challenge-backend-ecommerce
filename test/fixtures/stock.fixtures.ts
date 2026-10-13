@@ -1,4 +1,4 @@
-import { type RecordStockMovementCommand } from '@stock/application/dto/record-stock-movement.command';
+import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import { type StockAdjustmentInput } from '@stock/domain/interfaces/stock-adjustment-input.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
@@ -17,8 +17,8 @@ export function anAdjustmentInput(
 }
 
 export function aRecordCommand(
-  overrides: Partial<RecordStockMovementCommand> = {},
-): RecordStockMovementCommand {
+  overrides: Partial<RecordStockMovementInputDto> = {},
+): RecordStockMovementInputDto {
   return {
     sku: SNEAKER_SKU,
     quantity: 2,

@@ -2,7 +2,7 @@ import { IsIn, IsInt, IsString, MaxLength } from 'class-validator';
 import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/enums/movement-reason';
 import { SKU_MAX_LENGTH } from '@stock/domain/value-objects/sku';
 
-export class RecordStockMovementRequest {
+export class RecordStockMovementRequestDto {
   @IsString()
   @MaxLength(SKU_MAX_LENGTH)
   readonly sku!: string;

@@ -7,10 +7,10 @@ import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
 import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
-import { type RecordStockMovementCommand } from '@stock/application/dto/record-stock-movement.command';
-import { type RecordedStockMovementView } from '@stock/application/dto/recorded-stock-movement.view';
+import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
+import { type RecordedStockMovementDto } from '@stock/application/dto/recorded-stock-movement.dto';
 import { type RecordStockMovementError } from '@stock/application/errors/record-stock-movement.error';
-import { toStockMovementView } from '@stock/application/mappers/stock-movement-view.mapper';
+import { toStockMovementDto } from '@stock/application/mappers/stock-movement-dto.mapper';
 import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 
@@ -18,8 +18,8 @@ export class RecordStockMovement {
   constructor(private readonly ledger: StockLedger) {}
 
   async execute(
-    command: RecordStockMovementCommand,
-  ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
+    command: RecordStockMovementInputDto,
+  ): Promise<Result<RecordedStockMovementDto, RecordStockMovementError>> {
     const entry = buildLedgerEntry(command);
 
     switch (entry.kind) {
@@ -34,7 +34,7 @@ export class RecordStockMovement {
 
   private async replayOrRecordMovement(
     entry: LedgerEntry,
-  ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
+  ): Promise<Result<RecordedStockMovementDto, RecordStockMovementError>> {
     const previous = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
     if (previous !== null) return replayPreviousMovement(previous, entry);
 
@@ -43,12 +43,12 @@ export class RecordStockMovement {
 
   private async recordNewMovement(
     entry: LedgerEntry,
-  ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
+  ): Promise<Result<RecordedStockMovementDto, RecordStockMovementError>> {
     const recorded = await this.ledger.record(entry);
 
     switch (recorded.kind) {
       case 'Ok':
-        return Ok.make({ movement: toStockMovementView(recorded.value), replayed: false });
+        return Ok.make({ movement: toStockMovementDto(recorded.value), replayed: false });
       case 'IdempotencyKeyTaken':
         return this.replayMovementRecordedConcurrently(entry);
       case 'VariantNotFound':
@@ -61,7 +61,7 @@ export class RecordStockMovement {
 
   private async replayMovementRecordedConcurrently(
     entry: LedgerEntry,
-  ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
+  ): Promise<Result<RecordedStockMovementDto, RecordStockMovementError>> {
     const winner = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
     if (winner === null) throw new Error('Idempotency key was taken but its movement is missing');
 
@@ -70,7 +70,7 @@ export class RecordStockMovement {
 }
 
 function buildLedgerEntry(
-  command: RecordStockMovementCommand,
+  command: RecordStockMovementInputDto,
 ): Result<LedgerEntry, InvariantViolated> {
   const adjustment = StockAdjustment.make(command);
 
@@ -86,7 +86,7 @@ function buildLedgerEntry(
 
 function buildLedgerEntryWithKey(
   adjustment: StockAdjustment,
-  command: RecordStockMovementCommand,
+  command: RecordStockMovementInputDto,
 ): Result<LedgerEntry, InvariantViolated> {
   const idempotencyKey = IdempotencyKey.make(command.idempotencyKey);
 
@@ -103,10 +103,10 @@ function buildLedgerEntryWithKey(
 function replayPreviousMovement(
   previous: StockMovement,
   entry: LedgerEntry,
-): Result<RecordedStockMovementView, IdempotencyKeyReused> {
+): Result<RecordedStockMovementDto, IdempotencyKeyReused> {
   if (!entry.adjustment.isSameRequestAs(previous)) {
     return Err.make(IdempotencyKeyReused.make(entry.idempotencyKey.value));
   }
 
-  return Ok.make({ movement: toStockMovementView(previous), replayed: true });
+  return Ok.make({ movement: toStockMovementDto(previous), replayed: true });
 }

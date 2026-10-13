@@ -8,9 +8,9 @@ import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
 import { CommonProblems } from '@infrastructure/http/problems/common.problems';
 import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
 import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
-import { RecordStockMovementRequest } from '@stock/adapters/inbound/http/requests/record-stock-movement.request';
-import { StockLevelResponse } from '@stock/adapters/inbound/http/responses/stock-level.response';
-import { StockMovementResponse } from '@stock/adapters/inbound/http/responses/stock-movement.response';
+import { RecordStockMovementRequestDto } from '@stock/adapters/inbound/http/requests/record-stock-movement-request.dto';
+import { StockLevelResponseDto } from '@stock/adapters/inbound/http/responses/stock-level-response.dto';
+import { StockMovementResponseDto } from '@stock/adapters/inbound/http/responses/stock-movement-response.dto';
 import { IdempotencyKeyHeader } from '@stock/adapters/inbound/http/decorators/idempotency-key.decorator';
 import { StockProblems } from '@stock/adapters/inbound/http/problems/stock.problems';
 
@@ -26,11 +26,11 @@ export class StockController {
   @Post('movimientos')
   @RequireScope(Scope.STOCK_WRITE)
   async recordMovement(
-    @Body() body: RecordStockMovementRequest,
+    @Body() body: RecordStockMovementRequestDto,
     @IdempotencyKeyHeader() idempotencyKey: string,
     @CurrentPrincipal() principal: Principal,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<StockMovementResponse> {
+  ): Promise<StockMovementResponseDto> {
     const outcome = await this.recordStockMovement.execute({
       ...body,
       idempotencyKey,
@@ -40,7 +40,7 @@ export class StockController {
     switch (outcome.kind) {
       case 'Ok':
         if (outcome.value.replayed) markResponseAsReplayed(response);
-        return StockMovementResponse.from(outcome.value.movement);
+        return StockMovementResponseDto.from(outcome.value.movement);
       case 'InvariantViolated':
         throw CommonProblems.invariantViolated(outcome.error);
       case 'VariantNotFound':
@@ -56,12 +56,12 @@ export class StockController {
 
   @Get(':sku')
   @RequireScope(Scope.STOCK_READ)
-  async findStockLevel(@Param('sku') sku: string): Promise<StockLevelResponse> {
+  async findStockLevel(@Param('sku') sku: string): Promise<StockLevelResponseDto> {
     const outcome = await this.getStockLevel.execute(sku);
 
     switch (outcome.kind) {
       case 'Ok':
-        return StockLevelResponse.from(outcome.value);
+        return StockLevelResponseDto.from(outcome.value);
       case 'InvariantViolated':
         throw CommonProblems.invariantViolated(outcome.error);
       case 'VariantNotFound':

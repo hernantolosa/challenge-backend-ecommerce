@@ -1,4 +1,4 @@
-export interface StockLevelView {
+export interface StockLevelDto {
   readonly sku: string;
   readonly onHand: number;
 }

@@ -1,10 +1,9 @@
 import { type MovementReason } from '@stock/domain/enums/movement-reason';
 
-export interface StockMovementView {
-  readonly id: string;
+export interface RecordStockMovementInputDto {
   readonly sku: string;
   readonly quantity: number;
   readonly reason: MovementReason;
-  readonly balanceAfter: number;
-  readonly occurredAt: Date;
+  readonly idempotencyKey: string;
+  readonly actor: string;
 }

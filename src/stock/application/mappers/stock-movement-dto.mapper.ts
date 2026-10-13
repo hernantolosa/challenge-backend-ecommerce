@@ -1,7 +1,7 @@
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
-import { type StockMovementView } from '@stock/application/dto/stock-movement.view';
+import { type StockMovementDto } from '@stock/application/dto/stock-movement.dto';
 
-export function toStockMovementView(movement: StockMovement): StockMovementView {
+export function toStockMovementDto(movement: StockMovement): StockMovementDto {
   return {
     id: movement.id,
     sku: movement.sku,
