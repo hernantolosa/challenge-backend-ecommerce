@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -21,7 +21,7 @@ async function bootstrap(): Promise<void> {
   }
 
   await app.listen(port);
-  console.log(`App running on http://localhost:${port}`);
+  new Logger('Bootstrap').log(`App running on port ${port}`);
 }
 
 void bootstrap();

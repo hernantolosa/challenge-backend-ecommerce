@@ -10,11 +10,14 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "build": "nest build",
-    "lint": "eslint \"{src,test}/**/*.ts\"",
+    "lint": "eslint \"{src,test}/**/*.ts\" jest.config.ts",
     "typecheck": "tsc --noEmit",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts"
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
+    "test": "jest --selectProjects unit",
+    "test:integration": "jest --selectProjects integration --runInBand",
+    "test:all": "jest --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.0",

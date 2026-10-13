@@ -1,0 +1,14 @@
+const TEST_ENVIRONMENT: Readonly<Record<string, string>> = {
+  DB_HOST: 'localhost',
+  DB_PORT: '5432',
+  DB_USERNAME: 'postgres',
+  DB_PASSWORD: 'postgres',
+  DB_DATABASE: 'ecommerce_challenge_test',
+  JWT_SECRET: 'test-only-secret-that-is-long-enough-for-hs256',
+  JWT_ISSUER: 'https://auth.test.local',
+  JWT_AUDIENCE: 'ecommerce-api-test',
+  THROTTLE_LIMIT: '10000',
+  THROTTLE_TTL_MS: '60000',
+};
+
+Object.assign(process.env, TEST_ENVIRONMENT);

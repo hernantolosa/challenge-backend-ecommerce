@@ -18,7 +18,7 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': [
         'error',
         {
-          allowExpressions: true,
+          allowExpressions: false,
           allowTypedFunctionExpressions: true,
           allowHigherOrderFunctions: true,
         },
@@ -37,11 +37,10 @@ export default tseslint.config(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/require-await': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/prefer-readonly': 'error',
+      'no-console': 'error',
     },
   },
 );
