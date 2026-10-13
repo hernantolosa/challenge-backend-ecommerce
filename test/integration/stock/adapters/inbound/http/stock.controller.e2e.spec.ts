@@ -261,6 +261,26 @@ describe('Stock HTTP API', () => {
       });
     });
 
+    it('replays concurrent retries of a request that took the last unit', async () => {
+      await seedVariant(testApp.dataSource, { sku: 'SNK-LAST-ONE', onHand: 1 });
+
+      const responses = await Promise.all(
+        Array.from({ length: 5 }, () =>
+          postMovement(aMovementBody({ sku: 'SNK-LAST-ONE', quantity: 1 }), IDEMPOTENCY_KEY),
+        ),
+      );
+
+      const statuses = responses.map((response) => response.status).sort();
+      expect(statuses).toEqual([200, 200, 200, 200, 201]);
+      const created = responses.find((response) => response.status === 201);
+      responses
+        .filter((response) => response.status === 200)
+        .forEach((replay) => {
+          expect(replay.headers['idempotent-replayed']).toBe('true');
+          expect(replay.body).toEqual(created?.body);
+        });
+    });
+
     it('never oversells under concurrent requests', async () => {
       const responses = await Promise.all(
         Array.from({ length: 30 }, () => postMovement(aMovementBody({ quantity: 1 }))),

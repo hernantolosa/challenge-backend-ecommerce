@@ -207,6 +207,36 @@ describe('TypeOrmStockLedgerRepository', () => {
     });
   });
 
+  describe('when a retry races the movement that drained the stock', () => {
+    it('reports the key as taken instead of insufficient stock', async () => {
+      const drained = await seedVariant(dataSource, { sku: 'SNK-LAST-ONE', onHand: 1 });
+
+      const results = await Promise.all(
+        Array.from({ length: 5 }, () =>
+          ledger.record(aLedgerEntry({ sku: 'SNK-LAST-ONE', idempotencyKey: IDEMPOTENCY_KEY })),
+        ),
+      );
+
+      expect(results.filter((result) => result.kind === 'Ok')).toHaveLength(1);
+      expect(results.filter((result) => result.kind === 'IdempotencyKeyTaken')).toHaveLength(4);
+      expect(await onHandOf(dataSource, drained.variantId)).toBe(0);
+    });
+
+    it('reports the key as taken when the same key is retried after the stock ran out', async () => {
+      await seedVariant(dataSource, { sku: 'SNK-LAST-ONE', onHand: 1 });
+      await ledger.record(aLedgerEntry({ sku: 'SNK-LAST-ONE', idempotencyKey: IDEMPOTENCY_KEY }));
+
+      const retry = await ledger.record(
+        aLedgerEntry({ sku: 'SNK-LAST-ONE', idempotencyKey: IDEMPOTENCY_KEY }),
+      );
+
+      expect(retry).toEqual({
+        kind: 'IdempotencyKeyTaken',
+        error: { kind: 'IdempotencyKeyTaken' },
+      });
+    });
+  });
+
   describe('database invariants', () => {
     it('refuses a negative stock even if application code is bypassed', async () => {
       await expect(

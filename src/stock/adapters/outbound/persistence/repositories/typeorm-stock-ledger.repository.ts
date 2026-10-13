@@ -9,10 +9,10 @@ import { type RecordEntryError } from '@stock/application/errors/record-entry.er
 import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
-import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
-import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
-import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
 import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
+import { type InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { type StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
+import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
 import { type StockLevel } from '@stock/domain/interfaces/stock-level.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
 import { type IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
@@ -72,16 +72,18 @@ export class TypeOrmStockLedgerRepository implements StockLedger, StockLevelRead
 
   private async rejectionReasonFor(
     entry: LedgerEntry,
-  ): Promise<Err<VariantNotFound> | Err<InsufficientStock> | Err<StockCapacityExceeded>> {
-    const { sku, quantity, stockDelta } = entry.adjustment;
-    const level = await this.findLevel(sku);
-    if (level === null) return Err.make(VariantNotFound.make(sku.value));
+  ): Promise<
+    | Err<IdempotencyKeyTaken>
+    | Err<VariantNotFound>
+    | Err<InsufficientStock>
+    | Err<StockCapacityExceeded>
+  > {
+    const previous = await this.findMovement(entry.actor, entry.idempotencyKey);
+    if (previous !== null) return Err.make(IdempotencyKeyTaken.make());
 
-    if (level.onHand + stockDelta < 0) {
-      return Err.make(InsufficientStock.make(sku.value, quantity.value, level.onHand));
-    }
-    return Err.make(
-      StockCapacityExceeded.make(sku.value, quantity.value, level.onHand, MAX_STOCK_LEVEL),
-    );
+    const level = await this.findLevel(entry.adjustment.sku);
+    if (level === null) return Err.make(VariantNotFound.make(entry.adjustment.sku.value));
+
+    return entry.adjustment.rejectionAgainst(level.onHand);
   }
 }

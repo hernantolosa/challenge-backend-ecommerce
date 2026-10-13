@@ -3,9 +3,6 @@ import { type RecordEntryError } from '@stock/application/errors/record-entry.er
 import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
-import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
-import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
-import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
 import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
 import { type StockLevel } from '@stock/domain/interfaces/stock-level.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
@@ -41,25 +38,16 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
 
   async record(entry: LedgerEntry): Promise<Result<StockMovement, RecordEntryError>> {
     if (this.concurrentWinner !== null) return this.recordWinnerAndLoseRace(this.concurrentWinner);
+
+    const onHand = this.levels.get(entry.adjustment.sku.value);
+    if (onHand === undefined || !entry.adjustment.fitsWithin(onHand)) {
+      return this.rejectionReasonFor(entry, onHand);
+    }
     if (this.isKeyTakenBy(entry.actor, entry.idempotencyKey)) {
       return Err.make(IdempotencyKeyTaken.make());
     }
 
-    const sku = entry.adjustment.sku.value;
-    const onHand = this.levels.get(sku);
-    if (onHand === undefined) return Err.make(VariantNotFound.make(sku));
-
-    const balanceAfter = onHand + entry.adjustment.stockDelta;
-    if (balanceAfter < 0) {
-      return Err.make(InsufficientStock.make(sku, entry.adjustment.quantity.value, onHand));
-    }
-    if (balanceAfter > MAX_STOCK_LEVEL) {
-      return Err.make(
-        StockCapacityExceeded.make(sku, entry.adjustment.quantity.value, onHand, MAX_STOCK_LEVEL),
-      );
-    }
-
-    return Ok.make(this.append(entry, balanceAfter));
+    return Ok.make(this.append(entry, onHand + entry.adjustment.stockDelta));
   }
 
   async findMovement(actor: string, idempotencyKey: IdempotencyKey): Promise<StockMovement | null> {
@@ -72,6 +60,18 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   async findLevel(sku: Sku): Promise<StockLevel | null> {
     const onHand = this.levels.get(sku.value);
     return onHand === undefined ? null : { sku: sku.value, onHand };
+  }
+
+  private rejectionReasonFor(
+    entry: LedgerEntry,
+    onHand: number | undefined,
+  ): Result<StockMovement, RecordEntryError> {
+    if (this.isKeyTakenBy(entry.actor, entry.idempotencyKey)) {
+      return Err.make(IdempotencyKeyTaken.make());
+    }
+    if (onHand === undefined) return Err.make(VariantNotFound.make(entry.adjustment.sku.value));
+
+    return entry.adjustment.rejectionAgainst(onHand);
   }
 
   private recordWinnerAndLoseRace(winner: StockMovement): Err<IdempotencyKeyTaken> {

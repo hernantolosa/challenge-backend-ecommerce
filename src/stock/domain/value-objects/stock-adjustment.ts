@@ -1,10 +1,14 @@
 import { type InvariantViolated } from '@utils/errors/invariant-violated.error';
 import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
 import { type StockAdjustmentInput } from '@stock/domain/interfaces/stock-adjustment-input.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
 import { directionOf, type MovementReason } from '@stock/domain/enums/movement-reason';
+import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
 import { Quantity } from './quantity';
 import { Sku } from './sku';
 
@@ -46,6 +50,20 @@ export class StockAdjustment {
 
   get stockDelta(): number {
     return this.quantity.value * directionOf(this.reason);
+  }
+
+  fitsWithin(onHand: number): boolean {
+    const balanceAfter = onHand + this.stockDelta;
+    return balanceAfter >= 0 && balanceAfter <= MAX_STOCK_LEVEL;
+  }
+
+  rejectionAgainst(onHand: number): Err<InsufficientStock> | Err<StockCapacityExceeded> {
+    if (this.stockDelta < 0) {
+      return Err.make(InsufficientStock.make(this.sku.value, this.quantity.value, onHand));
+    }
+    return Err.make(
+      StockCapacityExceeded.make(this.sku.value, this.quantity.value, onHand, MAX_STOCK_LEVEL),
+    );
   }
 
   isSameRequestAs(movement: StockMovement): boolean {
