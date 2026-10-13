@@ -1,6 +1,6 @@
 import { type RequestHandler } from 'express';
-import { RequestLogState } from '../tracing/request-log-state';
-import { type TraceContextStore } from '../tracing/trace-context.store';
+import { RequestLogState } from '@infrastructure/logging/tracing/request-log-state';
+import { type TraceContextStore } from '@infrastructure/logging/tracing/trace-context.store';
 
 export function bindRequestTrace(traces: TraceContextStore): RequestHandler {
   return (_request, response, next) => {

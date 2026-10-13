@@ -1,6 +1,6 @@
 import { type RequestHandler } from 'express';
-import { RequestLogState } from '../tracing/request-log-state';
-import { startServerSpan } from '../tracing/start-server-span';
+import { RequestLogState } from '@infrastructure/logging/tracing/request-log-state';
+import { startServerSpan } from '@infrastructure/logging/tracing/start-server-span';
 
 export const TRACE_ID_HEADER = 'X-Trace-Id';
 const TRACEPARENT_HEADER = 'traceparent';

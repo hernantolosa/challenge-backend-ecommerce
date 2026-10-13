@@ -1,4 +1,4 @@
-import { type LogLevel } from '../enums/log-level';
+import { type LogLevel } from '@infrastructure/logging/enums/log-level';
 
 export interface LoggerOptions {
   readonly level: LogLevel;

@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { LogLevel } from '../enums/log-level';
+import { LogLevel } from '@infrastructure/logging/enums/log-level';
 
 const SECURITY_STATUSES: ReadonlySet<number> = new Set([
   HttpStatus.UNAUTHORIZED,

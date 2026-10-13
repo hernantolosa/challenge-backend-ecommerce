@@ -1,5 +1,5 @@
 import { type Response } from 'express';
-import { type TraceContext } from '../interfaces/trace-context.interface';
+import { type TraceContext } from '@infrastructure/logging/interfaces/trace-context.interface';
 
 const NANOSECONDS_PER_MILLISECOND = 1_000_000;
 

@@ -1,4 +1,4 @@
-import { type IncomingTrace } from '../interfaces/incoming-trace.interface';
+import { type IncomingTrace } from '@infrastructure/logging/interfaces/incoming-trace.interface';
 
 const TRACEPARENT_PATTERN = /^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$/;
 const FORBIDDEN_VERSION = 'ff';

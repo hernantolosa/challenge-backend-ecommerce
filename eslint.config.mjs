@@ -41,6 +41,17 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/prefer-readonly': 'error',
       'no-console': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*'],
+              message: 'Use a path alias for imports outside the current folder.',
+            },
+          ],
+        },
+      ],
     },
   },
 );

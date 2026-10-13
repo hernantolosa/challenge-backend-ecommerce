@@ -1,8 +1,8 @@
 import { pino, type Logger } from 'pino';
 import { type Environment } from '@infrastructure/config/schemas/environment.schema';
-import { type LoggerOptions } from '../interfaces/logger-options.interface';
-import { type TraceContextStore } from '../tracing/trace-context.store';
-import { traceFieldsOf } from '../tracing/trace-fields';
+import { type LoggerOptions } from '@infrastructure/logging/interfaces/logger-options.interface';
+import { type TraceContextStore } from '@infrastructure/logging/tracing/trace-context.store';
+import { traceFieldsOf } from '@infrastructure/logging/tracing/trace-fields';
 import { AppLogger } from './app-logger';
 import { type LogDestination } from './log-destination';
 

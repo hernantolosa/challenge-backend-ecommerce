@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { type TraceContext } from '../interfaces/trace-context.interface';
+import { type TraceContext } from '@infrastructure/logging/interfaces/trace-context.interface';
 
 export class TraceContextStore {
   private readonly storage = new AsyncLocalStorage<TraceContext>();

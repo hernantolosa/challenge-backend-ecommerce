@@ -1,6 +1,6 @@
 import { type Logger } from 'pino';
-import { type LogLevel } from '../enums/log-level';
-import { type LogFields } from '../types/log-fields.type';
+import { type LogLevel } from '@infrastructure/logging/enums/log-level';
+import { type LogFields } from '@infrastructure/logging/types/log-fields.type';
 
 export class AppLogger {
   constructor(private readonly logger: Logger) {}

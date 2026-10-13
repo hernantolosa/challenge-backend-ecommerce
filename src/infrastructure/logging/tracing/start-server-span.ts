@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { type TraceContext } from '../interfaces/trace-context.interface';
+import { type TraceContext } from '@infrastructure/logging/interfaces/trace-context.interface';
 import { parseTraceparent } from './traceparent';
 
 const TRACE_ID_BYTES = 16;

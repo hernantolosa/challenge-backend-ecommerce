@@ -1,9 +1,12 @@
 import { type Request, type RequestHandler, type Response } from 'express';
 import { type AuthenticatedRequest } from '@infrastructure/auth/interfaces/authenticated-request.interface';
-import { type AppLogger } from '../logger/app-logger';
-import { accessLogLevelFor, shouldLogAccessTo } from '../policies/access-log.policy';
-import { RequestLogState } from '../tracing/request-log-state';
-import { traceFieldsOf } from '../tracing/trace-fields';
+import { type AppLogger } from '@infrastructure/logging/logger/app-logger';
+import {
+  accessLogLevelFor,
+  shouldLogAccessTo,
+} from '@infrastructure/logging/policies/access-log.policy';
+import { RequestLogState } from '@infrastructure/logging/tracing/request-log-state';
+import { traceFieldsOf } from '@infrastructure/logging/tracing/trace-fields';
 
 const SUCCESS_OUTCOME = 'Ok';
 

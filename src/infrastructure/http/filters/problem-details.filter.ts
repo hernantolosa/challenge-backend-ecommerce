@@ -3,8 +3,11 @@ import { type Response } from 'express';
 import { type AppLogger } from '@infrastructure/logging/logger/app-logger';
 import { RequestLogState } from '@infrastructure/logging/tracing/request-log-state';
 import { traceFieldsOf } from '@infrastructure/logging/tracing/trace-fields';
-import { internalErrorProblem, toProblemDetails } from '../converters/to-problem-details.converter';
-import { type ProblemDetails } from '../interfaces/problem-details.interface';
+import {
+  internalErrorProblem,
+  toProblemDetails,
+} from '@infrastructure/http/converters/to-problem-details.converter';
+import { type ProblemDetails } from '@infrastructure/http/interfaces/problem-details.interface';
 
 const PROBLEM_CONTENT_TYPE = 'application/problem+json';
 

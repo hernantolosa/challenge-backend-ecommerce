@@ -1,5 +1,5 @@
-import { type TraceContext } from '../interfaces/trace-context.interface';
-import { type LogFields } from '../types/log-fields.type';
+import { type TraceContext } from '@infrastructure/logging/interfaces/trace-context.interface';
+import { type LogFields } from '@infrastructure/logging/types/log-fields.type';
 
 export function traceFieldsOf(trace: TraceContext | undefined): LogFields {
   if (trace === undefined) return {};
