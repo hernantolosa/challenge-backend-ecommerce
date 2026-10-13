@@ -22,5 +22,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*", "test/**/*", "jest.config.ts"]
+  "include": ["src/**/*", "test/**/*", "scripts/**/*", "jest.config.ts"]
 }

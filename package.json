@@ -10,7 +10,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "build": "nest build",
-    "lint": "eslint \"{src,test}/**/*.ts\" jest.config.ts",
+    "lint": "eslint \"{src,test,scripts}/**/*.ts\" jest.config.ts",
     "typecheck": "tsc --noEmit",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
@@ -18,7 +18,9 @@
     "migration:check": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts --check src/database/migrations/PendingChanges",
     "test": "jest --selectProjects unit",
     "test:integration": "jest --selectProjects integration --runInBand",
-    "test:all": "jest --runInBand"
+    "test:all": "jest --runInBand",
+    "seed": "ts-node scripts/seed-catalog.ts",
+    "token": "ts-node scripts/issue-dev-token.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.0",
