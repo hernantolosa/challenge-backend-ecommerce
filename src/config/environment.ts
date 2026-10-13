@@ -1,29 +1,5 @@
-import { plainToInstance, type ClassConstructor } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsString, Max, Min, MinLength, validateSync } from 'class-validator';
-import * as dotenv from 'dotenv';
-
-export class DatabaseEnvironment {
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_HOST!: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(65535)
-  readonly DB_PORT: number = 5432;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_USERNAME!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_PASSWORD!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_DATABASE!: string;
-}
+import { IsInt, IsNotEmpty, IsString, Max, Min, MinLength } from 'class-validator';
+import { DatabaseEnvironment } from './database-environment';
 
 export class Environment extends DatabaseEnvironment {
   @IsInt()
@@ -50,24 +26,4 @@ export class Environment extends DatabaseEnvironment {
   @IsInt()
   @Min(1000)
   readonly THROTTLE_TTL_MS: number = 60_000;
-}
-
-export function loadEnvironment(): Environment {
-  return load(Environment);
-}
-
-export function loadDatabaseEnvironment(): DatabaseEnvironment {
-  return load(DatabaseEnvironment);
-}
-
-function load<T extends object>(schema: ClassConstructor<T>): T {
-  dotenv.config({ quiet: true });
-  const environment = plainToInstance(schema, process.env, { enableImplicitConversion: true });
-  const invalidKeys = validateSync(environment).map((error) => error.property);
-
-  if (invalidKeys.length > 0) {
-    throw new Error(`Invalid environment variables: ${invalidKeys.join(', ')}`);
-  }
-
-  return environment;
 }

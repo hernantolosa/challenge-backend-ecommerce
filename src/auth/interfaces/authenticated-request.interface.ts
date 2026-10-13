@@ -1,9 +1,5 @@
 import { type Request } from 'express';
-
-export interface Principal {
-  readonly subject: string;
-  readonly scopes: ReadonlySet<string>;
-}
+import { type Principal } from './principal.interface';
 
 export interface AuthenticatedRequest extends Request {
   principal?: Principal;

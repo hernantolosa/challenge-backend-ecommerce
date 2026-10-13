@@ -1,5 +1,7 @@
-import { InvariantViolated } from '../../utils/invariant-violated';
-import { Err, Ok, type Result } from '../../utils/result';
+import { InvariantViolated } from '../../../utils/errors/invariant-violated.error';
+import { Err } from '../../../utils/result/err';
+import { Ok } from '../../../utils/result/ok';
+import { type Result } from '../../../utils/result/result';
 
 export const SKU_MAX_LENGTH = 64;
 const SKU_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/;

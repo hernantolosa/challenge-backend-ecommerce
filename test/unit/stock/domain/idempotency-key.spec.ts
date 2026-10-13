@@ -1,4 +1,4 @@
-import { IdempotencyKey } from '../../../../src/stock/domain/idempotency-key';
+import { IdempotencyKey } from '../../../../src/stock/domain/value-objects/idempotency-key';
 import { IDEMPOTENCY_KEY } from '../../../fixtures/stock.fixtures';
 
 describe('IdempotencyKey', () => {

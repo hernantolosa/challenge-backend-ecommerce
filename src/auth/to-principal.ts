@@ -1,12 +1,7 @@
-import { type Principal } from './principal';
+import { type Principal } from './interfaces/principal.interface';
+import { type RequiredClaims } from './interfaces/required-claims.interface';
 
 const SUBJECT_MAX_LENGTH = 255;
-
-interface RequiredClaims {
-  readonly sub: string;
-  readonly scope: string;
-  readonly exp: number;
-}
 
 export function toPrincipal(payload: unknown): Principal | null {
   if (!hasRequiredClaims(payload)) return null;

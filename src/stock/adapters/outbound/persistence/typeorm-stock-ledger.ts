@@ -1,32 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { isUniqueViolation } from '../../../../database/postgres-errors';
-import { Err, Ok, type Result } from '../../../../utils/result';
-import {
-  IdempotencyKeyTaken,
-  StockLedger,
-  type LedgerEntry,
-  type RecordEntryError,
-} from '../../../application/ports/stock-ledger.port';
-import { type IdempotencyKey } from '../../../domain/idempotency-key';
-import { type Sku } from '../../../domain/sku';
-import { type StockLevel } from '../../../domain/stock-level';
-import { type StockMovement } from '../../../domain/stock-movement';
-import { InsufficientStock, VariantNotFound } from '../../../domain/stock.errors';
+import { Err } from '../../../../utils/result/err';
+import { Ok } from '../../../../utils/result/ok';
+import { type Result } from '../../../../utils/result/result';
+import { IdempotencyKeyTaken } from '../../../application/errors/idempotency-key-taken.error';
+import { type RecordEntryError } from '../../../application/errors/record-entry.error';
+import { type LedgerEntry } from '../../../application/ports/ledger-entry.interface';
+import { type StockLedger } from '../../../application/ports/stock-ledger.port';
+import { type StockLevelReader } from '../../../application/ports/stock-level-reader.port';
+import { InsufficientStock } from '../../../domain/errors/insufficient-stock.error';
+import { VariantNotFound } from '../../../domain/errors/variant-not-found.error';
+import { type StockLevel } from '../../../domain/interfaces/stock-level.interface';
+import { type StockMovement } from '../../../domain/interfaces/stock-movement.interface';
+import { type IdempotencyKey } from '../../../domain/value-objects/idempotency-key';
+import { type Sku } from '../../../domain/value-objects/sku';
+import { type AppliedAdjustmentRow } from './applied-adjustment.row';
 import { APPLY_ADJUSTMENT_SQL, FIND_LEVEL_SQL, FIND_MOVEMENT_SQL } from './stock-ledger.sql';
+import { toStockMovement } from './stock-movement.mapper';
 import { IDEMPOTENCY_CONSTRAINT } from './stock-movement.orm-entity';
 
-interface AppliedAdjustmentRow {
-  readonly id: string;
-  readonly balanceAfter: number;
-  readonly occurredAt: Date;
-}
-
 @Injectable()
-export class TypeOrmStockLedger extends StockLedger {
-  constructor(private readonly dataSource: DataSource) {
-    super();
-  }
+export class TypeOrmStockLedger implements StockLedger, StockLevelReader {
+  constructor(private readonly dataSource: DataSource) {}
 
   async record(entry: LedgerEntry): Promise<Result<StockMovement, RecordEntryError>> {
     try {
@@ -74,17 +70,4 @@ export class TypeOrmStockLedger extends StockLedger {
 
     return InsufficientStock.make(sku.value, quantity.value, level.onHand);
   }
-}
-
-function toStockMovement(entry: LedgerEntry, applied: AppliedAdjustmentRow): StockMovement {
-  return {
-    id: applied.id,
-    sku: entry.adjustment.sku.value,
-    quantity: entry.adjustment.quantity.value,
-    reason: entry.adjustment.reason,
-    balanceAfter: applied.balanceAfter,
-    actor: entry.actor,
-    idempotencyKey: entry.idempotencyKey.value,
-    occurredAt: applied.occurredAt,
-  };
 }

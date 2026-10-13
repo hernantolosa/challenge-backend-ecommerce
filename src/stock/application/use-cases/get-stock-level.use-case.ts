@@ -1,20 +1,21 @@
-import { Sku } from '../../domain/sku';
-import { VariantNotFound } from '../../domain/stock.errors';
-import { type InvariantViolated } from '../../../utils/invariant-violated';
-import { Err, Ok, type Result } from '../../../utils/result';
-import { toStockLevelView, type StockLevelView } from '../dto/stock-level.view';
-import { type StockLedger } from '../ports/stock-ledger.port';
-
-export type GetStockLevelError = InvariantViolated | VariantNotFound;
+import { VariantNotFound } from '../../domain/errors/variant-not-found.error';
+import { Sku } from '../../domain/value-objects/sku';
+import { Err } from '../../../utils/result/err';
+import { Ok } from '../../../utils/result/ok';
+import { type Result } from '../../../utils/result/result';
+import { type StockLevelView } from '../dto/stock-level.view';
+import { type GetStockLevelError } from '../errors/get-stock-level.error';
+import { toStockLevelView } from '../mappers/stock-level-view.mapper';
+import { type StockLevelReader } from '../ports/stock-level-reader.port';
 
 export class GetStockLevel {
-  constructor(private readonly ledger: StockLedger) {}
+  constructor(private readonly levels: StockLevelReader) {}
 
   async execute(rawSku: string): Promise<Result<StockLevelView, GetStockLevelError>> {
     const sku = Sku.make(rawSku);
     if (!sku.ok) return sku;
 
-    const level = await this.ledger.findLevel(sku.value);
+    const level = await this.levels.findLevel(sku.value);
     if (level === null) return Err.make(VariantNotFound.make(sku.value.value));
 
     return Ok.make(toStockLevelView(level));

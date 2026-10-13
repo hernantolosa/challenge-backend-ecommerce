@@ -1,6 +1,6 @@
 import { type DataSource } from 'typeorm';
 import { TypeOrmStockLedger } from '../../../src/stock/adapters/outbound/persistence/typeorm-stock-ledger';
-import { Sku } from '../../../src/stock/domain/sku';
+import { Sku } from '../../../src/stock/domain/value-objects/sku';
 import { MovementReason } from '../../../src/stock/domain/movement-reason';
 import {
   movementCountOf,

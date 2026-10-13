@@ -1,6 +1,6 @@
 import { IsIn, IsInt, IsString, MaxLength } from 'class-validator';
 import { MOVEMENT_REASONS, type MovementReason } from '../../../../domain/movement-reason';
-import { SKU_MAX_LENGTH } from '../../../../domain/sku';
+import { SKU_MAX_LENGTH } from '../../../../domain/value-objects/sku';
 
 export class RecordStockMovementRequest {
   @IsString()

@@ -1,4 +1,7 @@
-import { MAX_MOVEMENT_QUANTITY, Quantity } from '../../../../src/stock/domain/quantity';
+import {
+  MAX_MOVEMENT_QUANTITY,
+  Quantity,
+} from '../../../../src/stock/domain/value-objects/quantity';
 
 describe('Quantity', () => {
   it.each([1, 7, MAX_MOVEMENT_QUANTITY])('accepts %p units', (raw) => {

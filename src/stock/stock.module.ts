@@ -3,6 +3,7 @@ import { AuthModule } from '../auth/auth.module';
 import { StockController } from './adapters/inbound/http/stock.controller';
 import { TypeOrmStockLedger } from './adapters/outbound/persistence/typeorm-stock-ledger';
 import { StockLedger } from './application/ports/stock-ledger.port';
+import { StockLevelReader } from './application/ports/stock-level-reader.port';
 import { GetStockLevel } from './application/use-cases/get-stock-level.use-case';
 import { RecordStockMovement } from './application/use-cases/record-stock-movement.use-case';
 
@@ -10,7 +11,9 @@ import { RecordStockMovement } from './application/use-cases/record-stock-moveme
   imports: [AuthModule],
   controllers: [StockController],
   providers: [
-    { provide: StockLedger, useClass: TypeOrmStockLedger },
+    TypeOrmStockLedger,
+    { provide: StockLedger, useExisting: TypeOrmStockLedger },
+    { provide: StockLevelReader, useExisting: TypeOrmStockLedger },
     {
       provide: RecordStockMovement,
       inject: [StockLedger],
@@ -18,8 +21,8 @@ import { RecordStockMovement } from './application/use-cases/record-stock-moveme
     },
     {
       provide: GetStockLevel,
-      inject: [StockLedger],
-      useFactory: (ledger: StockLedger): GetStockLevel => new GetStockLevel(ledger),
+      inject: [StockLevelReader],
+      useFactory: (levels: StockLevelReader): GetStockLevel => new GetStockLevel(levels),
     },
   ],
 })

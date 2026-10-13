@@ -1,5 +1,7 @@
-import { InvariantViolated } from '../../utils/invariant-violated';
-import { Err, Ok, type Result } from '../../utils/result';
+import { InvariantViolated } from '../../../utils/errors/invariant-violated.error';
+import { Err } from '../../../utils/result/err';
+import { Ok } from '../../../utils/result/ok';
+import { type Result } from '../../../utils/result/result';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 

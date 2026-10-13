@@ -1,3 +1,5 @@
+import { exhaustiveMatchGuard } from '../../utils/exhaustive-match-guard';
+
 export const MovementReason = {
   SALE: 'SALE',
   RETURN: 'RETURN',
@@ -21,5 +23,7 @@ export function directionOf(reason: MovementReason): StockDirection {
     case MovementReason.SALE:
     case MovementReason.ADJUSTMENT_DECREASE:
       return -1;
+    default:
+      return exhaustiveMatchGuard(reason);
   }
 }

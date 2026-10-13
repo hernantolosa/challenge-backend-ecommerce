@@ -14,26 +14,19 @@ import {
 } from '@nestjs/common';
 import { type Response } from 'express';
 import { CurrentPrincipal } from '../../../../auth/current-principal.decorator';
-import { type Principal } from '../../../../auth/principal';
+import { type Principal } from '../../../../auth/interfaces/principal.interface';
 import { RequireScope } from '../../../../auth/require-scope.decorator';
 import { Scope } from '../../../../auth/scope';
-import { assertNever } from '../../../../utils/assert-never';
-import {
-  GetStockLevel,
-  type GetStockLevelError,
-} from '../../../application/use-cases/get-stock-level.use-case';
-import {
-  RecordStockMovement,
-  type RecordStockMovementError,
-} from '../../../application/use-cases/record-stock-movement.use-case';
+import { exhaustiveMatchGuard } from '../../../../utils/exhaustive-match-guard';
+import { GetStockLevel } from '../../../application/use-cases/get-stock-level.use-case';
+import { RecordStockMovement } from '../../../application/use-cases/record-stock-movement.use-case';
 import { RecordStockMovementRequest } from './dto/record-stock-movement.request';
 import { StockLevelResponse } from './dto/stock-level.response';
 import { StockMovementResponse } from './dto/stock-movement.response';
 import { IdempotencyKeyHeader } from './idempotency-key.decorator';
+import { type StockHttpError } from './stock-http.error';
 
 const IDEMPOTENT_REPLAYED_HEADER = 'Idempotent-Replayed';
-
-type StockError = RecordStockMovementError | GetStockLevelError;
 
 @Controller('stock')
 export class StockController {
@@ -70,7 +63,7 @@ export class StockController {
     return StockLevelResponse.from(result.value);
   }
 
-  private toHttpException(error: StockError): HttpException {
+  private toHttpException(error: StockHttpError): HttpException {
     switch (error.kind) {
       case 'InvariantViolated':
         return new BadRequestException({
@@ -96,7 +89,7 @@ export class StockController {
           message: 'Idempotency-Key was already used for a different request',
         });
       default:
-        return assertNever(error);
+        return exhaustiveMatchGuard(error);
     }
   }
 }

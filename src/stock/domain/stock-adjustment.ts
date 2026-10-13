@@ -1,15 +1,11 @@
-import { type InvariantViolated } from '../../utils/invariant-violated';
-import { Ok, type Result } from '../../utils/result';
+import { type InvariantViolated } from '../../utils/errors/invariant-violated.error';
+import { Ok } from '../../utils/result/ok';
+import { type Result } from '../../utils/result/result';
+import { type StockAdjustmentInput } from './interfaces/stock-adjustment-input.interface';
+import { type StockMovement } from './interfaces/stock-movement.interface';
 import { directionOf, type MovementReason } from './movement-reason';
-import { Quantity } from './quantity';
-import { Sku } from './sku';
-import { type StockMovement } from './stock-movement';
-
-export interface StockAdjustmentInput {
-  readonly sku: string;
-  readonly quantity: number;
-  readonly reason: MovementReason;
-}
+import { Quantity } from './value-objects/quantity';
+import { Sku } from './value-objects/sku';
 
 export class StockAdjustment {
   private constructor(

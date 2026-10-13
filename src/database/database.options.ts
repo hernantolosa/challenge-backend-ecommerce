@@ -1,5 +1,5 @@
 import { type PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { type DatabaseEnvironment } from '../config/environment';
+import { type DatabaseEnvironment } from '../config/database-environment';
 import { ENTITIES } from './entities';
 import { MIGRATIONS } from './migrations';
 
