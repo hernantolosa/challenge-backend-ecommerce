@@ -1,3 +1,4 @@
+import { QueryFailedError } from 'typeorm';
 import { ForbiddenException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { HttpOutcome } from '@infrastructure/http/builders/http-outcome.builder';
 import {
@@ -58,6 +59,33 @@ describe('toProblemDetails', () => {
     ['a thrown string', 'boom'],
   ])('returns nothing for %s so it is reported as an internal error', (_case, exception) => {
     expect(toProblemDetails(exception)).toBeNull();
+  });
+});
+
+describe('toProblemDetails for database unavailability', () => {
+  function queryFailure(code: string): QueryFailedError {
+    return new QueryFailedError(
+      'UPDATE stock_levels',
+      [],
+      Object.assign(new Error('db'), { code }),
+    );
+  }
+
+  it.each([
+    ['a lock timeout', queryFailure('55P03')],
+    ['a statement timeout', queryFailure('57014')],
+    ['a pool acquire timeout', new Error('timeout exceeded when trying to connect')],
+    ['a connection timeout', new Error('Connection terminated due to connection timeout')],
+  ])('answers 503 for %s', (_case, exception) => {
+    expect(toProblemDetails(exception)).toMatchObject({
+      status: 503,
+      code: 'ServiceUnavailable',
+      detail: 'The service is busy, retry later',
+    });
+  });
+
+  it('keeps other database failures as internal errors', () => {
+    expect(toProblemDetails(queryFailure('23502'))).toBeNull();
   });
 });
 

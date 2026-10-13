@@ -21,4 +21,21 @@ export class DatabaseEnvironment {
   @IsString()
   @IsNotEmpty()
   readonly DB_DATABASE!: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  readonly DB_POOL_MAX: number = 10;
+
+  @IsInt()
+  @Min(100)
+  readonly DB_CONNECTION_TIMEOUT_MS: number = 2_000;
+
+  @IsInt()
+  @Min(100)
+  readonly DB_STATEMENT_TIMEOUT_MS: number = 5_000;
+
+  @IsInt()
+  @Min(100)
+  readonly DB_LOCK_TIMEOUT_MS: number = 2_000;
 }

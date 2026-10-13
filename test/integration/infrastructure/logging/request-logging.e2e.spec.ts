@@ -176,7 +176,7 @@ describe('Unexpected failures', () => {
 
     const failure = await waitForLog(
       testApp.logs,
-      (entry) => entry.message === 'Unhandled exception',
+      (entry) => entry.message === 'Request failed with a server error',
     );
     expect(failure).toMatchObject({
       level: 'error',

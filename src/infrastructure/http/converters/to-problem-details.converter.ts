@@ -3,6 +3,7 @@ import { type ClientHttpError } from '@infrastructure/http/interfaces/client-htt
 import { problemDetails, titleOf } from '@infrastructure/http/builders/problem-details.builder';
 import { type ProblemDetails } from '@infrastructure/http/interfaces/problem-details.interface';
 import { ProblemException } from '@infrastructure/http/exceptions/problem.exception';
+import { isDatabaseUnavailable } from '@infrastructure/database/errors/postgres-errors';
 
 const VALIDATION_FAILED = 'Request validation failed';
 const BAD_REQUEST: number = HttpStatus.BAD_REQUEST;
@@ -11,8 +12,14 @@ export function toProblemDetails(exception: unknown): ProblemDetails | null {
   if (exception instanceof ProblemException) return exception.problem;
   if (exception instanceof HttpException) return problemFromHttpException(exception);
   if (isClientHttpError(exception)) return problemFromStatus(exception.status, exception.message);
+  if (isDatabaseUnavailable(exception)) return serviceUnavailableProblem();
 
   return null;
+}
+
+export function serviceUnavailableProblem(): ProblemDetails {
+  const status = HttpStatus.SERVICE_UNAVAILABLE;
+  return problemDetails(status, problemCodeFor(status), 'The service is busy, retry later');
 }
 
 export function internalErrorProblem(): ProblemDetails {

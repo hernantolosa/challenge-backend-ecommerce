@@ -3,6 +3,8 @@ import { type DatabaseEnvironment } from '@infrastructure/config/schemas/databas
 import { ENTITIES } from '@infrastructure/database/entities';
 import { MIGRATIONS } from '@infrastructure/database/migrations';
 
+const APPLICATION_NAME = 'ecommerce-api';
+
 export function databaseOptions(environment: DatabaseEnvironment): PostgresConnectionOptions {
   return {
     type: 'postgres',
@@ -17,5 +19,12 @@ export function databaseOptions(environment: DatabaseEnvironment): PostgresConne
     migrationsRun: false,
     uuidExtension: 'pgcrypto',
     installExtensions: false,
+    extra: {
+      max: environment.DB_POOL_MAX,
+      connectionTimeoutMillis: environment.DB_CONNECTION_TIMEOUT_MS,
+      statement_timeout: environment.DB_STATEMENT_TIMEOUT_MS,
+      lock_timeout: environment.DB_LOCK_TIMEOUT_MS,
+      application_name: APPLICATION_NAME,
+    },
   };
 }
