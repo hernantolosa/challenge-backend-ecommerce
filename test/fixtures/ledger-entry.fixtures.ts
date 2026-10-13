@@ -1,11 +1,18 @@
 import { unwrap } from '@test/support/unwrap';
 import { randomUUID } from 'node:crypto';
-import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
-import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
-import { MovementReason } from '@stock/domain/enums/movement-reason';
-import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment';
-import { type LedgerEntrySeed } from '@test/fixtures/interfaces/ledger-entry-seed.interface';
+import { type LedgerEntry } from '@stock/application/stock-ledger.port';
+import { IdempotencyKey } from '@stock/domain/idempotency-key';
+import { MovementReason } from '@stock/domain/movement-reason';
+import { StockAdjustment } from '@stock/domain/stock-adjustment';
 import { ACTOR, SNEAKER_SKU } from './stock.fixtures';
+
+export interface LedgerEntrySeed {
+  readonly sku?: string;
+  readonly quantity?: number;
+  readonly reason?: MovementReason;
+  readonly actor?: string;
+  readonly idempotencyKey?: string;
+}
 
 export function aLedgerEntry(seed: LedgerEntrySeed = {}): LedgerEntry {
   const adjustment = StockAdjustment.make({

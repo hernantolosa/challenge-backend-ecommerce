@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { loadDatabaseEnvironment } from '@infrastructure/config/loaders/load-environment';
-import { databaseOptions } from '@infrastructure/database/options/database.options';
+import { loadDatabaseEnvironment } from '@config/environment';
+import { databaseOptions } from '@shared/database/database.options';
 
 const TABLES = ['stock_movements', 'stock_levels', 'variants', 'products', 'categories'];
 

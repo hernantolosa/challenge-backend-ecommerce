@@ -1,12 +1,23 @@
 import { DataSource, type EntityManager } from 'typeorm';
-import { CategoryOrmEntity } from '@catalog/adapters/outbound/persistence/entities/category.orm-entity';
-import { ProductOrmEntity } from '@catalog/adapters/outbound/persistence/entities/product.orm-entity';
-import { VariantOrmEntity } from '@catalog/adapters/outbound/persistence/entities/variant.orm-entity';
-import { loadDatabaseEnvironment } from '@infrastructure/config/loaders/load-environment';
-import { databaseOptions } from '@infrastructure/database/options/database.options';
-import { type CatalogProductSeed } from '@scripts/interfaces/catalog-product-seed.interface';
-import { type CatalogVariantSeed } from '@scripts/interfaces/catalog-variant-seed.interface';
-import { StockLevelOrmEntity } from '@stock/adapters/outbound/persistence/entities/stock-level.orm-entity';
+import { CategoryOrmEntity, ProductOrmEntity, VariantOrmEntity } from '@catalog/catalog.entities';
+import { loadDatabaseEnvironment } from '@config/environment';
+import { databaseOptions } from '@shared/database/database.options';
+import { StockLevelOrmEntity } from '@stock/infrastructure/stock.entities';
+
+export interface CatalogVariantSeed {
+  readonly sku: string;
+  readonly size: string;
+  readonly color: string;
+  readonly onHand: number;
+}
+
+export interface CatalogProductSeed {
+  readonly category: string;
+  readonly name: string;
+  readonly description: string;
+  readonly priceCents: number;
+  readonly variants: readonly CatalogVariantSeed[];
+}
 
 const CATALOG: readonly CatalogProductSeed[] = [
   {

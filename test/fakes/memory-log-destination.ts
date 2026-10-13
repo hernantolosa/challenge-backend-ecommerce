@@ -1,6 +1,8 @@
-import { LogDestination } from '@infrastructure/logging/logger/log-destination';
-import { type LogEntry } from '@test/support/types/log-entry.type';
-import { type LogListener } from '@test/support/types/log-listener.type';
+import { LogDestination } from '@shared/logging/log-destination';
+
+export type LogEntry = Readonly<Record<string, unknown>>;
+
+export type LogListener = (entry: LogEntry) => void;
 
 export class MemoryLogDestination extends LogDestination {
   private readonly lines: string[] = [];

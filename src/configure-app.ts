@@ -1,13 +1,14 @@
 import { ValidationPipe } from '@nestjs/common';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
-import { ProblemDetailsFilter } from '@infrastructure/http/filters/problem-details.filter';
-import { AppLogger } from '@infrastructure/logging/logger/app-logger';
-import { NestLoggerAdapter } from '@infrastructure/logging/logger/nest-logger.adapter';
-import { bindRequestTrace } from '@infrastructure/logging/middlewares/bind-request-trace.middleware';
-import { logRequestOnFinish } from '@infrastructure/logging/middlewares/log-request-on-finish.middleware';
-import { startRequestTrace } from '@infrastructure/logging/middlewares/start-request-trace.middleware';
-import { TraceContextStore } from '@infrastructure/logging/tracing/trace-context.store';
+import { ProblemDetailsFilter } from '@shared/http/problem-details.filter';
+import { AppLogger, NestLoggerAdapter } from '@shared/logging/app-logger';
+import {
+  bindRequestTrace,
+  logRequestOnFinish,
+  startRequestTrace,
+} from '@shared/logging/request-logging.middleware';
+import { TraceContextStore } from '@shared/logging/request-tracing';
 
 const MAX_JSON_BODY = '10kb';
 

@@ -1,5 +1,4 @@
-import { type MemoryLogDestination } from '@test/fakes/memory-log-destination';
-import { type LogEntry } from '@test/support/types/log-entry.type';
+import { type MemoryLogDestination, type LogEntry } from '@test/fakes/memory-log-destination';
 
 const TIMEOUT_MS = 2_000;
 

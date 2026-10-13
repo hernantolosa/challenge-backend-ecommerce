@@ -1,10 +1,9 @@
-import { type StockMovementRow } from '@stock/adapters/outbound/persistence/rows/stock-movement.row';
-import { Sku } from '@stock/domain/value-objects/sku';
+import { Sku } from '@stock/domain/sku';
 import { unwrap } from '@test/support/unwrap';
-import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
-import { MovementReason } from '@stock/domain/enums/movement-reason';
-import { type StockAdjustmentInput } from '@stock/domain/interfaces/stock-adjustment-input.interface';
-import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { type RecordStockMovementInput } from '@stock/application/record-stock-movement.use-case';
+import { MovementReason } from '@stock/domain/movement-reason';
+import { type StockAdjustmentInput } from '@stock/domain/stock-adjustment';
+import { type StockMovement } from '@stock/domain/stock-movement';
 
 export const SNEAKER_SKU = 'SNK-RUN-42-BLK';
 export const UNKNOWN_SKU = 'DOES-NOT-EXIST';
@@ -20,8 +19,8 @@ export function anAdjustmentInput(
 }
 
 export function aRecordCommand(
-  overrides: Partial<RecordStockMovementInputDto> = {},
-): RecordStockMovementInputDto {
+  overrides: Partial<RecordStockMovementInput> = {},
+): RecordStockMovementInput {
   return {
     sku: SNEAKER_SKU,
     quantity: 2,
@@ -48,8 +47,4 @@ export function aStockMovement(overrides: Partial<StockMovement> = {}): StockMov
 
 export function aSku(raw: string = SNEAKER_SKU): Sku {
   return unwrap(Sku.make(raw));
-}
-
-export function aStockMovementRow(overrides: Partial<StockMovementRow> = {}): StockMovementRow {
-  return { ...aStockMovement(), ...overrides };
 }

@@ -1,7 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { type HealthResponseDto } from '@src/responses/health-response.dto';
-import { Public } from '@infrastructure/auth/decorators/public.decorator';
+import { Public } from '@shared/auth/auth.decorators';
+
+export interface HealthResponseDto {
+  readonly status: string;
+}
 
 @Controller()
 @Public()

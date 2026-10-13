@@ -11,14 +11,12 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@catalog/*": ["src/catalog/*"],
+      "@config/*": ["src/config/*"],
+      "@shared/*": ["src/shared/*"],
       "@stock/*": ["src/stock/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
-      "@utils/*": ["src/utils/*"],
-      "@shared-kernel/*": ["src/shared-kernel/*"],
+      "@catalog/*": ["src/catalog/*"],
       "@src/*": ["src/*"],
-      "@test/*": ["test/*"],
-      "@scripts/*": ["scripts/*"]
+      "@test/*": ["test/*"]
     },
     "strict": true,
     "noImplicitReturns": true,

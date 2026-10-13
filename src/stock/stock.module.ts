@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
-import { StockController } from '@stock/adapters/inbound/http/controllers/stock.controller';
-import { PostgresStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/postgres-stock-ledger.repository';
-import { StockLedger } from '@stock/application/ports/stock-ledger.port';
-import { StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
-import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
-import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
+import { GetStockLevel } from '@stock/application/get-stock-level.use-case';
+import { RecordStockMovement } from '@stock/application/record-stock-movement.use-case';
+import { StockLedger, StockLevelReader } from '@stock/application/stock-ledger.port';
+import { StockController } from '@stock/http/stock.controller';
+import { PostgresStockLedger } from '@stock/infrastructure/postgres-stock-ledger';
 
 @Module({
   controllers: [StockController],
   providers: [
-    PostgresStockLedgerRepository,
-    { provide: StockLedger, useExisting: PostgresStockLedgerRepository },
-    { provide: StockLevelReader, useExisting: PostgresStockLedgerRepository },
+    PostgresStockLedger,
+    { provide: StockLedger, useExisting: PostgresStockLedger },
+    { provide: StockLevelReader, useExisting: PostgresStockLedger },
     {
       provide: RecordStockMovement,
       inject: [StockLedger],
