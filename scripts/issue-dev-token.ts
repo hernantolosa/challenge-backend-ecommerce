@@ -8,7 +8,11 @@ const DEFAULT_SCOPES = [Scope.STOCK_READ, Scope.STOCK_WRITE];
 
 function main(): void {
   const [subject = DEFAULT_SUBJECT, ...scopes] = process.argv.slice(2);
-  const jwt = new JwtService(jwtOptions(loadEnvironment()));
+  const environment = loadEnvironment();
+  if (environment.NODE_ENV !== 'development') {
+    throw new Error('Development tokens can only be issued with NODE_ENV=development');
+  }
+  const jwt = new JwtService(jwtOptions(environment));
   const scope = (scopes.length > 0 ? scopes : DEFAULT_SCOPES).join(' ');
 
   process.stdout.write(`${jwt.sign({ scope }, { subject })}\n`);

@@ -1,7 +1,7 @@
 import { type Principal } from '@infrastructure/auth/interfaces/principal.interface';
 import { type RequiredClaims } from '@infrastructure/auth/interfaces/required-claims.interface';
 
-const SUBJECT_MAX_LENGTH = 255;
+const PRINTABLE_SUBJECT = /^[^\p{Cc}]{1,255}$/u;
 
 export function principalFromClaims(payload: unknown): Principal | null {
   if (!hasRequiredClaims(payload)) return null;
@@ -21,10 +21,12 @@ function hasRequiredClaims(payload: unknown): payload is RequiredClaims {
     'scope' in payload &&
     typeof payload.scope === 'string' &&
     'exp' in payload &&
-    typeof payload.exp === 'number'
+    typeof payload.exp === 'number' &&
+    'iat' in payload &&
+    typeof payload.iat === 'number'
   );
 }
 
 function isValidSubject(subject: unknown): subject is string {
-  return typeof subject === 'string' && subject.length > 0 && subject.length <= SUBJECT_MAX_LENGTH;
+  return typeof subject === 'string' && PRINTABLE_SUBJECT.test(subject);
 }

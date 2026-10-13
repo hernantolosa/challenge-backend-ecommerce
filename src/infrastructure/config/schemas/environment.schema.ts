@@ -1,4 +1,5 @@
-import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min, MinLength } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { IsStrongSecret } from '@infrastructure/config/validators/is-strong-secret.validator';
 import { LOG_LEVELS, LogLevel } from '@infrastructure/logging/enums/log-level';
 import { DatabaseEnvironment } from './database-environment.schema';
 
@@ -16,8 +17,7 @@ export class Environment extends DatabaseEnvironment {
   @Max(65535)
   readonly PORT: number = 3000;
 
-  @IsString()
-  @MinLength(32)
+  @IsStrongSecret()
   readonly JWT_SECRET!: string;
 
   @IsString()
@@ -40,4 +40,9 @@ export class Environment extends DatabaseEnvironment {
   @Min(0)
   @Max(10)
   readonly TRUST_PROXY_HOPS: number = 0;
+
+  @IsInt()
+  @Min(60)
+  @Max(86_400)
+  readonly JWT_MAX_AGE_SECONDS: number = 3_600;
 }

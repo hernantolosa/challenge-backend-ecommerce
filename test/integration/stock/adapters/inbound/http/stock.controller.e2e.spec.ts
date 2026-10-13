@@ -8,7 +8,7 @@ import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalo
 import { IDEMPOTENCY_KEY, SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';
 import { startTestApp, type TestApp } from '@test/support/test-app';
 import { resetTestDatabase } from '@test/support/test-database';
-import { forgeUnsignedToken, issueToken, issueTokenWithoutExpiry } from '@test/support/tokens';
+import { forgeUnsignedToken, issueToken } from '@test/support/tokens';
 
 const MOVEMENTS_PATH = '/stock/movimientos';
 
@@ -234,13 +234,28 @@ describe('Stock HTTP API', () => {
         ['a token from another issuer', issueToken({ issuer: 'https://evil.example' })],
         ['a token for another audience', issueToken({ audience: 'another-api' })],
         ['an unsigned alg none token', forgeUnsignedToken()],
-        ['a token without expiration', issueTokenWithoutExpiry()],
+        ['a token without expiration', issueToken({ withoutExpiry: true })],
         ['a malformed token', 'not.a.jwt'],
+        ['a token without issued at', issueToken({ withoutIssuedAt: true })],
+        ['a token issued too long ago', issueToken({ issuedSecondsAgo: 7_200 })],
+        ['a subject with control characters', issueToken({ subject: 'operator\u0000-1' })],
+        ['an empty subject', issueToken({ subject: '' })],
       ])('returns 401 with %s', async (_case, token) => {
         const response = await postMovement(aMovementBody(), randomUUID(), token);
 
         expect(response.status).toBe(401);
         expect(await onHandOf(testApp.dataSource, variant.variantId)).toBe(10);
+      });
+
+      it('answers every authentication failure with the same message', async () => {
+        const responses = await Promise.all([
+          postMovement(aMovementBody(), randomUUID(), null),
+          postMovement(aMovementBody(), randomUUID(), issueToken({ secret: 'x'.repeat(48) })),
+          postMovement(aMovementBody(), randomUUID(), issueToken({ subject: '' })),
+        ]);
+
+        const details = responses.map((response) => (response.body as { detail: string }).detail);
+        expect(new Set(details)).toEqual(new Set(['Authentication required']));
       });
 
       it('returns 403 when the token lacks the stock:write scope', async () => {
@@ -392,6 +407,14 @@ describe('Stock HTTP API', () => {
   });
 
   describe('hardening', () => {
+    it('keeps the health check public even when a broken token is sent', async () => {
+      const response = await request(server)
+        .get('/health')
+        .set('Authorization', 'Bearer not.a.jwt');
+
+      expect(response.status).toBe(200);
+    });
+
     it('keeps the health check public', async () => {
       const response = await request(server).get('/health');
 

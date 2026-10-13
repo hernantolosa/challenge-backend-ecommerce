@@ -4,6 +4,7 @@ import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment';
 import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
 import { type InvariantViolated } from '@utils/errors/invariant-violated.error';
 import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { unreachable } from '@utils/unreachable';
 import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
@@ -64,7 +65,7 @@ export class RecordStockMovement {
     entry: LedgerEntry,
   ): Promise<Result<RecordedStockMovementDto, RecordStockMovementError>> {
     const winner = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
-    if (winner === null) throw new Error('Idempotency key was taken but its movement is missing');
+    if (winner === null) return unreachable('an idempotency key was taken without a movement');
 
     return replayPreviousMovement(winner, entry);
   }

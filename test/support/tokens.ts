@@ -1,15 +1,9 @@
 import { JwtService } from '@nestjs/jwt';
 import { Scope } from '@infrastructure/auth/enums/scope';
 import { ACTOR } from '@test/fixtures/stock.fixtures';
+import { type TokenSeed } from './interfaces/token-seed.interface';
 
-export interface TokenSeed {
-  readonly subject?: string;
-  readonly scopes?: readonly string[];
-  readonly secret?: string;
-  readonly issuer?: string;
-  readonly audience?: string;
-  readonly expiresInSeconds?: number;
-}
+const DEFAULT_LIFETIME_SECONDS = 300;
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
@@ -17,31 +11,30 @@ function requiredEnv(name: string): string {
   return value;
 }
 
-export function issueToken(seed: TokenSeed = {}): string {
-  return new JwtService().sign(
-    { scope: (seed.scopes ?? [Scope.STOCK_READ, Scope.STOCK_WRITE]).join(' ') },
-    {
-      secret: seed.secret ?? requiredEnv('JWT_SECRET'),
-      algorithm: 'HS256',
-      subject: seed.subject ?? ACTOR,
-      issuer: seed.issuer ?? requiredEnv('JWT_ISSUER'),
-      audience: seed.audience ?? requiredEnv('JWT_AUDIENCE'),
-      expiresIn: seed.expiresInSeconds ?? 300,
-    },
-  );
+function nowInSeconds(): number {
+  return Math.floor(Date.now() / 1000);
 }
 
-export function issueTokenWithoutExpiry(): string {
-  return new JwtService().sign(
-    { scope: Scope.STOCK_WRITE },
-    {
-      secret: requiredEnv('JWT_SECRET'),
-      algorithm: 'HS256',
-      subject: ACTOR,
-      issuer: requiredEnv('JWT_ISSUER'),
-      audience: requiredEnv('JWT_AUDIENCE'),
-    },
-  );
+function claimsOf(seed: TokenSeed): Record<string, unknown> {
+  const issuedAt = nowInSeconds() - (seed.issuedSecondsAgo ?? 0);
+  const expiresAt = nowInSeconds() + (seed.expiresInSeconds ?? DEFAULT_LIFETIME_SECONDS);
+
+  return {
+    scope: (seed.scopes ?? [Scope.STOCK_READ, Scope.STOCK_WRITE]).join(' '),
+    ...(seed.withoutIssuedAt === true ? {} : { iat: issuedAt }),
+    ...(seed.withoutExpiry === true ? {} : { exp: expiresAt }),
+  };
+}
+
+export function issueToken(seed: TokenSeed = {}): string {
+  return new JwtService().sign(claimsOf(seed), {
+    secret: seed.secret ?? requiredEnv('JWT_SECRET'),
+    algorithm: 'HS256',
+    subject: seed.subject ?? ACTOR,
+    issuer: seed.issuer ?? requiredEnv('JWT_ISSUER'),
+    audience: seed.audience ?? requiredEnv('JWT_AUDIENCE'),
+    noTimestamp: seed.withoutIssuedAt === true,
+  });
 }
 
 export function forgeUnsignedToken(): string {
@@ -53,7 +46,8 @@ export function forgeUnsignedToken(): string {
     scope: Scope.STOCK_WRITE,
     iss: requiredEnv('JWT_ISSUER'),
     aud: requiredEnv('JWT_AUDIENCE'),
-    exp: Math.floor(Date.now() / 1000) + 300,
+    iat: nowInSeconds(),
+    exp: nowInSeconds() + DEFAULT_LIFETIME_SECONDS,
   });
   return `${header}.${payload}.`;
 }

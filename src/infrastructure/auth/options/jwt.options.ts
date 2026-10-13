@@ -16,6 +16,7 @@ export function jwtOptions(environment: Environment): JwtModuleOptions {
       algorithms: [ALGORITHM],
       issuer: environment.JWT_ISSUER,
       audience: environment.JWT_AUDIENCE,
+      maxAge: environment.JWT_MAX_AGE_SECONDS,
     },
   };
 }

@@ -5,6 +5,7 @@ const shared: Config = {
   testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: { '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }] },
+  setupFiles: ['reflect-metadata'],
   moduleNameMapper: {
     '^@catalog/(.*)$': '<rootDir>/src/catalog/$1',
     '^@stock/(.*)$': '<rootDir>/src/stock/$1',
@@ -26,7 +27,7 @@ const config: Config = {
       ...shared,
       displayName: 'integration',
       testMatch: ['<rootDir>/test/integration/**/*.spec.ts'],
-      setupFiles: ['<rootDir>/test/support/test-environment.ts'],
+      setupFiles: ['reflect-metadata', '<rootDir>/test/support/test-environment.ts'],
     },
   ],
 };
