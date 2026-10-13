@@ -2,7 +2,7 @@ import { unwrap } from '@test/support/unwrap';
 import { type DataSource } from 'typeorm';
 import { TypeOrmStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
 import { Sku } from '@stock/domain/value-objects/sku';
-import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import {
   movementCountOf,

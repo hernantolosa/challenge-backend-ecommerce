@@ -1,3 +1,4 @@
+import { SKU_PATTERN } from '@shared-kernel/constants/sku.constants';
 import {
   Check,
   Column,
@@ -13,7 +14,7 @@ import { ProductOrmEntity } from './product.orm-entity';
 @Entity({ name: 'variants' })
 @Unique('UQ_variants_sku', ['sku'])
 @Unique('UQ_variants_product_size_color', ['productId', 'size', 'color'])
-@Check('CHK_variants_sku_format', `"sku" ~ '^[A-Z0-9]+(-[A-Z0-9]+)*$'`)
+@Check('CHK_variants_sku_format', `"sku" ~ '${SKU_PATTERN.source}'`)
 export class VariantOrmEntity {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_variants' })
   id!: string;

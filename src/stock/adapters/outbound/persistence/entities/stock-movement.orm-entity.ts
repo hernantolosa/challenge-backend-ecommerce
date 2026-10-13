@@ -10,9 +10,8 @@ import {
   Unique,
 } from 'typeorm';
 import { VariantOrmEntity } from '@catalog/adapters/outbound/persistence/entities/variant.orm-entity';
-import { type MovementReason } from '@stock/domain/enums/movement-reason';
-
-export const IDEMPOTENCY_CONSTRAINT = 'UQ_stock_movements_actor_idempotency_key';
+import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/outbound/persistence/constants/constraint-names';
+import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/enums/movement-reason';
 
 @Entity({ name: 'stock_movements' })
 @Unique(IDEMPOTENCY_CONSTRAINT, ['actor', 'idempotencyKey'])
@@ -21,7 +20,7 @@ export const IDEMPOTENCY_CONSTRAINT = 'UQ_stock_movements_actor_idempotency_key'
 @Check('CHK_stock_movements_balance_after_non_negative', '"balance_after" >= 0')
 @Check(
   'CHK_stock_movements_reason',
-  `"reason" IN ('SALE', 'RETURN', 'RESTOCK', 'ADJUSTMENT_INCREASE', 'ADJUSTMENT_DECREASE')`,
+  `"reason" IN (${MOVEMENT_REASONS.map((reason) => `'${reason}'`).join(', ')})`,
 )
 export class StockMovementOrmEntity {
   @PrimaryGeneratedColumn('uuid', { primaryKeyConstraintName: 'PK_stock_movements' })

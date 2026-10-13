@@ -9,7 +9,7 @@ import { type RecordEntryError } from '@stock/application/errors/record-entry.er
 import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
-import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { type InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
 import { type StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
 import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
@@ -24,7 +24,7 @@ import {
   FIND_MOVEMENT_SQL,
 } from '@stock/adapters/outbound/persistence/queries/stock-ledger.queries';
 import { toStockMovementFromAppliedRow } from '@stock/adapters/outbound/persistence/mappers/stock-movement.mapper';
-import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/outbound/persistence/entities/stock-movement.orm-entity';
+import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/outbound/persistence/constants/constraint-names';
 
 @Injectable()
 export class TypeOrmStockLedgerRepository implements StockLedger, StockLevelReader {

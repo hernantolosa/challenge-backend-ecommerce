@@ -1,5 +1,5 @@
 import { unwrap } from '@test/support/unwrap';
-import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason, MOVEMENT_REASONS } from '@stock/domain/enums/movement-reason';
 import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment';
 import { anAdjustmentInput, aStockMovement, SNEAKER_SKU } from '@test/fixtures/stock.fixtures';

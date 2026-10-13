@@ -15,6 +15,7 @@
       "@stock/*": ["src/stock/*"],
       "@infrastructure/*": ["src/infrastructure/*"],
       "@utils/*": ["src/utils/*"],
+      "@shared-kernel/*": ["src/shared-kernel/*"],
       "@src/*": ["src/*"],
       "@test/*": ["test/*"]
     },

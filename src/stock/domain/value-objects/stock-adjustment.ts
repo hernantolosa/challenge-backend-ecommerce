@@ -5,7 +5,7 @@ import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
 import { type StockAdjustmentInput } from '@stock/domain/interfaces/stock-adjustment-input.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
-import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { directionOf, type MovementReason } from '@stock/domain/enums/movement-reason';
 import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
 import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';

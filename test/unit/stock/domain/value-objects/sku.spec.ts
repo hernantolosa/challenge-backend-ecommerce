@@ -1,4 +1,5 @@
-import { Sku, SKU_MAX_LENGTH } from '@stock/domain/value-objects/sku';
+import { SKU_MAX_LENGTH } from '@shared-kernel/constants/sku.constants';
+import { Sku } from '@stock/domain/value-objects/sku';
 import { type Result } from '@utils/result/types/result.type';
 import { type InvariantViolated } from '@utils/errors/invariant-violated.error';
 

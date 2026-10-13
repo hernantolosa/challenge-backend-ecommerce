@@ -2,7 +2,7 @@ import { type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import * as request from 'supertest';
 import { Scope } from '@infrastructure/auth/enums/scope';
-import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
 import { IDEMPOTENCY_KEY, SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';

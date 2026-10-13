@@ -11,6 +11,7 @@ const shared: Config = {
     '^@stock/(.*)$': '<rootDir>/src/stock/$1',
     '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@shared-kernel/(.*)$': '<rootDir>/src/shared-kernel/$1',
     '^@src/(.*)$': '<rootDir>/src/$1',
     '^@test/(.*)$': '<rootDir>/test/$1',
   },
