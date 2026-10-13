@@ -1,3 +1,4 @@
+import { type RecordStockMovementCommand } from '../../src/stock/application/dto/record-stock-movement.command';
 import { MovementReason } from '../../src/stock/domain/movement-reason';
 import { type StockAdjustmentInput } from '../../src/stock/domain/stock-adjustment';
 import { type StockMovement } from '../../src/stock/domain/stock-movement';
@@ -9,8 +10,23 @@ export const OTHER_ACTOR = 'warehouse-operator-2';
 export const IDEMPOTENCY_KEY = '3f0e2b4c-6d1a-4f8e-9b7c-2a5d8e1f4c60';
 export const OTHER_IDEMPOTENCY_KEY = '9c1d7e3a-2b4f-4a6c-8d0e-5f7a9b1c3e2d';
 
-export function anAdjustmentInput(overrides: Partial<StockAdjustmentInput> = {}): StockAdjustmentInput {
+export function anAdjustmentInput(
+  overrides: Partial<StockAdjustmentInput> = {},
+): StockAdjustmentInput {
   return { sku: SNEAKER_SKU, quantity: 2, reason: MovementReason.SALE, ...overrides };
+}
+
+export function aRecordCommand(
+  overrides: Partial<RecordStockMovementCommand> = {},
+): RecordStockMovementCommand {
+  return {
+    sku: SNEAKER_SKU,
+    quantity: 2,
+    reason: MovementReason.SALE,
+    idempotencyKey: IDEMPOTENCY_KEY,
+    actor: ACTOR,
+    ...overrides,
+  };
 }
 
 export function aStockMovement(overrides: Partial<StockMovement> = {}): StockMovement {

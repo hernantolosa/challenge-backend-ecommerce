@@ -23,7 +23,11 @@ describe('IdempotencyKey', () => {
   ])('rejects a %s key', (_case, raw) => {
     expect(IdempotencyKey.make(raw)).toEqual({
       ok: false,
-      error: { kind: 'InvariantViolated', field: 'idempotencyKey', message: 'must be a valid UUID' },
+      error: {
+        kind: 'InvariantViolated',
+        field: 'idempotencyKey',
+        message: 'must be a valid UUID',
+      },
     });
   });
 });
