@@ -43,4 +43,46 @@ describe('Environment', () => {
   ])('rejects an invalid %s', (key, value) => {
     expect(invalidKeysOf({ [key]: value })).toEqual([key]);
   });
+
+  describe('database TLS flag', () => {
+    it.each([
+      ['false', false],
+      ['true', true],
+    ])('reads DB_SSL=%p as %p instead of treating every string as true', (raw, expected) => {
+      const environment = plainToInstance(
+        Environment,
+        { ...VALID_ENVIRONMENT, DB_SSL: raw },
+        { enableImplicitConversion: true },
+      );
+
+      expect(environment.DB_SSL).toBe(expected);
+    });
+  });
+
+  describe('in production', () => {
+    const PRODUCTION: Readonly<Record<string, string>> = {
+      NODE_ENV: 'production',
+      DB_SSL: 'true',
+      DB_PASSWORD: 'N7q!vR2x$Lp9wZ4m',
+    };
+
+    it('accepts a hardened configuration', () => {
+      expect(invalidKeysOf(PRODUCTION)).toEqual([]);
+    });
+
+    it('requires TLS to the database', () => {
+      expect(invalidKeysOf({ ...PRODUCTION, DB_SSL: 'false' })).toEqual(['DB_SSL']);
+    });
+
+    it.each([['postgres'], ['PASSWORD'], ['short-pass']])(
+      'rejects the database password %p',
+      (password) => {
+        expect(invalidKeysOf({ ...PRODUCTION, DB_PASSWORD: password })).toEqual(['DB_PASSWORD']);
+      },
+    );
+
+    it('keeps local defaults usable outside production', () => {
+      expect(invalidKeysOf({ DB_PASSWORD: 'postgres', DB_SSL: 'false' })).toEqual([]);
+    });
+  });
 });

@@ -3,12 +3,7 @@ import { IsStrongSecret } from '@infrastructure/config/validators/is-strong-secr
 import { LOG_LEVELS, LogLevel } from '@infrastructure/logging/enums/log-level';
 import { DatabaseEnvironment } from './database-environment.schema';
 
-const RUNTIME_ENVIRONMENTS = ['development', 'test', 'production'];
-
 export class Environment extends DatabaseEnvironment {
-  @IsIn(RUNTIME_ENVIRONMENTS)
-  readonly NODE_ENV: string = 'development';
-
   @IsIn(LOG_LEVELS)
   readonly LOG_LEVEL: LogLevel = LogLevel.INFO;
 

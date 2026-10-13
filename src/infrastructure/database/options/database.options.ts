@@ -19,6 +19,7 @@ export function databaseOptions(environment: DatabaseEnvironment): PostgresConne
     migrationsRun: false,
     uuidExtension: 'pgcrypto',
     installExtensions: false,
+    ssl: environment.DB_SSL ? { rejectUnauthorized: true } : false,
     extra: {
       max: environment.DB_POOL_MAX,
       connectionTimeoutMillis: environment.DB_CONNECTION_TIMEOUT_MS,
