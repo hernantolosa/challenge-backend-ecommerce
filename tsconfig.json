@@ -10,6 +10,14 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@catalog/*": ["src/catalog/*"],
+      "@stock/*": ["src/stock/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@utils/*": ["src/utils/*"],
+      "@src/*": ["src/*"],
+      "@test/*": ["test/*"]
+    },
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,

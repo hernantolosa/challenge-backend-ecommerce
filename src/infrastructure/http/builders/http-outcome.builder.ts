@@ -1,8 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
-import { type Failure } from '../../../utils/result/interfaces/failure.interface';
+import { type Failure } from '@utils/result/interfaces/failure.interface';
 import { problemDetails } from './problem-details.builder';
-import { type ProblemExtensions } from '../types/problem-extensions.type';
-import { ProblemException } from '../exceptions/problem.exception';
+import { type ProblemExtensions } from '@infrastructure/http/types/problem-extensions.type';
+import { ProblemException } from '@infrastructure/http/exceptions/problem.exception';
 
 export class HttpOutcome {
   static badRequest(

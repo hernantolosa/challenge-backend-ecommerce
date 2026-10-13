@@ -1,6 +1,6 @@
-import { Sku, SKU_MAX_LENGTH } from '../../../../../src/stock/domain/value-objects/sku';
-import { type Result } from '../../../../../src/utils/result/types/result.type';
-import { type InvariantViolated } from '../../../../../src/utils/errors/invariant-violated.error';
+import { Sku, SKU_MAX_LENGTH } from '@stock/domain/value-objects/sku';
+import { type Result } from '@utils/result/types/result.type';
+import { type InvariantViolated } from '@utils/errors/invariant-violated.error';
 
 function valueOf(result: Result<Sku, InvariantViolated>): string | undefined {
   return result.kind === 'Ok' ? result.value.value : undefined;

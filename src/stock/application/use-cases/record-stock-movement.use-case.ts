@@ -1,18 +1,18 @@
-import { IdempotencyKeyReused } from '../../domain/errors/idempotency-key-reused.error';
-import { type StockMovement } from '../../domain/interfaces/stock-movement.interface';
-import { StockAdjustment } from '../../domain/value-objects/stock-adjustment';
-import { IdempotencyKey } from '../../domain/value-objects/idempotency-key';
-import { type InvariantViolated } from '../../../utils/errors/invariant-violated.error';
-import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
-import { Err } from '../../../utils/result/err';
-import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/types/result.type';
-import { type RecordStockMovementCommand } from '../dto/record-stock-movement.command';
-import { type RecordedStockMovementView } from '../dto/recorded-stock-movement.view';
-import { type RecordStockMovementError } from '../errors/record-stock-movement.error';
-import { toStockMovementView } from '../mappers/stock-movement-view.mapper';
-import { type LedgerEntry } from '../interfaces/ledger-entry.interface';
-import { type StockLedger } from '../ports/stock-ledger.port';
+import { IdempotencyKeyReused } from '@stock/domain/errors/idempotency-key-reused.error';
+import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment';
+import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
+import { type InvariantViolated } from '@utils/errors/invariant-violated.error';
+import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { Err } from '@utils/result/err';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
+import { type RecordStockMovementCommand } from '@stock/application/dto/record-stock-movement.command';
+import { type RecordedStockMovementView } from '@stock/application/dto/recorded-stock-movement.view';
+import { type RecordStockMovementError } from '@stock/application/errors/record-stock-movement.error';
+import { toStockMovementView } from '@stock/application/mappers/stock-movement-view.mapper';
+import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
+import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 
 export class RecordStockMovement {
   constructor(private readonly ledger: StockLedger) {}

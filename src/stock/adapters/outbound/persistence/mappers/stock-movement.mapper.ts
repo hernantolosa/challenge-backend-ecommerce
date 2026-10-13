@@ -1,6 +1,6 @@
-import { type LedgerEntry } from '../../../../application/interfaces/ledger-entry.interface';
-import { type StockMovement } from '../../../../domain/interfaces/stock-movement.interface';
-import { type AppliedAdjustmentRow } from '../rows/applied-adjustment.row';
+import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
+import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { type AppliedAdjustmentRow } from '@stock/adapters/outbound/persistence/rows/applied-adjustment.row';
 
 export function toStockMovementFromAppliedRow(
   entry: LedgerEntry,

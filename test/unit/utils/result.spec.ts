@@ -1,8 +1,8 @@
-import { InvariantViolated } from '../../../src/utils/errors/invariant-violated.error';
-import { exhaustiveMatchGuard } from '../../../src/utils/exhaustive-match-guard';
-import { Err } from '../../../src/utils/result/err';
-import { Ok } from '../../../src/utils/result/ok';
-import { type Result } from '../../../src/utils/result/types/result.type';
+import { InvariantViolated } from '@utils/errors/invariant-violated.error';
+import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { Err } from '@utils/result/err';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
 
 class NotFound {
   readonly kind = 'NotFound';

@@ -1,7 +1,10 @@
 import { Catch, Logger, type ArgumentsHost, type ExceptionFilter } from '@nestjs/common';
 import { type Response } from 'express';
-import { type ProblemDetails } from '../interfaces/problem-details.interface';
-import { internalErrorProblem, toProblemDetails } from '../converters/to-problem-details.converter';
+import { type ProblemDetails } from '@infrastructure/http/interfaces/problem-details.interface';
+import {
+  internalErrorProblem,
+  toProblemDetails,
+} from '@infrastructure/http/converters/to-problem-details.converter';
 
 const PROBLEM_CONTENT_TYPE = 'application/problem+json';
 

@@ -1,5 +1,5 @@
 import { type JwtModuleOptions } from '@nestjs/jwt';
-import { type Environment } from '../../config/schemas/environment.schema';
+import { type Environment } from '@infrastructure/config/schemas/environment.schema';
 
 const ALGORITHM = 'HS256';
 

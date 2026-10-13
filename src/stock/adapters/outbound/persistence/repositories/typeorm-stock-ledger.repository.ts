@@ -1,28 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { isUniqueViolation } from '../../../../../infrastructure/database/errors/postgres-errors';
-import { Err } from '../../../../../utils/result/err';
-import { Ok } from '../../../../../utils/result/ok';
-import { type Result } from '../../../../../utils/result/types/result.type';
-import { IdempotencyKeyTaken } from '../../../../application/errors/idempotency-key-taken.error';
-import { type RecordEntryError } from '../../../../application/errors/record-entry.error';
-import { type LedgerEntry } from '../../../../application/interfaces/ledger-entry.interface';
-import { type StockLedger } from '../../../../application/ports/stock-ledger.port';
-import { type StockLevelReader } from '../../../../application/ports/stock-level-reader.port';
-import { InsufficientStock } from '../../../../domain/errors/insufficient-stock.error';
-import { VariantNotFound } from '../../../../domain/errors/variant-not-found.error';
-import { type StockLevel } from '../../../../domain/interfaces/stock-level.interface';
-import { type StockMovement } from '../../../../domain/interfaces/stock-movement.interface';
-import { type IdempotencyKey } from '../../../../domain/value-objects/idempotency-key';
-import { type Sku } from '../../../../domain/value-objects/sku';
-import { type AppliedAdjustmentRow } from '../rows/applied-adjustment.row';
+import { isUniqueViolation } from '@infrastructure/database/errors/postgres-errors';
+import { Err } from '@utils/result/err';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
+import { IdempotencyKeyTaken } from '@stock/application/errors/idempotency-key-taken.error';
+import { type RecordEntryError } from '@stock/application/errors/record-entry.error';
+import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
+import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
+import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
+import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
+import { type StockLevel } from '@stock/domain/interfaces/stock-level.interface';
+import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { type IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
+import { type Sku } from '@stock/domain/value-objects/sku';
+import { type AppliedAdjustmentRow } from '@stock/adapters/outbound/persistence/rows/applied-adjustment.row';
 import {
   APPLY_ADJUSTMENT_AND_APPEND_MOVEMENT_SQL,
   FIND_LEVEL_SQL,
   FIND_MOVEMENT_SQL,
-} from '../queries/stock-ledger.queries';
-import { toStockMovementFromAppliedRow } from '../mappers/stock-movement.mapper';
-import { IDEMPOTENCY_CONSTRAINT } from '../entities/stock-movement.orm-entity';
+} from '@stock/adapters/outbound/persistence/queries/stock-ledger.queries';
+import { toStockMovementFromAppliedRow } from '@stock/adapters/outbound/persistence/mappers/stock-movement.mapper';
+import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/outbound/persistence/entities/stock-movement.orm-entity';
 
 @Injectable()
 export class TypeOrmStockLedgerRepository implements StockLedger, StockLevelReader {

@@ -1,23 +1,23 @@
-import { unwrap } from '../../../../../support/unwrap';
+import { unwrap } from '@test/support/unwrap';
 import { type DataSource } from 'typeorm';
-import { TypeOrmStockLedgerRepository } from '../../../../../../src/stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
-import { Sku } from '../../../../../../src/stock/domain/value-objects/sku';
-import { MovementReason } from '../../../../../../src/stock/domain/enums/movement-reason';
+import { TypeOrmStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
+import { Sku } from '@stock/domain/value-objects/sku';
+import { MovementReason } from '@stock/domain/enums/movement-reason';
 import {
   movementCountOf,
   onHandOf,
   seedVariant,
   type SeededVariant,
-} from '../../../../../fixtures/catalog.fixtures';
-import { aLedgerEntry } from '../../../../../fixtures/ledger-entry.fixtures';
+} from '@test/fixtures/catalog.fixtures';
+import { aLedgerEntry } from '@test/fixtures/ledger-entry.fixtures';
 import {
   ACTOR,
   IDEMPOTENCY_KEY,
   OTHER_ACTOR,
   SNEAKER_SKU,
   UNKNOWN_SKU,
-} from '../../../../../fixtures/stock.fixtures';
-import { openTestDatabase, resetTestDatabase } from '../../../../../support/test-database';
+} from '@test/fixtures/stock.fixtures';
+import { openTestDatabase, resetTestDatabase } from '@test/support/test-database';
 
 function skuOf(raw: string): Sku {
   return unwrap(Sku.make(raw));

@@ -1,7 +1,7 @@
 import { type PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { type DatabaseEnvironment } from '../../config/schemas/database-environment.schema';
-import { ENTITIES } from '../entities';
-import { MIGRATIONS } from '../migrations';
+import { type DatabaseEnvironment } from '@infrastructure/config/schemas/database-environment.schema';
+import { ENTITIES } from '@infrastructure/database/entities';
+import { MIGRATIONS } from '@infrastructure/database/migrations';
 
 export function databaseOptions(environment: DatabaseEnvironment): PostgresConnectionOptions {
   return {

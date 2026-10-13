@@ -1,6 +1,6 @@
-import { GetStockLevel } from '../../../../../src/stock/application/use-cases/get-stock-level.use-case';
-import { InMemoryStockLedger } from '../../../../fakes/in-memory-stock-ledger';
-import { SNEAKER_SKU, UNKNOWN_SKU } from '../../../../fixtures/stock.fixtures';
+import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
+import { InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
+import { SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';
 
 describe('GetStockLevel', () => {
   let getStockLevel: GetStockLevel;

@@ -1,10 +1,7 @@
-import { unwrap } from '../../../../support/unwrap';
-import {
-  MovementReason,
-  MOVEMENT_REASONS,
-} from '../../../../../src/stock/domain/enums/movement-reason';
-import { StockAdjustment } from '../../../../../src/stock/domain/value-objects/stock-adjustment';
-import { anAdjustmentInput, aStockMovement } from '../../../../fixtures/stock.fixtures';
+import { unwrap } from '@test/support/unwrap';
+import { MovementReason, MOVEMENT_REASONS } from '@stock/domain/enums/movement-reason';
+import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment';
+import { anAdjustmentInput, aStockMovement } from '@test/fixtures/stock.fixtures';
 
 function adjustmentFor(overrides: Parameters<typeof anAdjustmentInput>[0]): StockAdjustment {
   return unwrap(StockAdjustment.make(anAdjustmentInput(overrides)));

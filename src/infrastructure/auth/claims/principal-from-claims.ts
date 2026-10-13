@@ -1,5 +1,5 @@
-import { type Principal } from '../interfaces/principal.interface';
-import { type RequiredClaims } from '../interfaces/required-claims.interface';
+import { type Principal } from '@infrastructure/auth/interfaces/principal.interface';
+import { type RequiredClaims } from '@infrastructure/auth/interfaces/required-claims.interface';
 
 const SUBJECT_MAX_LENGTH = 255;
 

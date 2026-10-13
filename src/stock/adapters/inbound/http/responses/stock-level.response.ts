@@ -1,4 +1,4 @@
-import { type StockLevelView } from '../../../../application/dto/stock-level.view';
+import { type StockLevelView } from '@stock/application/dto/stock-level.view';
 
 export class StockLevelResponse {
   private constructor(

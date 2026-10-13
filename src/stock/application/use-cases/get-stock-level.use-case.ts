@@ -1,13 +1,13 @@
-import { VariantNotFound } from '../../domain/errors/variant-not-found.error';
-import { Sku } from '../../domain/value-objects/sku';
-import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
-import { Err } from '../../../utils/result/err';
-import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/types/result.type';
-import { type StockLevelView } from '../dto/stock-level.view';
-import { type GetStockLevelError } from '../errors/get-stock-level.error';
-import { toStockLevelView } from '../mappers/stock-level-view.mapper';
-import { type StockLevelReader } from '../ports/stock-level-reader.port';
+import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
+import { Sku } from '@stock/domain/value-objects/sku';
+import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { Err } from '@utils/result/err';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
+import { type StockLevelView } from '@stock/application/dto/stock-level.view';
+import { type GetStockLevelError } from '@stock/application/errors/get-stock-level.error';
+import { toStockLevelView } from '@stock/application/mappers/stock-level-view.mapper';
+import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
 
 export class GetStockLevel {
   constructor(private readonly levels: StockLevelReader) {}

@@ -1,7 +1,7 @@
-import { unwrap } from '../../../../support/unwrap';
-import { RecordStockMovement } from '../../../../../src/stock/application/use-cases/record-stock-movement.use-case';
-import { MovementReason } from '../../../../../src/stock/domain/enums/movement-reason';
-import { FAKE_CLOCK, InMemoryStockLedger } from '../../../../fakes/in-memory-stock-ledger';
+import { unwrap } from '@test/support/unwrap';
+import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
+import { MovementReason } from '@stock/domain/enums/movement-reason';
+import { FAKE_CLOCK, InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
 import {
   ACTOR,
   aRecordCommand,
@@ -11,7 +11,7 @@ import {
   OTHER_IDEMPOTENCY_KEY,
   SNEAKER_SKU,
   UNKNOWN_SKU,
-} from '../../../../fixtures/stock.fixtures';
+} from '@test/fixtures/stock.fixtures';
 
 describe('RecordStockMovement', () => {
   let ledger: InMemoryStockLedger;

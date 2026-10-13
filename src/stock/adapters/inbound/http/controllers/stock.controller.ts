@@ -1,18 +1,18 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { type Response } from 'express';
-import { CurrentPrincipal } from '../../../../../infrastructure/auth/decorators/current-principal.decorator';
-import { type Principal } from '../../../../../infrastructure/auth/interfaces/principal.interface';
-import { RequireScope } from '../../../../../infrastructure/auth/decorators/require-scope.decorator';
-import { Scope } from '../../../../../infrastructure/auth/enums/scope';
-import { exhaustiveMatchGuard } from '../../../../../utils/exhaustive-match-guard';
-import { CommonProblems } from '../../../../../infrastructure/http/problems/common.problems';
-import { GetStockLevel } from '../../../../application/use-cases/get-stock-level.use-case';
-import { RecordStockMovement } from '../../../../application/use-cases/record-stock-movement.use-case';
-import { RecordStockMovementRequest } from '../requests/record-stock-movement.request';
-import { StockLevelResponse } from '../responses/stock-level.response';
-import { StockMovementResponse } from '../responses/stock-movement.response';
-import { IdempotencyKeyHeader } from '../decorators/idempotency-key.decorator';
-import { StockProblems } from '../problems/stock.problems';
+import { CurrentPrincipal } from '@infrastructure/auth/decorators/current-principal.decorator';
+import { type Principal } from '@infrastructure/auth/interfaces/principal.interface';
+import { RequireScope } from '@infrastructure/auth/decorators/require-scope.decorator';
+import { Scope } from '@infrastructure/auth/enums/scope';
+import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { CommonProblems } from '@infrastructure/http/problems/common.problems';
+import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
+import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
+import { RecordStockMovementRequest } from '@stock/adapters/inbound/http/requests/record-stock-movement.request';
+import { StockLevelResponse } from '@stock/adapters/inbound/http/responses/stock-level.response';
+import { StockMovementResponse } from '@stock/adapters/inbound/http/responses/stock-movement.response';
+import { IdempotencyKeyHeader } from '@stock/adapters/inbound/http/decorators/idempotency-key.decorator';
+import { StockProblems } from '@stock/adapters/inbound/http/problems/stock.problems';
 
 const IDEMPOTENT_REPLAYED_HEADER = 'Idempotent-Replayed';
 

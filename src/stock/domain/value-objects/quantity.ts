@@ -1,7 +1,7 @@
-import { InvariantViolated } from '../../../utils/errors/invariant-violated.error';
-import { Err } from '../../../utils/result/err';
-import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/types/result.type';
+import { InvariantViolated } from '@utils/errors/invariant-violated.error';
+import { Err } from '@utils/result/err';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
 
 export const MAX_MOVEMENT_QUANTITY = 100_000;
 

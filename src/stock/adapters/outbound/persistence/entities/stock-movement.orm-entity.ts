@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { VariantOrmEntity } from '../../../../../catalog/adapters/outbound/persistence/entities/variant.orm-entity';
-import { type MovementReason } from '../../../../domain/enums/movement-reason';
+import { VariantOrmEntity } from '@catalog/adapters/outbound/persistence/entities/variant.orm-entity';
+import { type MovementReason } from '@stock/domain/enums/movement-reason';
 
 export const IDEMPOTENCY_CONSTRAINT = 'UQ_stock_movements_actor_idempotency_key';
 

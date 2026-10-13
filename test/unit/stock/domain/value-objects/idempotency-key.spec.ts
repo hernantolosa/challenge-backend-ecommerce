@@ -1,6 +1,6 @@
-import { unwrap } from '../../../../support/unwrap';
-import { IdempotencyKey } from '../../../../../src/stock/domain/value-objects/idempotency-key';
-import { IDEMPOTENCY_KEY } from '../../../../fixtures/stock.fixtures';
+import { unwrap } from '@test/support/unwrap';
+import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
+import { IDEMPOTENCY_KEY } from '@test/fixtures/stock.fixtures';
 
 describe('IdempotencyKey', () => {
   it('accepts a UUID', () => {

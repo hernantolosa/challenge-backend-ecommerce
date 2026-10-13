@@ -1,4 +1,4 @@
-import { type MovementReason } from '../../domain/enums/movement-reason';
+import { type MovementReason } from '@stock/domain/enums/movement-reason';
 
 export interface StockMovementView {
   readonly id: string;

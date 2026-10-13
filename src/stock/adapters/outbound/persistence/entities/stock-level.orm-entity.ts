@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { VariantOrmEntity } from '../../../../../catalog/adapters/outbound/persistence/entities/variant.orm-entity';
+import { VariantOrmEntity } from '@catalog/adapters/outbound/persistence/entities/variant.orm-entity';
 
 @Entity({ name: 'stock_levels' })
 @Check('CHK_stock_levels_on_hand_non_negative', '"on_hand" >= 0')

@@ -1,8 +1,5 @@
-import { unwrap } from '../../../../support/unwrap';
-import {
-  MAX_MOVEMENT_QUANTITY,
-  Quantity,
-} from '../../../../../src/stock/domain/value-objects/quantity';
+import { unwrap } from '@test/support/unwrap';
+import { MAX_MOVEMENT_QUANTITY, Quantity } from '@stock/domain/value-objects/quantity';
 
 describe('Quantity', () => {
   it.each([1, 7, MAX_MOVEMENT_QUANTITY])('accepts %p units', (raw) => {

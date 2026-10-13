@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { type ClientHttpError } from '../interfaces/client-http-error.interface';
-import { problemDetails, titleOf } from '../builders/problem-details.builder';
-import { type ProblemDetails } from '../interfaces/problem-details.interface';
-import { ProblemException } from '../exceptions/problem.exception';
+import { type ClientHttpError } from '@infrastructure/http/interfaces/client-http-error.interface';
+import { problemDetails, titleOf } from '@infrastructure/http/builders/problem-details.builder';
+import { type ProblemDetails } from '@infrastructure/http/interfaces/problem-details.interface';
+import { ProblemException } from '@infrastructure/http/exceptions/problem.exception';
 
 const VALIDATION_FAILED = 'Request validation failed';
 const BAD_REQUEST: number = HttpStatus.BAD_REQUEST;

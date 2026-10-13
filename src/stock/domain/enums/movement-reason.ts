@@ -1,4 +1,4 @@
-import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
+import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
 
 export const MovementReason = {
   SALE: 'SALE',

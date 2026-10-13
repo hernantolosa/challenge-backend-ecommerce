@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { type AuthenticatedRequest } from '../interfaces/authenticated-request.interface';
-import { type Principal } from '../interfaces/principal.interface';
-import { REQUIRED_SCOPE } from '../constants/require-scope.metadata';
-import { type Scope } from '../enums/scope';
-import { principalFromClaims } from '../claims/principal-from-claims';
+import { type AuthenticatedRequest } from '@infrastructure/auth/interfaces/authenticated-request.interface';
+import { type Principal } from '@infrastructure/auth/interfaces/principal.interface';
+import { REQUIRED_SCOPE } from '@infrastructure/auth/constants/require-scope.metadata';
+import { type Scope } from '@infrastructure/auth/enums/scope';
+import { principalFromClaims } from '@infrastructure/auth/claims/principal-from-claims';
 
 const BEARER_PATTERN = /^Bearer ([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/;
 

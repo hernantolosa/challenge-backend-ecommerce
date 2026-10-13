@@ -1,10 +1,10 @@
-import { type InvariantViolated } from '../../../utils/errors/invariant-violated.error';
-import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
-import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/types/result.type';
-import { type StockAdjustmentInput } from '../interfaces/stock-adjustment-input.interface';
-import { type StockMovement } from '../interfaces/stock-movement.interface';
-import { directionOf, type MovementReason } from '../enums/movement-reason';
+import { type InvariantViolated } from '@utils/errors/invariant-violated.error';
+import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
+import { type StockAdjustmentInput } from '@stock/domain/interfaces/stock-adjustment-input.interface';
+import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { directionOf, type MovementReason } from '@stock/domain/enums/movement-reason';
 import { Quantity } from './quantity';
 import { Sku } from './sku';
 

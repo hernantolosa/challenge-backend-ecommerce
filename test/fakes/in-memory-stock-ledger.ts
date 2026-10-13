@@ -1,17 +1,17 @@
-import { IdempotencyKeyTaken } from '../../src/stock/application/errors/idempotency-key-taken.error';
-import { type RecordEntryError } from '../../src/stock/application/errors/record-entry.error';
-import { type LedgerEntry } from '../../src/stock/application/interfaces/ledger-entry.interface';
-import { type StockLedger } from '../../src/stock/application/ports/stock-ledger.port';
-import { type StockLevelReader } from '../../src/stock/application/ports/stock-level-reader.port';
-import { InsufficientStock } from '../../src/stock/domain/errors/insufficient-stock.error';
-import { VariantNotFound } from '../../src/stock/domain/errors/variant-not-found.error';
-import { type StockLevel } from '../../src/stock/domain/interfaces/stock-level.interface';
-import { type StockMovement } from '../../src/stock/domain/interfaces/stock-movement.interface';
-import { type IdempotencyKey } from '../../src/stock/domain/value-objects/idempotency-key';
-import { type Sku } from '../../src/stock/domain/value-objects/sku';
-import { Err } from '../../src/utils/result/err';
-import { Ok } from '../../src/utils/result/ok';
-import { type Result } from '../../src/utils/result/types/result.type';
+import { IdempotencyKeyTaken } from '@stock/application/errors/idempotency-key-taken.error';
+import { type RecordEntryError } from '@stock/application/errors/record-entry.error';
+import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
+import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
+import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
+import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
+import { type StockLevel } from '@stock/domain/interfaces/stock-level.interface';
+import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
+import { type IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
+import { type Sku } from '@stock/domain/value-objects/sku';
+import { Err } from '@utils/result/err';
+import { Ok } from '@utils/result/ok';
+import { type Result } from '@utils/result/types/result.type';
 
 export const FAKE_CLOCK = new Date('2026-10-13T12:00:00.000Z');
 

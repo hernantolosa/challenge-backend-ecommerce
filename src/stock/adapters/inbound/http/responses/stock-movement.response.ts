@@ -1,5 +1,5 @@
-import { type StockMovementView } from '../../../../application/dto/stock-movement.view';
-import { type MovementReason } from '../../../../domain/enums/movement-reason';
+import { type StockMovementView } from '@stock/application/dto/stock-movement.view';
+import { type MovementReason } from '@stock/domain/enums/movement-reason';
 
 export class StockMovementResponse {
   private constructor(

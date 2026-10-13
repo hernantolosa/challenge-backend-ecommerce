@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
-import { Scope } from '../../src/infrastructure/auth/enums/scope';
-import { ACTOR } from '../fixtures/stock.fixtures';
+import { Scope } from '@infrastructure/auth/enums/scope';
+import { ACTOR } from '@test/fixtures/stock.fixtures';
 
 export interface TokenSeed {
   readonly subject?: string;
