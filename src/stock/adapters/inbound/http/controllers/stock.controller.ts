@@ -1,17 +1,18 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { type Response } from 'express';
-import { CurrentPrincipal } from '../../../../../infrastructure/auth/current-principal.decorator';
+import { CurrentPrincipal } from '../../../../../infrastructure/auth/decorators/current-principal.decorator';
 import { type Principal } from '../../../../../infrastructure/auth/interfaces/principal.interface';
-import { RequireScope } from '../../../../../infrastructure/auth/require-scope.decorator';
-import { Scope } from '../../../../../infrastructure/auth/scope';
+import { RequireScope } from '../../../../../infrastructure/auth/decorators/require-scope.decorator';
+import { Scope } from '../../../../../infrastructure/auth/enums/scope';
 import { exhaustiveMatchGuard } from '../../../../../utils/exhaustive-match-guard';
-import { HttpOutcome } from '../../../../../infrastructure/http/http-outcome';
+import { CommonProblems } from '../../../../../infrastructure/http/problems/common.problems';
 import { GetStockLevel } from '../../../../application/use-cases/get-stock-level.use-case';
 import { RecordStockMovement } from '../../../../application/use-cases/record-stock-movement.use-case';
 import { RecordStockMovementRequest } from '../requests/record-stock-movement.request';
 import { StockLevelResponse } from '../responses/stock-level.response';
 import { StockMovementResponse } from '../responses/stock-movement.response';
 import { IdempotencyKeyHeader } from '../decorators/idempotency-key.decorator';
+import { StockProblems } from '../problems/stock.problems';
 
 const IDEMPOTENT_REPLAYED_HEADER = 'Idempotent-Replayed';
 
@@ -24,7 +25,7 @@ export class StockController {
 
   @Post('movimientos')
   @RequireScope(Scope.STOCK_WRITE)
-  async record(
+  async recordMovement(
     @Body() body: RecordStockMovementRequest,
     @IdempotencyKeyHeader() idempotencyKey: string,
     @CurrentPrincipal() principal: Principal,
@@ -38,24 +39,16 @@ export class StockController {
 
     switch (outcome.kind) {
       case 'Ok':
-        if (outcome.value.replayed) markAsReplayed(response);
+        if (outcome.value.replayed) markResponseAsReplayed(response);
         return StockMovementResponse.from(outcome.value.movement);
       case 'InvariantViolated':
-        throw HttpOutcome.badRequest(outcome.error, outcome.error.message, {
-          field: outcome.error.field,
-        });
+        throw CommonProblems.invariantViolated(outcome.error);
       case 'VariantNotFound':
-        throw HttpOutcome.notFound(outcome.error, `Variant ${outcome.error.sku} not found`);
+        throw StockProblems.variantNotFound(outcome.error);
       case 'InsufficientStock':
-        throw HttpOutcome.conflict(outcome.error, `Not enough stock for ${outcome.error.sku}`, {
-          requested: outcome.error.requested,
-          available: outcome.error.available,
-        });
+        throw StockProblems.insufficientStock(outcome.error);
       case 'IdempotencyKeyReused':
-        throw HttpOutcome.unprocessable(
-          outcome.error,
-          'Idempotency-Key was already used for a different request',
-        );
+        throw StockProblems.idempotencyKeyReused(outcome.error);
       default:
         return exhaustiveMatchGuard(outcome);
     }
@@ -63,24 +56,22 @@ export class StockController {
 
   @Get(':sku')
   @RequireScope(Scope.STOCK_READ)
-  async level(@Param('sku') sku: string): Promise<StockLevelResponse> {
+  async findStockLevel(@Param('sku') sku: string): Promise<StockLevelResponse> {
     const outcome = await this.getStockLevel.execute(sku);
 
     switch (outcome.kind) {
       case 'Ok':
         return StockLevelResponse.from(outcome.value);
       case 'InvariantViolated':
-        throw HttpOutcome.badRequest(outcome.error, outcome.error.message, {
-          field: outcome.error.field,
-        });
+        throw CommonProblems.invariantViolated(outcome.error);
       case 'VariantNotFound':
-        throw HttpOutcome.notFound(outcome.error, `Variant ${outcome.error.sku} not found`);
+        throw StockProblems.variantNotFound(outcome.error);
       default:
         return exhaustiveMatchGuard(outcome);
     }
   }
 }
 
-function markAsReplayed(response: Response): void {
+function markResponseAsReplayed(response: Response): void {
   response.status(HttpStatus.OK).setHeader(IDEMPOTENT_REPLAYED_HEADER, 'true');
 }

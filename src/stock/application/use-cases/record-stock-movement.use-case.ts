@@ -6,12 +6,12 @@ import { type InvariantViolated } from '../../../utils/errors/invariant-violated
 import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
 import { Err } from '../../../utils/result/err';
 import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/result';
+import { type Result } from '../../../utils/result/types/result.type';
 import { type RecordStockMovementCommand } from '../dto/record-stock-movement.command';
 import { type RecordedStockMovementView } from '../dto/recorded-stock-movement.view';
 import { type RecordStockMovementError } from '../errors/record-stock-movement.error';
 import { toStockMovementView } from '../mappers/stock-movement-view.mapper';
-import { type LedgerEntry } from '../ports/ledger-entry.interface';
+import { type LedgerEntry } from '../interfaces/ledger-entry.interface';
 import { type StockLedger } from '../ports/stock-ledger.port';
 
 export class RecordStockMovement {
@@ -20,11 +20,11 @@ export class RecordStockMovement {
   async execute(
     command: RecordStockMovementCommand,
   ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
-    const entry = toLedgerEntry(command);
+    const entry = buildLedgerEntry(command);
 
     switch (entry.kind) {
       case 'Ok':
-        return this.recordOnce(entry.value);
+        return this.replayOrRecordMovement(entry.value);
       case 'InvariantViolated':
         return entry;
       default:
@@ -32,16 +32,16 @@ export class RecordStockMovement {
     }
   }
 
-  private async recordOnce(
+  private async replayOrRecordMovement(
     entry: LedgerEntry,
   ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
     const previous = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
-    if (previous !== null) return replay(previous, entry);
+    if (previous !== null) return replayPreviousMovement(previous, entry);
 
-    return this.recordNew(entry);
+    return this.recordNewMovement(entry);
   }
 
-  private async recordNew(
+  private async recordNewMovement(
     entry: LedgerEntry,
   ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
     const recorded = await this.ledger.record(entry);
@@ -50,7 +50,7 @@ export class RecordStockMovement {
       case 'Ok':
         return Ok.make({ movement: toStockMovementView(recorded.value), replayed: false });
       case 'IdempotencyKeyTaken':
-        return this.replayConcurrentWinner(entry);
+        return this.replayMovementRecordedConcurrently(entry);
       case 'VariantNotFound':
       case 'InsufficientStock':
         return recorded;
@@ -59,24 +59,24 @@ export class RecordStockMovement {
     }
   }
 
-  private async replayConcurrentWinner(
+  private async replayMovementRecordedConcurrently(
     entry: LedgerEntry,
   ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
     const winner = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
     if (winner === null) throw new Error('Idempotency key was taken but its movement is missing');
 
-    return replay(winner, entry);
+    return replayPreviousMovement(winner, entry);
   }
 }
 
-function toLedgerEntry(
+function buildLedgerEntry(
   command: RecordStockMovementCommand,
 ): Result<LedgerEntry, InvariantViolated> {
   const adjustment = StockAdjustment.make(command);
 
   switch (adjustment.kind) {
     case 'Ok':
-      return withIdempotencyKey(adjustment.value, command);
+      return buildLedgerEntryWithKey(adjustment.value, command);
     case 'InvariantViolated':
       return adjustment;
     default:
@@ -84,7 +84,7 @@ function toLedgerEntry(
   }
 }
 
-function withIdempotencyKey(
+function buildLedgerEntryWithKey(
   adjustment: StockAdjustment,
   command: RecordStockMovementCommand,
 ): Result<LedgerEntry, InvariantViolated> {
@@ -100,7 +100,7 @@ function withIdempotencyKey(
   }
 }
 
-function replay(
+function replayPreviousMovement(
   previous: StockMovement,
   entry: LedgerEntry,
 ): Result<RecordedStockMovementView, IdempotencyKeyReused> {

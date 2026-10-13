@@ -2,8 +2,8 @@ import { DataSource, type EntityManager } from 'typeorm';
 import { CategoryOrmEntity } from '../src/catalog/adapters/outbound/persistence/entities/category.orm-entity';
 import { ProductOrmEntity } from '../src/catalog/adapters/outbound/persistence/entities/product.orm-entity';
 import { VariantOrmEntity } from '../src/catalog/adapters/outbound/persistence/entities/variant.orm-entity';
-import { loadDatabaseEnvironment } from '../src/infrastructure/config/load-environment';
-import { databaseOptions } from '../src/infrastructure/database/database.options';
+import { loadDatabaseEnvironment } from '../src/infrastructure/config/loaders/load-environment';
+import { databaseOptions } from '../src/infrastructure/database/options/database.options';
 import { StockLevelOrmEntity } from '../src/stock/adapters/outbound/persistence/entities/stock-level.orm-entity';
 
 interface VariantSeed {

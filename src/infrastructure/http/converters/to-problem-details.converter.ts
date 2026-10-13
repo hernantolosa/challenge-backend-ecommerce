@@ -1,44 +1,46 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { type ClientHttpError } from './client-http-error.interface';
-import { problemDetails, titleOf } from './problem-details';
-import { type ProblemDetails } from './problem-details.interface';
-import { ProblemException } from './problem.exception';
+import { type ClientHttpError } from '../interfaces/client-http-error.interface';
+import { problemDetails, titleOf } from '../builders/problem-details.builder';
+import { type ProblemDetails } from '../interfaces/problem-details.interface';
+import { ProblemException } from '../exceptions/problem.exception';
 
 const VALIDATION_FAILED = 'Request validation failed';
 const BAD_REQUEST: number = HttpStatus.BAD_REQUEST;
 
 export function toProblemDetails(exception: unknown): ProblemDetails | null {
   if (exception instanceof ProblemException) return exception.problem;
-  if (exception instanceof HttpException) return fromHttpException(exception);
-  if (isClientHttpError(exception)) return fromStatus(exception.status, exception.message);
+  if (exception instanceof HttpException) return problemFromHttpException(exception);
+  if (isClientHttpError(exception)) return problemFromStatus(exception.status, exception.message);
 
   return null;
 }
 
 export function internalErrorProblem(): ProblemDetails {
   const status = HttpStatus.INTERNAL_SERVER_ERROR;
-  return problemDetails(status, codeOf(status), 'An unexpected error occurred');
+  return problemDetails(status, problemCodeFor(status), 'An unexpected error occurred');
 }
 
-function fromHttpException(exception: HttpException): ProblemDetails {
+function problemFromHttpException(exception: HttpException): ProblemDetails {
   const status = exception.getStatus();
-  const messages = messagesOf(exception.getResponse());
+  const messages = extractMessages(exception.getResponse());
 
   if (messages.length > 1 || status === BAD_REQUEST) {
-    return problemDetails(status, codeOf(status), detailOf(messages), { errors: messages });
+    return problemDetails(status, problemCodeFor(status), detailFromMessages(messages), {
+      errors: messages,
+    });
   }
-  return fromStatus(status, messages[0] ?? titleOf(status));
+  return problemFromStatus(status, messages[0] ?? titleOf(status));
 }
 
-function fromStatus(status: number, detail: string): ProblemDetails {
-  return problemDetails(status, codeOf(status), detail);
+function problemFromStatus(status: number, detail: string): ProblemDetails {
+  return problemDetails(status, problemCodeFor(status), detail);
 }
 
-function detailOf(messages: readonly string[]): string {
+function detailFromMessages(messages: readonly string[]): string {
   return messages.length === 1 && messages[0] !== undefined ? messages[0] : VALIDATION_FAILED;
 }
 
-function messagesOf(response: string | object): string[] {
+function extractMessages(response: string | object): string[] {
   if (typeof response === 'string') return [response];
   if (!('message' in response)) return [];
 
@@ -47,7 +49,7 @@ function messagesOf(response: string | object): string[] {
   return Array.isArray(message) ? message.filter((item) => typeof item === 'string') : [];
 }
 
-function codeOf(status: number): string {
+function problemCodeFor(status: number): string {
   return titleOf(status).replace(/[^A-Za-z]/g, '');
 }
 

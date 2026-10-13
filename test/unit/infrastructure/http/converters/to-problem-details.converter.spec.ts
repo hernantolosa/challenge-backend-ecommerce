@@ -1,10 +1,10 @@
 import { ForbiddenException, HttpStatus, NotFoundException } from '@nestjs/common';
-import { HttpOutcome } from '../../../../src/infrastructure/http/http-outcome';
+import { HttpOutcome } from '../../../../../src/infrastructure/http/builders/http-outcome.builder';
 import {
   internalErrorProblem,
   toProblemDetails,
-} from '../../../../src/infrastructure/http/to-problem-details';
-import { InvariantViolated } from '../../../../src/utils/errors/invariant-violated.error';
+} from '../../../../../src/infrastructure/http/converters/to-problem-details.converter';
+import { InvariantViolated } from '../../../../../src/utils/errors/invariant-violated.error';
 
 describe('toProblemDetails', () => {
   it('keeps the problem built from a business failure', () => {

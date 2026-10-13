@@ -3,7 +3,7 @@ import { Sku } from '../../domain/value-objects/sku';
 import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
 import { Err } from '../../../utils/result/err';
 import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/result';
+import { type Result } from '../../../utils/result/types/result.type';
 import { type StockLevelView } from '../dto/stock-level.view';
 import { type GetStockLevelError } from '../errors/get-stock-level.error';
 import { toStockLevelView } from '../mappers/stock-level-view.mapper';
@@ -17,7 +17,7 @@ export class GetStockLevel {
 
     switch (sku.kind) {
       case 'Ok':
-        return this.levelOf(sku.value);
+        return this.findStockLevel(sku.value);
       case 'InvariantViolated':
         return sku;
       default:
@@ -25,7 +25,7 @@ export class GetStockLevel {
     }
   }
 
-  private async levelOf(sku: Sku): Promise<Result<StockLevelView, GetStockLevelError>> {
+  private async findStockLevel(sku: Sku): Promise<Result<StockLevelView, GetStockLevelError>> {
     const level = await this.levels.findLevel(sku);
     if (level === null) return Err.make(VariantNotFound.make(sku.value));
 

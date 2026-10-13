@@ -1,6 +1,6 @@
 import { unwrap } from '../../../../../support/unwrap';
 import { type DataSource } from 'typeorm';
-import { TypeOrmStockLedger } from '../../../../../../src/stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
+import { TypeOrmStockLedgerRepository } from '../../../../../../src/stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
 import { Sku } from '../../../../../../src/stock/domain/value-objects/sku';
 import { MovementReason } from '../../../../../../src/stock/domain/enums/movement-reason';
 import {
@@ -23,14 +23,14 @@ function skuOf(raw: string): Sku {
   return unwrap(Sku.make(raw));
 }
 
-describe('TypeOrmStockLedger', () => {
+describe('TypeOrmStockLedgerRepository', () => {
   let dataSource: DataSource;
-  let ledger: TypeOrmStockLedger;
+  let ledger: TypeOrmStockLedgerRepository;
   let variant: SeededVariant;
 
   beforeAll(async () => {
     dataSource = await openTestDatabase();
-    ledger = new TypeOrmStockLedger(dataSource);
+    ledger = new TypeOrmStockLedgerRepository(dataSource);
   });
 
   beforeEach(async () => {

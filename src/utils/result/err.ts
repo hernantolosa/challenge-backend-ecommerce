@@ -1,4 +1,4 @@
-import { type Failure } from './failure.interface';
+import { type Failure } from './interfaces/failure.interface';
 
 export class Err<E extends Failure> {
   readonly kind: E['kind'];

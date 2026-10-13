@@ -1,13 +1,21 @@
 import { type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import * as request from 'supertest';
-import { Scope } from '../../../../../../src/infrastructure/auth/scope';
+import { Scope } from '../../../../../../src/infrastructure/auth/enums/scope';
 import { MovementReason } from '../../../../../../src/stock/domain/enums/movement-reason';
-import { onHandOf, seedVariant, type SeededVariant } from '../../../../../fixtures/catalog.fixtures';
+import {
+  onHandOf,
+  seedVariant,
+  type SeededVariant,
+} from '../../../../../fixtures/catalog.fixtures';
 import { IDEMPOTENCY_KEY, SNEAKER_SKU, UNKNOWN_SKU } from '../../../../../fixtures/stock.fixtures';
 import { startTestApp, type TestApp } from '../../../../../support/test-app';
 import { resetTestDatabase } from '../../../../../support/test-database';
-import { forgeUnsignedToken, issueToken, issueTokenWithoutExpiry } from '../../../../../support/tokens';
+import {
+  forgeUnsignedToken,
+  issueToken,
+  issueTokenWithoutExpiry,
+} from '../../../../../support/tokens';
 
 const MOVEMENTS_PATH = '/stock/movimientos';
 

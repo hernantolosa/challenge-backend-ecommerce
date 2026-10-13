@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
-import { ProblemDetailsFilter } from './infrastructure/http/problem-details.filter';
+import { ProblemDetailsFilter } from './infrastructure/http/filters/problem-details.filter';
 
 const MAX_JSON_BODY = '10kb';
 

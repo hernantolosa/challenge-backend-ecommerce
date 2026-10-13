@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, IsString, Max, Min, MinLength } from 'class-validator';
-import { DatabaseEnvironment } from './database-environment';
+import { DatabaseEnvironment } from './database-environment.schema';
 
 export class Environment extends DatabaseEnvironment {
   @IsInt()

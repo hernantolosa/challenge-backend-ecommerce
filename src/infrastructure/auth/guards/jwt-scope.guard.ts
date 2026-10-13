@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { type AuthenticatedRequest } from './interfaces/authenticated-request.interface';
-import { type Principal } from './interfaces/principal.interface';
-import { REQUIRED_SCOPE } from './require-scope.metadata';
-import { type Scope } from './scope';
-import { toPrincipal } from './principal-from-claims';
+import { type AuthenticatedRequest } from '../interfaces/authenticated-request.interface';
+import { type Principal } from '../interfaces/principal.interface';
+import { REQUIRED_SCOPE } from '../constants/require-scope.metadata';
+import { type Scope } from '../enums/scope';
+import { principalFromClaims } from '../claims/principal-from-claims';
 
 const BEARER_PATTERN = /^Bearer ([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)$/;
 
@@ -24,9 +24,9 @@ export class JwtScopeGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const principal = await this.authenticate(request.headers.authorization);
+    const principal = await this.authenticateBearerToken(request.headers.authorization);
 
-    if (!principal.scopes.has(this.requiredScope(context))) {
+    if (!principal.scopes.has(this.requiredScopeOf(context))) {
       throw new ForbiddenException('Insufficient scope');
     }
 
@@ -34,17 +34,17 @@ export class JwtScopeGuard implements CanActivate {
     return true;
   }
 
-  private async authenticate(authorization: string | undefined): Promise<Principal> {
+  private async authenticateBearerToken(authorization: string | undefined): Promise<Principal> {
     const token = BEARER_PATTERN.exec(authorization ?? '')?.[1];
     if (token === undefined) throw new UnauthorizedException('Missing bearer token');
 
-    const principal = toPrincipal(await this.verify(token));
+    const principal = principalFromClaims(await this.verifyToken(token));
     if (principal === null) throw new UnauthorizedException('Invalid token claims');
 
     return principal;
   }
 
-  private async verify(token: string): Promise<unknown> {
+  private async verifyToken(token: string): Promise<unknown> {
     try {
       return await this.jwt.verifyAsync<object>(token);
     } catch {
@@ -52,7 +52,7 @@ export class JwtScopeGuard implements CanActivate {
     }
   }
 
-  private requiredScope(context: ExecutionContext): Scope {
+  private requiredScopeOf(context: ExecutionContext): Scope {
     const scope = this.reflector.get<Scope | undefined>(REQUIRED_SCOPE, context.getHandler());
     if (scope === undefined) throw new Error('JwtScopeGuard requires @RequireScope');
 

@@ -40,7 +40,7 @@ describe('RecordStockMovement', () => {
           },
         },
       });
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(7);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(7);
     });
 
     it.each([MovementReason.RETURN, MovementReason.RESTOCK, MovementReason.ADJUSTMENT_INCREASE])(
@@ -48,7 +48,7 @@ describe('RecordStockMovement', () => {
       async (reason) => {
         await recordStockMovement.execute(aRecordCommand({ reason, quantity: 5 }));
 
-        expect(ledger.levelOf(SNEAKER_SKU)).toBe(15);
+        expect(ledger.stockOf(SNEAKER_SKU)).toBe(15);
       },
     );
 
@@ -57,14 +57,14 @@ describe('RecordStockMovement', () => {
         aRecordCommand({ reason: MovementReason.ADJUSTMENT_DECREASE, quantity: 4 }),
       );
 
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(6);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(6);
     });
 
     it('allows selling the last available unit, leaving the stock at zero', async () => {
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 10 }));
 
       expect(result).toMatchObject({ kind: 'Ok', value: { movement: { balanceAfter: 0 } } });
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(0);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(0);
     });
 
     it('normalizes the sku before looking up the variant', async () => {
@@ -95,7 +95,7 @@ describe('RecordStockMovement', () => {
     it('leaves the stock and the ledger untouched', async () => {
       await recordStockMovement.execute(aRecordCommand({ quantity: 11 }));
 
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(10);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(10);
       expect(ledger.movements).toHaveLength(0);
     });
 
@@ -138,7 +138,7 @@ describe('RecordStockMovement', () => {
         error: { kind: 'InvariantViolated', field },
       });
       expect(ledger.movements).toHaveLength(0);
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(10);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(10);
     });
   });
 
@@ -156,7 +156,7 @@ describe('RecordStockMovement', () => {
       await recordStockMovement.execute(aRecordCommand());
       await recordStockMovement.execute(aRecordCommand());
 
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(8);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(8);
       expect(ledger.movements).toHaveLength(1);
     });
 
@@ -182,14 +182,14 @@ describe('RecordStockMovement', () => {
         kind: 'IdempotencyKeyReused',
         error: { kind: 'IdempotencyKeyReused', idempotencyKey: IDEMPOTENCY_KEY },
       });
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(8);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(8);
     });
 
     it('records different keys as independent movements', async () => {
       await recordStockMovement.execute(aRecordCommand());
       await recordStockMovement.execute(aRecordCommand({ idempotencyKey: OTHER_IDEMPOTENCY_KEY }));
 
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(6);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(6);
     });
 
     it('scopes keys per actor, so one actor cannot replay or block another', async () => {
@@ -198,7 +198,7 @@ describe('RecordStockMovement', () => {
       const result = await recordStockMovement.execute(aRecordCommand({ actor: OTHER_ACTOR }));
 
       expect(result).toMatchObject({ kind: 'Ok', value: { replayed: false } });
-      expect(ledger.levelOf(SNEAKER_SKU)).toBe(6);
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(6);
     });
   });
 

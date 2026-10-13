@@ -1,6 +1,6 @@
 import { IdempotencyKeyTaken } from '../../src/stock/application/errors/idempotency-key-taken.error';
 import { type RecordEntryError } from '../../src/stock/application/errors/record-entry.error';
-import { type LedgerEntry } from '../../src/stock/application/ports/ledger-entry.interface';
+import { type LedgerEntry } from '../../src/stock/application/interfaces/ledger-entry.interface';
 import { type StockLedger } from '../../src/stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '../../src/stock/application/ports/stock-level-reader.port';
 import { InsufficientStock } from '../../src/stock/domain/errors/insufficient-stock.error';
@@ -11,7 +11,7 @@ import { type IdempotencyKey } from '../../src/stock/domain/value-objects/idempo
 import { type Sku } from '../../src/stock/domain/value-objects/sku';
 import { Err } from '../../src/utils/result/err';
 import { Ok } from '../../src/utils/result/ok';
-import { type Result } from '../../src/utils/result/result';
+import { type Result } from '../../src/utils/result/types/result.type';
 
 export const FAKE_CLOCK = new Date('2026-10-13T12:00:00.000Z');
 
@@ -29,7 +29,7 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     this.concurrentWinner = movement;
   }
 
-  levelOf(sku: string): number | undefined {
+  stockOf(sku: string): number | undefined {
     return this.levels.get(sku);
   }
 
@@ -38,8 +38,8 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   }
 
   async record(entry: LedgerEntry): Promise<Result<StockMovement, RecordEntryError>> {
-    if (this.concurrentWinner !== null) return this.loseRaceTo(this.concurrentWinner);
-    if (this.isTaken(entry.actor, entry.idempotencyKey)) {
+    if (this.concurrentWinner !== null) return this.recordWinnerAndLoseRace(this.concurrentWinner);
+    if (this.isKeyTakenBy(entry.actor, entry.idempotencyKey)) {
       return Err.make(IdempotencyKeyTaken.make());
     }
 
@@ -47,7 +47,7 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     const onHand = this.levels.get(sku);
     if (onHand === undefined) return Err.make(VariantNotFound.make(sku));
 
-    const balanceAfter = onHand + entry.adjustment.delta;
+    const balanceAfter = onHand + entry.adjustment.stockDelta;
     if (balanceAfter < 0) {
       return Err.make(InsufficientStock.make(sku, entry.adjustment.quantity.value, onHand));
     }
@@ -56,7 +56,10 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   }
 
   async findMovement(actor: string, idempotencyKey: IdempotencyKey): Promise<StockMovement | null> {
-    return this.recorded.find((movement) => matches(movement, actor, idempotencyKey)) ?? null;
+    return (
+      this.recorded.find((movement) => belongsToActorAndKey(movement, actor, idempotencyKey)) ??
+      null
+    );
   }
 
   async findLevel(sku: Sku): Promise<StockLevel | null> {
@@ -64,14 +67,14 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     return onHand === undefined ? null : { sku: sku.value, onHand };
   }
 
-  private loseRaceTo(winner: StockMovement): Err<IdempotencyKeyTaken> {
+  private recordWinnerAndLoseRace(winner: StockMovement): Err<IdempotencyKeyTaken> {
     this.recorded.push(winner);
     this.concurrentWinner = null;
     return Err.make(IdempotencyKeyTaken.make());
   }
 
-  private isTaken(actor: string, idempotencyKey: IdempotencyKey): boolean {
-    return this.recorded.some((movement) => matches(movement, actor, idempotencyKey));
+  private isKeyTakenBy(actor: string, idempotencyKey: IdempotencyKey): boolean {
+    return this.recorded.some((movement) => belongsToActorAndKey(movement, actor, idempotencyKey));
   }
 
   private append(entry: LedgerEntry, balanceAfter: number): StockMovement {
@@ -92,6 +95,10 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   }
 }
 
-function matches(movement: StockMovement, actor: string, idempotencyKey: IdempotencyKey): boolean {
+function belongsToActorAndKey(
+  movement: StockMovement,
+  actor: string,
+  idempotencyKey: IdempotencyKey,
+): boolean {
   return movement.actor === actor && movement.idempotencyKey === idempotencyKey.value;
 }

@@ -1,7 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
-import { jwtOptions } from '../src/infrastructure/auth/jwt.options';
-import { Scope } from '../src/infrastructure/auth/scope';
-import { loadEnvironment } from '../src/infrastructure/config/load-environment';
+import { jwtOptions } from '../src/infrastructure/auth/options/jwt.options';
+import { Scope } from '../src/infrastructure/auth/enums/scope';
+import { loadEnvironment } from '../src/infrastructure/config/loaders/load-environment';
 
 const DEFAULT_SUBJECT = 'dev-operator';
 const DEFAULT_SCOPES = [Scope.STOCK_READ, Scope.STOCK_WRITE];

@@ -1,4 +1,4 @@
-export const APPLY_ADJUSTMENT_SQL = `
+export const APPLY_ADJUSTMENT_AND_APPEND_MOVEMENT_SQL = `
   WITH adjusted AS (
     UPDATE stock_levels AS level
     SET on_hand = level.on_hand + $2, updated_at = now()

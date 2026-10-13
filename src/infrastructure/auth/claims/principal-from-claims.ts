@@ -1,9 +1,9 @@
-import { type Principal } from './interfaces/principal.interface';
-import { type RequiredClaims } from './interfaces/required-claims.interface';
+import { type Principal } from '../interfaces/principal.interface';
+import { type RequiredClaims } from '../interfaces/required-claims.interface';
 
 const SUBJECT_MAX_LENGTH = 255;
 
-export function toPrincipal(payload: unknown): Principal | null {
+export function principalFromClaims(payload: unknown): Principal | null {
   if (!hasRequiredClaims(payload)) return null;
 
   return {

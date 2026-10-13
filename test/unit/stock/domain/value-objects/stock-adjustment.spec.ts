@@ -1,5 +1,8 @@
 import { unwrap } from '../../../../support/unwrap';
-import { MovementReason, MOVEMENT_REASONS } from '../../../../../src/stock/domain/enums/movement-reason';
+import {
+  MovementReason,
+  MOVEMENT_REASONS,
+} from '../../../../../src/stock/domain/enums/movement-reason';
 import { StockAdjustment } from '../../../../../src/stock/domain/value-objects/stock-adjustment';
 import { anAdjustmentInput, aStockMovement } from '../../../../fixtures/stock.fixtures';
 
@@ -15,11 +18,13 @@ describe('StockAdjustment', () => {
     [MovementReason.RESTOCK, 3],
     [MovementReason.ADJUSTMENT_INCREASE, 3],
   ])('derives the stock delta of a %s from the reason, not from the client', (reason, delta) => {
-    expect(adjustmentFor({ reason, quantity: 3 }).delta).toBe(delta);
+    expect(adjustmentFor({ reason, quantity: 3 }).stockDelta).toBe(delta);
   });
 
   it('covers every movement reason with a direction', () => {
-    const deltas = MOVEMENT_REASONS.map((reason) => adjustmentFor({ reason, quantity: 1 }).delta);
+    const deltas = MOVEMENT_REASONS.map(
+      (reason) => adjustmentFor({ reason, quantity: 1 }).stockDelta,
+    );
 
     expect(deltas.every((delta) => Math.abs(delta) === 1)).toBe(true);
   });

@@ -1,7 +1,7 @@
 import { type InvariantViolated } from '../../../utils/errors/invariant-violated.error';
 import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
 import { Ok } from '../../../utils/result/ok';
-import { type Result } from '../../../utils/result/result';
+import { type Result } from '../../../utils/result/types/result.type';
 import { type StockAdjustmentInput } from '../interfaces/stock-adjustment-input.interface';
 import { type StockMovement } from '../interfaces/stock-movement.interface';
 import { directionOf, type MovementReason } from '../enums/movement-reason';
@@ -20,7 +20,7 @@ export class StockAdjustment {
 
     switch (sku.kind) {
       case 'Ok':
-        return StockAdjustment.withSku(sku.value, input);
+        return StockAdjustment.makeWithValidSku(sku.value, input);
       case 'InvariantViolated':
         return sku;
       default:
@@ -28,7 +28,7 @@ export class StockAdjustment {
     }
   }
 
-  private static withSku(
+  private static makeWithValidSku(
     sku: Sku,
     input: StockAdjustmentInput,
   ): Result<StockAdjustment, InvariantViolated> {
@@ -44,7 +44,7 @@ export class StockAdjustment {
     }
   }
 
-  get delta(): number {
+  get stockDelta(): number {
     return this.quantity.value * directionOf(this.reason);
   }
 

@@ -1,8 +1,11 @@
-import { type LedgerEntry } from '../../../../application/ports/ledger-entry.interface';
+import { type LedgerEntry } from '../../../../application/interfaces/ledger-entry.interface';
 import { type StockMovement } from '../../../../domain/interfaces/stock-movement.interface';
 import { type AppliedAdjustmentRow } from '../rows/applied-adjustment.row';
 
-export function toStockMovement(entry: LedgerEntry, applied: AppliedAdjustmentRow): StockMovement {
+export function toStockMovementFromAppliedRow(
+  entry: LedgerEntry,
+  applied: AppliedAdjustmentRow,
+): StockMovement {
   return {
     id: applied.id,
     sku: entry.adjustment.sku.value,

@@ -1,6 +1,6 @@
 import { STATUS_CODES } from 'node:http';
-import { type ProblemDetails } from './problem-details.interface';
-import { type ProblemExtensions } from './problem-extensions.type';
+import { type ProblemDetails } from '../interfaces/problem-details.interface';
+import { type ProblemExtensions } from '../types/problem-extensions.type';
 
 const UNTYPED_PROBLEM = 'about:blank';
 

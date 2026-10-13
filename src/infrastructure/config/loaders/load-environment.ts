@@ -1,18 +1,18 @@
 import { plainToInstance, type ClassConstructor } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import * as dotenv from 'dotenv';
-import { DatabaseEnvironment } from './database-environment';
-import { Environment } from './environment';
+import { DatabaseEnvironment } from '../schemas/database-environment.schema';
+import { Environment } from '../schemas/environment.schema';
 
 export function loadEnvironment(): Environment {
-  return load(Environment);
+  return loadAndValidate(Environment);
 }
 
 export function loadDatabaseEnvironment(): DatabaseEnvironment {
-  return load(DatabaseEnvironment);
+  return loadAndValidate(DatabaseEnvironment);
 }
 
-function load<T extends object>(schema: ClassConstructor<T>): T {
+function loadAndValidate<T extends object>(schema: ClassConstructor<T>): T {
   dotenv.config({ quiet: true });
   const environment = plainToInstance(schema, process.env, { enableImplicitConversion: true });
   const invalidKeys = validateSync(environment).map((error) => error.property);
