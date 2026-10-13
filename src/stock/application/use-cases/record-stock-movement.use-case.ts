@@ -2,16 +2,16 @@ import { type InvariantViolated } from '@shared/errors/invariant-violated.error'
 import { Err } from '@shared/result/err';
 import { exhaustiveMatchGuard, unreachable } from '@shared/result/match';
 import { Ok } from '@shared/result/ok';
-import { type Result } from '@shared/result/result';
+import { type Result } from '@shared/result/result.type';
 import { type RecordStockMovementError } from '@stock/application/errors/record-stock-movement.errors';
 import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
 import { type RecordStockMovementOutputDto } from '@stock/application/dto/record-stock-movement-output.dto';
-import { type LedgerEntry } from '@stock/application/ports/ledger-entry';
+import { type LedgerEntry } from '@stock/application/ports/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { IdempotencyKeyReused } from '@stock/domain/errors/idempotency-key-reused.error';
-import { IdempotencyKey } from '@stock/domain/idempotency-key';
-import { StockAdjustment } from '@stock/domain/stock-adjustment';
-import { type StockMovement } from '@stock/domain/stock-movement';
+import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key.value-object';
+import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment.value-object';
+import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
 
 type RecordStockMovementResult = Result<RecordStockMovementOutputDto, RecordStockMovementError>;
 

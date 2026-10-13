@@ -1,9 +1,9 @@
 import { unwrap } from '@test/support/unwrap';
 import { randomUUID } from 'node:crypto';
-import { type LedgerEntry } from '@stock/application/ports/ledger-entry';
-import { IdempotencyKey } from '@stock/domain/idempotency-key';
-import { MovementReason } from '@stock/domain/movement-reason';
-import { StockAdjustment } from '@stock/domain/stock-adjustment';
+import { type LedgerEntry } from '@stock/application/ports/ledger-entry.interface';
+import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key.value-object';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
+import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment.value-object';
 import { ACTOR, SNEAKER_SKU } from './stock.fixtures';
 
 export interface LedgerEntrySeed {

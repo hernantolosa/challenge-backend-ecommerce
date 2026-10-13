@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { Environment } from './environment';
+import { Environment } from './environment.schema';
 import { loadEnvironment } from './load-environment';
 
 @Global()

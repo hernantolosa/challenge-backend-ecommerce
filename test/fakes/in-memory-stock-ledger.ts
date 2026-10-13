@@ -1,17 +1,17 @@
 import { FAKE_CLOCK } from '@test/fixtures/clock.fixtures';
 import { IdempotencyKeyTaken } from '@stock/application/errors/idempotency-key-taken.error';
 import { type RecordEntryError } from '@stock/application/errors/record-entry.errors';
-import { type LedgerEntry } from '@stock/application/ports/ledger-entry';
+import { type LedgerEntry } from '@stock/application/ports/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
 import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
-import { type StockLevel } from '@stock/domain/stock-level';
-import { type StockMovement } from '@stock/domain/stock-movement';
-import { type IdempotencyKey } from '@stock/domain/idempotency-key';
-import { type Sku } from '@stock/domain/sku';
+import { type StockLevel } from '@stock/domain/entities/stock-level.entity';
+import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
+import { type IdempotencyKey } from '@stock/domain/value-objects/idempotency-key.value-object';
+import { type Sku } from '@stock/domain/value-objects/sku.value-object';
 import { Err } from '@shared/result/err';
 import { Ok } from '@shared/result/ok';
-import { type Result } from '@shared/result/result';
+import { type Result } from '@shared/result/result.type';
 
 export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   private readonly levels = new Map<string, number>();

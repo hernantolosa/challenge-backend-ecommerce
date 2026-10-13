@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { DatabaseEnvironment } from '@config/database-environment';
+import { DatabaseEnvironment } from '@config/database-environment.schema';
 import { databaseOptions } from '@shared/database/database.options';
 
 function optionsFor(

@@ -9,8 +9,8 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { unreachable } from '@shared/result/match';
 import { PUBLIC_ROUTE, REQUIRED_SCOPE } from './auth.decorators';
-import { type AuthenticatedRequest } from './authenticated-request';
-import { type Principal } from './principal';
+import { type AuthenticatedRequest } from './authenticated-request.interface';
+import { type Principal } from './principal.interface';
 
 interface RequiredClaims {
   readonly sub: string;

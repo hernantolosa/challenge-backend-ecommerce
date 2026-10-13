@@ -1,4 +1,4 @@
-import { MovementReason } from '@stock/domain/movement-reason';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import { SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
 
 export interface MovementBody {

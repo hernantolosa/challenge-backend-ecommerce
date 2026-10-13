@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { isDatabaseUnavailable } from '@shared/database/postgres-errors';
 import { buildProblemDetails, titleOf } from './build-problem-details';
-import { type ClientHttpError } from './client-http-error';
+import { type ClientHttpError } from './client-http-error.interface';
 import { ProblemException } from './problem.exception';
-import { type ProblemDetails } from './problem-details';
+import { type ProblemDetails } from './problem-details.interface';
 
 const VALIDATION_FAILED = 'Request validation failed';
 const BAD_REQUEST: number = HttpStatus.BAD_REQUEST;

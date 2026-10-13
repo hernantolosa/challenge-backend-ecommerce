@@ -1,8 +1,8 @@
 import { plainToInstance, type ClassConstructor } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import * as dotenv from 'dotenv';
-import { DatabaseEnvironment } from './database-environment';
-import { Environment } from './environment';
+import { DatabaseEnvironment } from './database-environment.schema';
+import { Environment } from './environment.schema';
 
 export function loadEnvironment(): Environment {
   return loadAndValidate(Environment);

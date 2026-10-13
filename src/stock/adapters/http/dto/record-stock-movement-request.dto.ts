@@ -1,12 +1,12 @@
 import { IsIn, IsInt, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
-import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/movement-reason';
+import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import {
   MAX_MOVEMENT_QUANTITY,
   MIN_MOVEMENT_QUANTITY,
   SKU_FORMAT_MESSAGE,
   SKU_MAX_LENGTH,
   SKU_PATTERN,
-} from '@stock/domain/stock.constants';
+} from '@stock/domain/constants/stock.constants';
 
 const SKU_INPUT_PATTERN = new RegExp(SKU_PATTERN.source, 'i');
 

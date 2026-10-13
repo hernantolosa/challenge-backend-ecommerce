@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { type Server } from 'node:http';
-import { MovementReason } from '@stock/domain/movement-reason';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import { FailingStockLedger } from '@test/fakes/failing-stock-ledger';
 import {
   DATABASE_FAILURE,

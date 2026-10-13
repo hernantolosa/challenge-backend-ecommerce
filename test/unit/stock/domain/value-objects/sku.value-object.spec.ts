@@ -1,6 +1,6 @@
-import { SKU_MAX_LENGTH } from '@stock/domain/stock.constants';
-import { Sku } from '@stock/domain/sku';
-import { type Result } from '@shared/result/result';
+import { SKU_MAX_LENGTH } from '@stock/domain/constants/stock.constants';
+import { Sku } from '@stock/domain/value-objects/sku.value-object';
+import { type Result } from '@shared/result/result.type';
 import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
 
 function valueOf(result: Result<Sku, InvariantViolated>): string | undefined {

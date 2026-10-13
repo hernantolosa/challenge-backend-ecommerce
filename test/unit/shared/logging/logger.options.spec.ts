@@ -1,5 +1,5 @@
 import { pino, type LoggerOptions } from 'pino';
-import { type Environment } from '@config/environment';
+import { type Environment } from '@config/environment.schema';
 import { accessLogLevelFor, loggerOptions } from '@shared/logging/logger.options';
 import { MemoryLogDestination } from '@test/fakes/memory-log-destination';
 import {

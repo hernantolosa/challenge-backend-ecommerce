@@ -1,6 +1,6 @@
 import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min, MinLength } from 'class-validator';
 import { type LevelWithSilent } from 'pino';
-import { DatabaseEnvironment } from './database-environment';
+import { DatabaseEnvironment } from './database-environment.schema';
 
 const LOG_LEVELS: readonly LevelWithSilent[] = [
   'fatal',

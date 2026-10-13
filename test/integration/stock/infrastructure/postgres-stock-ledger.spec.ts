@@ -1,7 +1,7 @@
 import { type DataSource } from 'typeorm';
 import { PostgresStockLedgerAdapter } from '@stock/adapters/persistence/postgres-stock-ledger.adapter';
-import { MAX_STOCK_LEVEL } from '@stock/domain/stock.constants';
-import { MovementReason } from '@stock/domain/movement-reason';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock.constants';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import {
   movementCountOf,
   onHandOf,

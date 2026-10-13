@@ -9,9 +9,9 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { VariantOrmEntity } from '@catalog/entities/variant.entity';
+import { VariantOrmEntity } from '@catalog/entities/variant.orm-entity';
 import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/persistence/stock-ledger.sql';
-import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/movement-reason';
+import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/enums/movement-reason.enum';
 
 @Entity({ name: 'stock_movements' })
 @Unique(IDEMPOTENCY_CONSTRAINT, ['actor', 'idempotencyKey'])

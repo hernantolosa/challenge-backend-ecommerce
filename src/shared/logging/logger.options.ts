@@ -8,7 +8,7 @@ import {
   type SerializedRequest,
   type SerializedResponse,
 } from 'pino';
-import { type Environment } from '@config/environment';
+import { type Environment } from '@config/environment.schema';
 import { type LogDestination } from './log-destination';
 import { outcomeOf } from './request-outcome';
 import { startTrace, traceContextOf } from './request-trace';

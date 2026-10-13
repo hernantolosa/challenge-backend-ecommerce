@@ -2,14 +2,14 @@ import { type InvariantViolated } from '@shared/errors/invariant-violated.error'
 import { Err } from '@shared/result/err';
 import { exhaustiveMatchGuard } from '@shared/result/match';
 import { Ok } from '@shared/result/ok';
-import { type Result } from '@shared/result/result';
-import { directionOf, type MovementReason } from './movement-reason';
-import { Quantity } from './quantity';
-import { Sku } from './sku';
-import { MAX_STOCK_LEVEL } from './stock.constants';
+import { type Result } from '@shared/result/result.type';
+import { directionOf, type MovementReason } from '@stock/domain/enums/movement-reason.enum';
+import { Quantity } from './quantity.value-object';
+import { Sku } from './sku.value-object';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock.constants';
 import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
 import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
-import { type StockMovement } from './stock-movement';
+import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
 
 export class StockAdjustment {
   private constructor(

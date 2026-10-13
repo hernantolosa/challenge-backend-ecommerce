@@ -8,7 +8,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CategoryOrmEntity } from './category.entity';
+import { CategoryOrmEntity } from './category.orm-entity';
 
 @Entity({ name: 'products' })
 @Check('CHK_products_price_cents_non_negative', '"price_cents" >= 0')

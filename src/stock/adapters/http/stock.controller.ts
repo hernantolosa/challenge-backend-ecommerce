@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
 import { type Response } from 'express';
 import { CurrentPrincipal, RequireScope } from '@shared/auth/auth.decorators';
-import { type Principal } from '@shared/auth/principal';
+import { type Principal } from '@shared/auth/principal.interface';
 import { ProblemException } from '@shared/http/problem.exception';
 import { exhaustiveMatchGuard } from '@shared/result/match';
 import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';

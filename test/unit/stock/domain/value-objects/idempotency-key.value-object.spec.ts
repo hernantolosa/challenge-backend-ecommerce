@@ -1,5 +1,5 @@
 import { unwrap } from '@test/support/unwrap';
-import { IdempotencyKey } from '@stock/domain/idempotency-key';
+import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key.value-object';
 import { IDEMPOTENCY_KEY } from '@test/fixtures/stock.fixtures';
 
 describe('IdempotencyKey', () => {

@@ -1,12 +1,12 @@
 import { InvariantViolated } from '@shared/errors/invariant-violated.error';
 import { Err } from '@shared/result/err';
 import { Ok } from '@shared/result/ok';
-import { type Result } from '@shared/result/result';
+import { type Result } from '@shared/result/result.type';
 import {
   MAX_MOVEMENT_QUANTITY,
   MIN_MOVEMENT_QUANTITY,
   QUANTITY_RANGE_MESSAGE,
-} from './stock.constants';
+} from '@stock/domain/constants/stock.constants';
 
 export class Quantity {
   private constructor(readonly value: number) {}

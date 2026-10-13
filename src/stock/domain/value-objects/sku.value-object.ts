@@ -1,13 +1,13 @@
 import { InvariantViolated } from '@shared/errors/invariant-violated.error';
 import { Err } from '@shared/result/err';
 import { Ok } from '@shared/result/ok';
-import { type Result } from '@shared/result/result';
+import { type Result } from '@shared/result/result.type';
 import {
   SKU_FORMAT_MESSAGE,
   SKU_LENGTH_MESSAGE,
   SKU_MAX_LENGTH,
   SKU_PATTERN,
-} from './stock.constants';
+} from '@stock/domain/constants/stock.constants';
 
 export class Sku {
   private constructor(readonly value: string) {}

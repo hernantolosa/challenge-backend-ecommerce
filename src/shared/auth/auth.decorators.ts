@@ -5,8 +5,8 @@ import {
   type ExecutionContext,
 } from '@nestjs/common';
 import { unreachable } from '@shared/result/match';
-import { type AuthenticatedRequest } from './authenticated-request';
-import { type Principal } from './principal';
+import { type AuthenticatedRequest } from './authenticated-request.interface';
+import { type Principal } from './principal.interface';
 
 export const PUBLIC_ROUTE = 'auth:public-route';
 export const REQUIRED_SCOPE = 'auth:required-scope';

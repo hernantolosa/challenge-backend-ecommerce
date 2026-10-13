@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { MOVEMENTS_PATH } from '@test/fixtures/http.fixtures';
 import { type QueryRunner } from 'typeorm';
-import { MovementReason } from '@stock/domain/movement-reason';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
 import { SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
 import { type TestApp, startTestApp } from '@test/support/test-app';

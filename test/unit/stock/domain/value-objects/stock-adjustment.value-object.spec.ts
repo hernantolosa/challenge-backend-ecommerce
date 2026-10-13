@@ -1,9 +1,9 @@
 import { unwrap } from '@test/support/unwrap';
-import { MAX_STOCK_LEVEL } from '@stock/domain/stock.constants';
-import { MovementReason, MOVEMENT_REASONS } from '@stock/domain/movement-reason';
-import { StockAdjustment } from '@stock/domain/stock-adjustment';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock.constants';
+import { MovementReason, MOVEMENT_REASONS } from '@stock/domain/enums/movement-reason.enum';
+import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment.value-object';
 import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
-import { type Result } from '@shared/result/result';
+import { type Result } from '@shared/result/result.type';
 import {
   anAdjustmentInput,
   aStockMovement,

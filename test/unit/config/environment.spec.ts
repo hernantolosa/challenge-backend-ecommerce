@@ -1,7 +1,7 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { VALID_ENVIRONMENT } from '@test/fixtures/environment.fixtures';
-import { Environment } from '@config/environment';
+import { Environment } from '@config/environment.schema';
 
 function invalidKeysOf(overrides: Readonly<Record<string, string>>): string[] {
   const environment = plainToInstance(

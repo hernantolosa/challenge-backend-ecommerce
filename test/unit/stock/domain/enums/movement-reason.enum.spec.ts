@@ -1,4 +1,4 @@
-import { MOVEMENT_REASONS, isMovementReason } from '@stock/domain/movement-reason';
+import { MOVEMENT_REASONS, isMovementReason } from '@stock/domain/enums/movement-reason.enum';
 
 describe('isMovementReason', () => {
   it.each(MOVEMENT_REASONS)('recognizes %s', (reason) => {

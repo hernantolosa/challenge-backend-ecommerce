@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { type IncomingMessage } from 'node:http';
-import { type TraceContext } from './trace-context';
+import { type TraceContext } from './trace-context.interface';
 
 const TRACEPARENT_PATTERN = /^([0-9a-f]{2})-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;
 const FORBIDDEN_VERSION = 'ff';

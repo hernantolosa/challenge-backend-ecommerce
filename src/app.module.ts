@@ -3,7 +3,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { json } from 'express';
 import { ThrottlerGuard, ThrottlerModule, type ThrottlerModuleOptions } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Environment } from '@config/environment';
+import { Environment } from '@config/environment.schema';
 import { EnvironmentModule } from '@config/environment.module';
 import { AuthModule } from '@shared/auth/auth.module';
 import { JwtAuthGuard } from '@shared/auth/jwt-auth.guard';

@@ -1,8 +1,8 @@
 import { type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { StockScope } from '@stock/adapters/http/stock.scopes';
-import { MAX_STOCK_LEVEL } from '@stock/domain/stock.constants';
-import { MovementReason } from '@stock/domain/movement-reason';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock.constants';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
 import { IDEMPOTENCY_KEY, SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';
 import { type TestApp, startTestApp } from '@test/support/test-app';

@@ -2,7 +2,7 @@ import { InvariantViolated } from '@shared/errors/invariant-violated.error';
 import { exhaustiveMatchGuard } from '@shared/result/match';
 import { Err } from '@shared/result/err';
 import { Ok } from '@shared/result/ok';
-import { type Result } from '@shared/result/result';
+import { type Result } from '@shared/result/result.type';
 import { NotFound } from '@test/fakes/not-found.error';
 
 function describeOutcome(result: Result<number, InvariantViolated | NotFound>): string {

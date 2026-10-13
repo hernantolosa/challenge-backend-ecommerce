@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
-import { Environment } from '@config/environment';
+import { Environment } from '@config/environment.schema';
 import { LogDestination } from './log-destination';
 import { loggerOptions } from './logger.options';
 import { StdoutLogDestination } from './stdout-log-destination';

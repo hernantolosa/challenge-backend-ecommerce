@@ -1,7 +1,7 @@
-import { type Result } from '@shared/result/result';
-import { type IdempotencyKey } from '@stock/domain/idempotency-key';
-import { type StockMovement } from '@stock/domain/stock-movement';
-import { type LedgerEntry } from './ledger-entry';
+import { type Result } from '@shared/result/result.type';
+import { type IdempotencyKey } from '@stock/domain/value-objects/idempotency-key.value-object';
+import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
+import { type LedgerEntry } from './ledger-entry.interface';
 import { type RecordEntryError } from '@stock/application/errors/record-entry.errors';
 
 export abstract class StockLedger {

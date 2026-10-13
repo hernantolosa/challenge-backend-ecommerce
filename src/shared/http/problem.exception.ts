@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
-import { type Failure } from '@shared/result/failure';
+import { type Failure } from '@shared/result/failure.interface';
 import { buildProblemDetails } from './build-problem-details';
-import { type ProblemDetails } from './problem-details';
-import { type ProblemExtensions } from './problem-extensions';
+import { type ProblemDetails } from './problem-details.interface';
+import { type ProblemExtensions } from './problem-extensions.type';
 
 export class ProblemException extends HttpException {
   constructor(readonly problem: ProblemDetails) {

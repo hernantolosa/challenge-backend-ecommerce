@@ -1,8 +1,8 @@
 import { type RecordEntryError } from '@stock/application/errors/record-entry.errors';
-import { type LedgerEntry } from '@stock/application/ports/ledger-entry';
+import { type LedgerEntry } from '@stock/application/ports/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
-import { type StockMovement } from '@stock/domain/stock-movement';
-import { type Result } from '@shared/result/result';
+import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
+import { type Result } from '@shared/result/result.type';
 import { aQueryFailure } from '@test/fixtures/database-failure.fixtures';
 
 const INPUT_OUTPUT_ERROR = '58030';

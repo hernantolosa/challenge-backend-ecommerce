@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { ProductOrmEntity } from './product.entity';
+import { ProductOrmEntity } from './product.orm-entity';
 
 @Entity({ name: 'variants' })
 @Unique('UQ_variants_sku', ['sku'])

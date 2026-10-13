@@ -1,8 +1,8 @@
-import { Sku } from '@stock/domain/sku';
+import { Sku } from '@stock/domain/value-objects/sku.value-object';
 import { unwrap } from '@test/support/unwrap';
 import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
-import { MovementReason } from '@stock/domain/movement-reason';
-import { type StockMovement } from '@stock/domain/stock-movement';
+import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
+import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
 
 export const SNEAKER_SKU = 'SNK-RUN-42-BLK';
 export const UNKNOWN_SKU = 'DOES-NOT-EXIST';
