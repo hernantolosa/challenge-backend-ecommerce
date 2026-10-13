@@ -16,7 +16,7 @@ export const IDEMPOTENCY_CONSTRAINT = 'UQ_stock_movements_actor_idempotency_key'
 
 @Entity({ name: 'stock_movements' })
 @Unique(IDEMPOTENCY_CONSTRAINT, ['actor', 'idempotencyKey'])
-@Index('IDX_stock_movements_variant_occurred_at', ['variantId', 'occurredAt'])
+@Index('IDX_stock_movements_variant_sequence', ['variantId', 'sequence'])
 @Check('CHK_stock_movements_quantity_positive', '"quantity" > 0')
 @Check('CHK_stock_movements_balance_after_non_negative', '"balance_after" >= 0')
 @Check(
@@ -48,6 +48,9 @@ export class StockMovementOrmEntity {
 
   @Column({ name: 'idempotency_key', type: 'uuid' })
   idempotencyKey!: string;
+
+  @Column({ type: 'bigint', generated: 'identity', generatedIdentity: 'ALWAYS' })
+  sequence!: string;
 
   @CreateDateColumn({ name: 'occurred_at', type: 'timestamptz' })
   occurredAt!: Date;

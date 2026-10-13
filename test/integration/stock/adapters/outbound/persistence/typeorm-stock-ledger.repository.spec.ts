@@ -207,6 +207,20 @@ describe('TypeOrmStockLedgerRepository', () => {
     });
   });
 
+  describe('ledger ordering', () => {
+    it('orders movements by the sequence in which their balances were applied', async () => {
+      await Promise.all(
+        Array.from({ length: 10 }, () => ledger.record(aLedgerEntry({ quantity: 1 }))),
+      );
+
+      const rows = await dataSource.query<{ balanceAfter: number }[]>(
+        'SELECT balance_after AS "balanceAfter" FROM stock_movements WHERE variant_id = $1 ORDER BY sequence',
+        [variant.variantId],
+      );
+      expect(rows.map((row) => row.balanceAfter)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    });
+  });
+
   describe('when a retry races the movement that drained the stock', () => {
     it('reports the key as taken instead of insufficient stock', async () => {
       const drained = await seedVariant(dataSource, { sku: 'SNK-LAST-ONE', onHand: 1 });
