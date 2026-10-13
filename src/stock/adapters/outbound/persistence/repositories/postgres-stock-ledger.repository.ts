@@ -23,11 +23,17 @@ import {
   FIND_LEVEL_SQL,
   FIND_MOVEMENT_SQL,
 } from '@stock/adapters/outbound/persistence/queries/stock-ledger.queries';
-import { toStockMovementFromAppliedRow } from '@stock/adapters/outbound/persistence/mappers/stock-movement.mapper';
+import { toStockLevel } from '@stock/adapters/outbound/persistence/mappers/stock-level.mapper';
+import {
+  toStockMovement,
+  toStockMovementFromAppliedRow,
+} from '@stock/adapters/outbound/persistence/mappers/stock-movement.mapper';
+import { type StockLevelRow } from '@stock/adapters/outbound/persistence/rows/stock-level.row';
+import { type StockMovementRow } from '@stock/adapters/outbound/persistence/rows/stock-movement.row';
 import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/outbound/persistence/constants/constraint-names';
 
 @Injectable()
-export class TypeOrmStockLedgerRepository implements StockLedger, StockLevelReader {
+export class PostgresStockLedgerRepository implements StockLedger, StockLevelReader {
   constructor(private readonly dataSource: DataSource) {}
 
   async record(entry: LedgerEntry): Promise<Result<StockMovement, RecordEntryError>> {
@@ -45,16 +51,16 @@ export class TypeOrmStockLedgerRepository implements StockLedger, StockLevelRead
   }
 
   async findMovement(actor: string, idempotencyKey: IdempotencyKey): Promise<StockMovement | null> {
-    const [movement] = await this.dataSource.query<StockMovement[]>(FIND_MOVEMENT_SQL, [
+    const [row] = await this.dataSource.query<StockMovementRow[]>(FIND_MOVEMENT_SQL, [
       actor,
       idempotencyKey.value,
     ]);
-    return movement ?? null;
+    return row === undefined ? null : toStockMovement(row);
   }
 
   async findLevel(sku: Sku): Promise<StockLevel | null> {
-    const [level] = await this.dataSource.query<StockLevel[]>(FIND_LEVEL_SQL, [sku.value]);
-    return level ?? null;
+    const [row] = await this.dataSource.query<StockLevelRow[]>(FIND_LEVEL_SQL, [sku.value]);
+    return row === undefined ? null : toStockLevel(row);
   }
 
   private applyAdjustmentAndAppendMovement(entry: LedgerEntry): Promise<AppliedAdjustmentRow[]> {

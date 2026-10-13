@@ -1,6 +1,6 @@
 import { QueryFailedError } from 'typeorm';
 import { ForbiddenException, HttpStatus, NotFoundException } from '@nestjs/common';
-import { HttpOutcome } from '@infrastructure/http/builders/http-outcome.builder';
+import { ProblemExceptionBuilder } from '@infrastructure/http/builders/problem-exception.builder';
 import {
   internalErrorProblem,
   toProblemDetails,
@@ -11,7 +11,7 @@ describe('toProblemDetails', () => {
   it('keeps the problem built from a business failure', () => {
     const failure = InvariantViolated.make('quantity', 'must be positive');
 
-    expect(toProblemDetails(HttpOutcome.badRequest(failure, failure.message))).toEqual({
+    expect(toProblemDetails(ProblemExceptionBuilder.badRequest(failure, failure.message))).toEqual({
       type: 'about:blank',
       title: 'Bad Request',
       status: 400,
@@ -24,7 +24,7 @@ describe('toProblemDetails', () => {
     const failure = InvariantViolated.make('sku', 'invalid');
 
     const problem = toProblemDetails(
-      HttpOutcome.conflict(failure, 'conflict', { status: 200, available: 3 }),
+      ProblemExceptionBuilder.conflict(failure, 'conflict', { status: 200, available: 3 }),
     );
 
     expect(problem).toMatchObject({ status: 409, available: 3 });

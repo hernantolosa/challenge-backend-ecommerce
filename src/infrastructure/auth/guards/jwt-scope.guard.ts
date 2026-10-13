@@ -10,7 +10,6 @@ import { JwtService } from '@nestjs/jwt';
 import { principalFromClaims } from '@infrastructure/auth/claims/principal-from-claims';
 import { PUBLIC_ROUTE } from '@infrastructure/auth/constants/public-route.metadata';
 import { REQUIRED_SCOPE } from '@infrastructure/auth/constants/require-scope.metadata';
-import { type Scope } from '@infrastructure/auth/enums/scope';
 import { type AuthenticatedRequest } from '@infrastructure/auth/interfaces/authenticated-request.interface';
 import { type Principal } from '@infrastructure/auth/interfaces/principal.interface';
 import { unreachable } from '@utils/unreachable';
@@ -43,9 +42,9 @@ export class JwtScopeGuard implements CanActivate {
     return this.metadataOf<boolean>(PUBLIC_ROUTE, context) === true;
   }
 
-  private requiredScopeOf(context: ExecutionContext): Scope {
+  private requiredScopeOf(context: ExecutionContext): string {
     return (
-      this.metadataOf<Scope>(REQUIRED_SCOPE, context) ??
+      this.metadataOf<string>(REQUIRED_SCOPE, context) ??
       unreachable('every route must declare @RequireScope or @Public')
     );
   }

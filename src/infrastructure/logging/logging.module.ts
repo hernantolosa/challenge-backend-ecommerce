@@ -1,11 +1,11 @@
 import { Global, Module } from '@nestjs/common';
 import { Environment } from '@infrastructure/config/schemas/environment.schema';
-import { AppLogger } from './logger/app-logger';
-import { LogDestination } from './logger/log-destination';
-import { createAppLogger } from './logger/logger.factory';
-import { NestLoggerAdapter } from './logger/nest-logger.adapter';
-import { StdoutLogDestination } from './logger/stdout-log-destination';
-import { TraceContextStore } from './tracing/trace-context.store';
+import { AppLogger } from '@infrastructure/logging/logger/app-logger';
+import { LogDestination } from '@infrastructure/logging/logger/log-destination';
+import { createAppLogger } from '@infrastructure/logging/logger/logger.factory';
+import { NestLoggerAdapter } from '@infrastructure/logging/logger/nest-logger.adapter';
+import { StdoutLogDestination } from '@infrastructure/logging/logger/stdout-log-destination';
+import { TraceContextStore } from '@infrastructure/logging/tracing/trace-context.store';
 
 @Global()
 @Module({

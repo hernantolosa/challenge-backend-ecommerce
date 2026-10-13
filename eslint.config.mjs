@@ -46,7 +46,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['../*'],
+              group: ['../*', './*/**'],
               message: 'Use a path alias for imports outside the current folder.',
             },
           ],

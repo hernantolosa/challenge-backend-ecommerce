@@ -4,7 +4,7 @@ import { type ProblemExtensions } from '@infrastructure/http/types/problem-exten
 
 const UNTYPED_PROBLEM = 'about:blank';
 
-export function problemDetails(
+export function buildProblemDetails(
   status: number,
   code: string,
   detail: string,

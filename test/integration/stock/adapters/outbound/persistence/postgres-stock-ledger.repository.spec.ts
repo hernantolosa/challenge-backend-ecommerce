@@ -1,6 +1,6 @@
 import { unwrap } from '@test/support/unwrap';
 import { type DataSource } from 'typeorm';
-import { TypeOrmStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
+import { PostgresStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/postgres-stock-ledger.repository';
 import { Sku } from '@stock/domain/value-objects/sku';
 import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
@@ -24,14 +24,14 @@ function skuOf(raw: string): Sku {
   return unwrap(Sku.make(raw));
 }
 
-describe('TypeOrmStockLedgerRepository', () => {
+describe('PostgresStockLedgerRepository', () => {
   let dataSource: DataSource;
-  let ledger: TypeOrmStockLedgerRepository;
+  let ledger: PostgresStockLedgerRepository;
   let variant: SeededVariant;
 
   beforeAll(async () => {
     dataSource = await openTestDatabase();
-    ledger = new TypeOrmStockLedgerRepository(dataSource);
+    ledger = new PostgresStockLedgerRepository(dataSource);
   });
 
   beforeEach(async () => {

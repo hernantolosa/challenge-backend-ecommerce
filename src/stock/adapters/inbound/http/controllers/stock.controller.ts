@@ -3,7 +3,7 @@ import { type Response } from 'express';
 import { CurrentPrincipal } from '@infrastructure/auth/decorators/current-principal.decorator';
 import { type Principal } from '@infrastructure/auth/interfaces/principal.interface';
 import { RequireScope } from '@infrastructure/auth/decorators/require-scope.decorator';
-import { Scope } from '@infrastructure/auth/enums/scope';
+import { StockScope } from '@stock/adapters/inbound/http/constants/stock-scopes';
 import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
 import { CommonProblems } from '@infrastructure/http/problems/common.problems';
 import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
@@ -28,7 +28,7 @@ export class StockController {
   ) {}
 
   @Post('movimientos')
-  @RequireScope(Scope.STOCK_WRITE)
+  @RequireScope(StockScope.WRITE)
   async recordMovement(
     @Body() body: RecordStockMovementRequestDto,
     @IdempotencyKeyHeader() header: IdempotencyKeyHeaderDto,
@@ -61,9 +61,9 @@ export class StockController {
   }
 
   @Get(':sku')
-  @RequireScope(Scope.STOCK_READ)
+  @RequireScope(StockScope.READ)
   async findStockLevel(@Param() params: StockLevelParamsDto): Promise<StockLevelResponseDto> {
-    const outcome = await this.getStockLevel.execute(params.sku);
+    const outcome = await this.getStockLevel.execute({ sku: params.sku });
 
     switch (outcome.kind) {
       case 'Ok':

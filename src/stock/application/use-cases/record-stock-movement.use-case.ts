@@ -19,9 +19,9 @@ export class RecordStockMovement {
   constructor(private readonly ledger: StockLedger) {}
 
   async execute(
-    command: RecordStockMovementInputDto,
+    input: RecordStockMovementInputDto,
   ): Promise<Result<RecordedStockMovementDto, RecordStockMovementError>> {
-    const entry = buildLedgerEntry(command);
+    const entry = buildLedgerEntry(input);
 
     switch (entry.kind) {
       case 'Ok':
@@ -72,13 +72,13 @@ export class RecordStockMovement {
 }
 
 function buildLedgerEntry(
-  command: RecordStockMovementInputDto,
+  input: RecordStockMovementInputDto,
 ): Result<LedgerEntry, InvariantViolated> {
-  const adjustment = StockAdjustment.make(command);
+  const adjustment = StockAdjustment.make(input);
 
   switch (adjustment.kind) {
     case 'Ok':
-      return buildLedgerEntryWithKey(adjustment.value, command);
+      return buildLedgerEntryWithKey(adjustment.value, input);
     case 'InvariantViolated':
       return adjustment;
     default:
@@ -88,13 +88,13 @@ function buildLedgerEntry(
 
 function buildLedgerEntryWithKey(
   adjustment: StockAdjustment,
-  command: RecordStockMovementInputDto,
+  input: RecordStockMovementInputDto,
 ): Result<LedgerEntry, InvariantViolated> {
-  const idempotencyKey = IdempotencyKey.make(command.idempotencyKey);
+  const idempotencyKey = IdempotencyKey.make(input.idempotencyKey);
 
   switch (idempotencyKey.kind) {
     case 'Ok':
-      return Ok.make({ adjustment, actor: command.actor, idempotencyKey: idempotencyKey.value });
+      return Ok.make({ adjustment, actor: input.actor, idempotencyKey: idempotencyKey.value });
     case 'InvariantViolated':
       return idempotencyKey;
     default:

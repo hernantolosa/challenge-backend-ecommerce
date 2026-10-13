@@ -1,16 +1,16 @@
 import { HttpStatus } from '@nestjs/common';
 import { type Failure } from '@utils/result/interfaces/failure.interface';
-import { problemDetails } from './problem-details.builder';
+import { buildProblemDetails } from './problem-details.builder';
 import { type ProblemExtensions } from '@infrastructure/http/types/problem-extensions.type';
 import { ProblemException } from '@infrastructure/http/exceptions/problem.exception';
 
-export class HttpOutcome {
+export class ProblemExceptionBuilder {
   static badRequest(
     failure: Failure,
     detail: string,
     extensions?: ProblemExtensions,
   ): ProblemException {
-    return HttpOutcome.problem(HttpStatus.BAD_REQUEST, failure, detail, extensions);
+    return ProblemExceptionBuilder.problem(HttpStatus.BAD_REQUEST, failure, detail, extensions);
   }
 
   static notFound(
@@ -18,7 +18,7 @@ export class HttpOutcome {
     detail: string,
     extensions?: ProblemExtensions,
   ): ProblemException {
-    return HttpOutcome.problem(HttpStatus.NOT_FOUND, failure, detail, extensions);
+    return ProblemExceptionBuilder.problem(HttpStatus.NOT_FOUND, failure, detail, extensions);
   }
 
   static conflict(
@@ -26,7 +26,7 @@ export class HttpOutcome {
     detail: string,
     extensions?: ProblemExtensions,
   ): ProblemException {
-    return HttpOutcome.problem(HttpStatus.CONFLICT, failure, detail, extensions);
+    return ProblemExceptionBuilder.problem(HttpStatus.CONFLICT, failure, detail, extensions);
   }
 
   static unprocessable(
@@ -34,7 +34,12 @@ export class HttpOutcome {
     detail: string,
     extensions?: ProblemExtensions,
   ): ProblemException {
-    return HttpOutcome.problem(HttpStatus.UNPROCESSABLE_ENTITY, failure, detail, extensions);
+    return ProblemExceptionBuilder.problem(
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      failure,
+      detail,
+      extensions,
+    );
   }
 
   private static problem(
@@ -43,6 +48,6 @@ export class HttpOutcome {
     detail: string,
     extensions?: ProblemExtensions,
   ): ProblemException {
-    return new ProblemException(problemDetails(status, failure.kind, detail, extensions));
+    return new ProblemException(buildProblemDetails(status, failure.kind, detail, extensions));
   }
 }

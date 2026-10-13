@@ -1,7 +1,7 @@
 import { type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import * as request from 'supertest';
-import { Scope } from '@infrastructure/auth/enums/scope';
+import { StockScope } from '@stock/adapters/inbound/http/constants/stock-scopes';
 import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
@@ -259,7 +259,7 @@ describe('Stock HTTP API', () => {
       });
 
       it('returns 403 when the token lacks the stock:write scope', async () => {
-        const token = issueToken({ scopes: [Scope.STOCK_READ] });
+        const token = issueToken({ scopes: [StockScope.READ] });
 
         const response = await postMovement(aMovementBody(), randomUUID(), token);
 
@@ -312,7 +312,7 @@ describe('Stock HTTP API', () => {
     it('returns the available stock', async () => {
       const response = await request(server)
         .get(`/stock/${SNEAKER_SKU}`)
-        .set('Authorization', `Bearer ${issueToken({ scopes: [Scope.STOCK_READ] })}`);
+        .set('Authorization', `Bearer ${issueToken({ scopes: [StockScope.READ] })}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ sku: SNEAKER_SKU, onHand: 10 });
@@ -341,7 +341,7 @@ describe('Stock HTTP API', () => {
     it('returns 403 without the stock:read scope', async () => {
       const response = await request(server)
         .get(`/stock/${SNEAKER_SKU}`)
-        .set('Authorization', `Bearer ${issueToken({ scopes: [Scope.STOCK_WRITE] })}`);
+        .set('Authorization', `Bearer ${issueToken({ scopes: [StockScope.WRITE] })}`);
 
       expect(response.status).toBe(403);
     });
@@ -381,7 +381,7 @@ describe('Stock HTTP API', () => {
 
     it.each([
       ['an unauthenticated request', 401, 'Unauthorized', null],
-      ['a forbidden request', 403, 'Forbidden', issueToken({ scopes: [Scope.STOCK_READ] })],
+      ['a forbidden request', 403, 'Forbidden', issueToken({ scopes: [StockScope.READ] })],
     ])('formats %s as problem details', async (_case, status, code, token) => {
       const response = await postMovement(aMovementBody(), randomUUID(), token);
 

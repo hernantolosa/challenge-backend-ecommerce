@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { type ClientHttpError } from '@infrastructure/http/interfaces/client-http-error.interface';
-import { problemDetails, titleOf } from '@infrastructure/http/builders/problem-details.builder';
+import {
+  buildProblemDetails,
+  titleOf,
+} from '@infrastructure/http/builders/problem-details.builder';
 import { type ProblemDetails } from '@infrastructure/http/interfaces/problem-details.interface';
 import { ProblemException } from '@infrastructure/http/exceptions/problem.exception';
 import { isDatabaseUnavailable } from '@infrastructure/database/errors/postgres-errors';
@@ -19,12 +22,12 @@ export function toProblemDetails(exception: unknown): ProblemDetails | null {
 
 export function serviceUnavailableProblem(): ProblemDetails {
   const status = HttpStatus.SERVICE_UNAVAILABLE;
-  return problemDetails(status, problemCodeFor(status), 'The service is busy, retry later');
+  return buildProblemDetails(status, problemCodeFor(status), 'The service is busy, retry later');
 }
 
 export function internalErrorProblem(): ProblemDetails {
   const status = HttpStatus.INTERNAL_SERVER_ERROR;
-  return problemDetails(status, problemCodeFor(status), 'An unexpected error occurred');
+  return buildProblemDetails(status, problemCodeFor(status), 'An unexpected error occurred');
 }
 
 function problemFromHttpException(exception: HttpException): ProblemDetails {
@@ -32,7 +35,7 @@ function problemFromHttpException(exception: HttpException): ProblemDetails {
   const messages = extractMessages(exception.getResponse());
 
   if (messages.length > 1 || status === BAD_REQUEST) {
-    return problemDetails(status, problemCodeFor(status), detailFromMessages(messages), {
+    return buildProblemDetails(status, problemCodeFor(status), detailFromMessages(messages), {
       errors: messages,
     });
   }
@@ -40,7 +43,7 @@ function problemFromHttpException(exception: HttpException): ProblemDetails {
 }
 
 function problemFromStatus(status: number, detail: string): ProblemDetails {
-  return problemDetails(status, problemCodeFor(status), detail);
+  return buildProblemDetails(status, problemCodeFor(status), detail);
 }
 
 function detailFromMessages(messages: readonly string[]): string {

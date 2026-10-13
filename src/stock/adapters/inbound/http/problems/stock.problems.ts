@@ -1,4 +1,4 @@
-import { HttpOutcome } from '@infrastructure/http/builders/http-outcome.builder';
+import { ProblemExceptionBuilder } from '@infrastructure/http/builders/problem-exception.builder';
 import { type ProblemException } from '@infrastructure/http/exceptions/problem.exception';
 import { type IdempotencyKeyReused } from '@stock/domain/errors/idempotency-key-reused.error';
 import { type StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
@@ -7,18 +7,18 @@ import { type VariantNotFound } from '@stock/domain/errors/variant-not-found.err
 
 export class StockProblems {
   static variantNotFound(error: VariantNotFound): ProblemException {
-    return HttpOutcome.notFound(error, `Variant ${error.sku} not found`);
+    return ProblemExceptionBuilder.notFound(error, `Variant ${error.sku} not found`);
   }
 
   static insufficientStock(error: InsufficientStock): ProblemException {
-    return HttpOutcome.conflict(error, `Not enough stock for ${error.sku}`, {
+    return ProblemExceptionBuilder.conflict(error, `Not enough stock for ${error.sku}`, {
       requested: error.requested,
       available: error.available,
     });
   }
 
   static stockCapacityExceeded(error: StockCapacityExceeded): ProblemException {
-    return HttpOutcome.conflict(error, `Stock capacity exceeded for ${error.sku}`, {
+    return ProblemExceptionBuilder.conflict(error, `Stock capacity exceeded for ${error.sku}`, {
       requested: error.requested,
       onHand: error.onHand,
       capacity: error.capacity,
@@ -26,7 +26,7 @@ export class StockProblems {
   }
 
   static idempotencyKeyReused(error: IdempotencyKeyReused): ProblemException {
-    return HttpOutcome.unprocessable(
+    return ProblemExceptionBuilder.unprocessable(
       error,
       'Idempotency-Key was already used for a different request',
     );

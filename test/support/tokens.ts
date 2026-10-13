@@ -1,7 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
-import { Scope } from '@infrastructure/auth/enums/scope';
+import { StockScope } from '@stock/adapters/inbound/http/constants/stock-scopes';
 import { ACTOR } from '@test/fixtures/stock.fixtures';
-import { type TokenSeed } from './interfaces/token-seed.interface';
+import { type TokenSeed } from '@test/support/interfaces/token-seed.interface';
 
 const DEFAULT_LIFETIME_SECONDS = 300;
 
@@ -20,7 +20,7 @@ function claimsOf(seed: TokenSeed): Record<string, unknown> {
   const expiresAt = nowInSeconds() + (seed.expiresInSeconds ?? DEFAULT_LIFETIME_SECONDS);
 
   return {
-    scope: (seed.scopes ?? [Scope.STOCK_READ, Scope.STOCK_WRITE]).join(' '),
+    scope: (seed.scopes ?? [StockScope.READ, StockScope.WRITE]).join(' '),
     ...(seed.withoutIssuedAt === true ? {} : { iat: issuedAt }),
     ...(seed.withoutExpiry === true ? {} : { exp: expiresAt }),
   };
@@ -43,7 +43,7 @@ export function forgeUnsignedToken(): string {
   const header = encode({ alg: 'none', typ: 'JWT' });
   const payload = encode({
     sub: ACTOR,
-    scope: Scope.STOCK_WRITE,
+    scope: StockScope.WRITE,
     iss: requiredEnv('JWT_ISSUER'),
     aud: requiredEnv('JWT_AUDIENCE'),
     iat: nowInSeconds(),
