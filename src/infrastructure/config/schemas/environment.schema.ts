@@ -35,4 +35,9 @@ export class Environment extends DatabaseEnvironment {
   @IsInt()
   @Min(1000)
   readonly THROTTLE_TTL_MS: number = 60_000;
+
+  @IsInt()
+  @Min(0)
+  @Max(10)
+  readonly TRUST_PROXY_HOPS: number = 0;
 }

@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import { Environment } from '@infrastructure/config/schemas/environment.schema';
 import { ProblemDetailsFilter } from '@infrastructure/http/filters/problem-details.filter';
 import { AppLogger } from '@infrastructure/logging/logger/app-logger';
 import { NestLoggerAdapter } from '@infrastructure/logging/logger/nest-logger.adapter';
@@ -13,6 +14,8 @@ const MAX_JSON_BODY = '10kb';
 
 export function configureApp(app: NestExpressApplication): void {
   const logger = app.get(AppLogger);
+
+  app.set('trust proxy', app.get(Environment).TRUST_PROXY_HOPS);
 
   app.useLogger(app.get(NestLoggerAdapter));
   app.use(startRequestTrace());
