@@ -4,6 +4,7 @@ import { type LoggerOptions } from '@infrastructure/logging/interfaces/logger-op
 import { type TraceContextStore } from '@infrastructure/logging/tracing/trace-context.store';
 import { traceFieldsOf } from '@infrastructure/logging/tracing/trace-fields';
 import { AppLogger } from './app-logger';
+import { serializeError } from './serialize-error';
 import { type LogDestination } from './log-destination';
 
 const SERVICE_NAME = 'ecommerce-api';
@@ -45,7 +46,7 @@ export function createPinoLogger(
       errorKey: 'error',
       timestamp: pino.stdTimeFunctions.isoTime,
       formatters: { level: (label: string): { level: string } => ({ level: label }) },
-      serializers: { error: pino.stdSerializers.err },
+      serializers: { error: serializeError },
       redact: { paths: SENSITIVE_PATHS, censor: REDACTED },
       mixin: (): object => traceFieldsOf(traces.current()),
     },

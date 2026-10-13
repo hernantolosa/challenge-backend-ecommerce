@@ -2,7 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { type Server } from 'node:http';
 import * as request from 'supertest';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
-import { DATABASE_FAILURE, FailingStockLedger } from '@test/fakes/failing-stock-ledger';
+import {
+  DATABASE_FAILURE,
+  FailingStockLedger,
+  LEAKED_PARAMETER,
+  LEAKED_SQL,
+} from '@test/fakes/failing-stock-ledger';
 import { seedVariant } from '@test/fixtures/catalog.fixtures';
 import { SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
 import { type LogEntry } from '@test/support/log-entry.type';
@@ -172,7 +177,7 @@ describe('Unexpected failures', () => {
       code: 'InternalServerError',
       traceId,
     });
-    expect(JSON.stringify(response.body)).not.toContain('ECONNREFUSED');
+    expect(JSON.stringify(response.body)).not.toContain(DATABASE_FAILURE);
 
     const failure = await waitForLog(
       testApp.logs,
@@ -181,9 +186,14 @@ describe('Unexpected failures', () => {
     expect(failure).toMatchObject({
       level: 'error',
       traceId,
-      error: { type: 'Error', message: DATABASE_FAILURE },
+      error: { type: 'QueryFailedError', message: DATABASE_FAILURE, code: '58030' },
     });
     expect((failure.error as { stack: string }).stack).toContain('FailingStockLedger');
+    expect(failure.error).not.toHaveProperty('parameters');
+    expect(failure.error).not.toHaveProperty('query');
+    expect(failure.error).not.toHaveProperty('driverError');
+    expect(testApp.logs.raw).not.toContain(LEAKED_PARAMETER);
+    expect(testApp.logs.raw).not.toContain(LEAKED_SQL);
     expect(await waitForLog(testApp.logs, isAccessLog)).toMatchObject({
       level: 'error',
       traceId,
