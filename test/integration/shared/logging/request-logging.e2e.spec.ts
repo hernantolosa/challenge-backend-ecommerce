@@ -96,11 +96,12 @@ describe('Request logging and tracing', () => {
         service: 'ecommerce-api',
         environment: 'test',
         traceId: response.headers['x-trace-id'],
-        http: { method: 'POST', path: MOVEMENTS_PATH, status: 201 },
+        req: { method: 'POST', path: MOVEMENTS_PATH },
+        res: { statusCode: 201 },
         outcome: 'Ok',
         actor: 'operator-42',
       });
-      expect((entry.http as { durationMs: unknown }).durationMs).toEqual(expect.any(Number));
+      expect(entry.durationMs).toEqual(expect.any(Number));
       expect(testApp.logs.entries().filter(isAccessLog)).toHaveLength(1);
     });
 
@@ -109,7 +110,7 @@ describe('Request logging and tracing', () => {
 
       expect(await waitForLog(testApp.logs, isAccessLog)).toMatchObject({
         level: 'info',
-        http: { status: 409 },
+        res: { statusCode: 409 },
         outcome: 'InsufficientStock',
       });
     });
@@ -119,7 +120,7 @@ describe('Request logging and tracing', () => {
 
       expect(await waitForLog(testApp.logs, isAccessLog)).toMatchObject({
         level: 'warn',
-        http: { status: 401 },
+        res: { statusCode: 401 },
         outcome: 'Unauthorized',
         actor: null,
       });
@@ -141,7 +142,7 @@ describe('Request logging and tracing', () => {
       const paths = testApp.logs
         .entries()
         .filter(isAccessLog)
-        .map((entry) => (entry.http as { path: string }).path);
+        .map((entry) => (entry.req as { path: string }).path);
       expect(paths).toEqual([MOVEMENTS_PATH]);
     });
   });
@@ -184,12 +185,12 @@ describe('Unexpected failures', () => {
     expect(failure).toMatchObject({
       level: 'error',
       traceId,
-      error: { type: 'QueryFailedError', message: DATABASE_FAILURE, code: '58030' },
+      err: { type: 'QueryFailedError', message: DATABASE_FAILURE, code: '58030' },
     });
-    expect((failure.error as { stack: string }).stack).toContain('FailingStockLedger');
-    expect(failure.error).not.toHaveProperty('parameters');
-    expect(failure.error).not.toHaveProperty('query');
-    expect(failure.error).not.toHaveProperty('driverError');
+    expect((failure.err as { stack: string }).stack).toContain('FailingStockLedger');
+    expect(failure.err).not.toHaveProperty('parameters');
+    expect(failure.err).not.toHaveProperty('query');
+    expect(failure.err).not.toHaveProperty('driverError');
     expect(testApp.logs.raw).not.toContain(LEAKED_PARAMETER);
     expect(testApp.logs.raw).not.toContain(LEAKED_SQL);
     expect(await waitForLog(testApp.logs, isAccessLog)).toMatchObject({

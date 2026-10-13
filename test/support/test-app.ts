@@ -19,8 +19,11 @@ export interface TestAppOptions {
   readonly environment?: Partial<Environment>;
 }
 
+const processLogs = new MemoryLogDestination();
+
 export async function startTestApp(options: TestAppOptions = {}): Promise<TestApp> {
-  const logs = new MemoryLogDestination();
+  const logs = processLogs;
+  logs.clear();
   const builder = Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(LogDestination)
     .useValue(logs)

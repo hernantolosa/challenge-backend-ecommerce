@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { type NestExpressApplication } from '@nestjs/platform-express';
+import { Logger } from 'nestjs-pino';
 import { Environment } from '@config/environment';
-import { AppLogger } from '@shared/logging/app-logger';
 import { AppModule } from './app.module';
 import { configureApp } from './configure-app';
 
@@ -14,7 +14,7 @@ async function bootstrap(): Promise<void> {
 
   const { PORT } = app.get(Environment);
   await app.listen(PORT);
-  app.get(AppLogger).info('Application started', { port: PORT });
+  app.get(Logger).log(`Application started on port ${PORT}`);
 }
 
 void bootstrap();

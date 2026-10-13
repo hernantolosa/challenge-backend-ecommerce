@@ -5,10 +5,11 @@ import {
   type ArgumentsHost,
   type ExceptionFilter,
 } from '@nestjs/common';
-import { type Response } from 'express';
+import { type Request, type Response } from 'express';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { isDatabaseUnavailable } from '@shared/database/postgres-errors';
-import { type AppLogger } from '@shared/logging/app-logger';
-import { RequestTrace, traceFieldsOf } from '@shared/logging/request-tracing';
+import { recordOutcome } from '@shared/logging/request-outcome';
+import { traceContextOf } from '@shared/logging/trace-context';
 import { buildProblemDetails, ProblemException, titleOf, type ProblemDetails } from './problem';
 
 interface ClientHttpError {
@@ -25,24 +26,21 @@ const SERVICE_UNAVAILABLE: number = HttpStatus.SERVICE_UNAVAILABLE;
 
 @Catch()
 export class ProblemDetailsFilter implements ExceptionFilter {
-  constructor(private readonly logger: AppLogger) {}
+  constructor(@InjectPinoLogger(ProblemDetailsFilter.name) private readonly logger: PinoLogger) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
-    const response = host.switchToHttp().getResponse<Response>();
-    const trace = RequestTrace.of(response);
+    const http = host.switchToHttp();
+    const response = http.getResponse<Response>();
+    const trace = traceContextOf(http.getRequest<Request>());
     const problem = toProblemDetails(exception) ?? internalErrorProblem();
 
     if (problem.status >= FIRST_SERVER_ERROR) {
-      this.logger.error(
-        'Request failed with a server error',
-        exception,
-        traceFieldsOf(trace?.context),
-      );
+      this.logger.error({ err: exception }, 'Request failed with a server error');
     }
     if (problem.status === SERVICE_UNAVAILABLE) response.setHeader('Retry-After', '1');
-    trace?.recordOutcome(problem.code);
+    recordOutcome(response, problem.code);
 
-    const body = trace === undefined ? problem : { ...problem, traceId: trace.context.traceId };
+    const body = trace === undefined ? problem : { ...problem, traceId: trace.traceId };
     response.status(problem.status).type(PROBLEM_CONTENT_TYPE).json(body);
   }
 }

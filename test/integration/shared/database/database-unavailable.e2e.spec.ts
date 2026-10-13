@@ -70,7 +70,7 @@ describe('When the database cannot serve a request in time', () => {
           entry.message === 'Request failed with a server error' &&
           entry.traceId === response.headers['x-trace-id'],
       ),
-    ).toMatchObject({ level: 'error', error: { code: '55P03' } });
+    ).toMatchObject({ level: 'error', err: { code: '55P03' } });
   });
 
   it('serves the request normally once the lock is released', async () => {

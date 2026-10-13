@@ -10,7 +10,17 @@ import {
   validateSync,
 } from 'class-validator';
 import * as dotenv from 'dotenv';
-import { LOG_LEVELS, LogLevel } from '@shared/logging/app-logger';
+import { type LevelWithSilent } from 'pino';
+
+const LOG_LEVELS: readonly LevelWithSilent[] = [
+  'fatal',
+  'error',
+  'warn',
+  'info',
+  'debug',
+  'trace',
+  'silent',
+];
 
 export class DatabaseEnvironment {
   @IsIn(['development', 'test', 'production'])
@@ -57,7 +67,7 @@ export class DatabaseEnvironment {
 
 export class Environment extends DatabaseEnvironment {
   @IsIn(LOG_LEVELS)
-  readonly LOG_LEVEL: LogLevel = LogLevel.INFO;
+  readonly LOG_LEVEL: LevelWithSilent = 'info';
 
   @IsInt()
   @Min(1)
