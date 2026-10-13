@@ -1,5 +1,6 @@
 import { VariantNotFound } from '../../domain/errors/variant-not-found.error';
 import { Sku } from '../../domain/value-objects/sku';
+import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';
 import { Err } from '../../../utils/result/err';
 import { Ok } from '../../../utils/result/ok';
 import { type Result } from '../../../utils/result/result';
@@ -13,10 +14,20 @@ export class GetStockLevel {
 
   async execute(rawSku: string): Promise<Result<StockLevelView, GetStockLevelError>> {
     const sku = Sku.make(rawSku);
-    if (!sku.ok) return sku;
 
-    const level = await this.levels.findLevel(sku.value);
-    if (level === null) return Err.make(VariantNotFound.make(sku.value.value));
+    switch (sku.kind) {
+      case 'Ok':
+        return this.levelOf(sku.value);
+      case 'InvariantViolated':
+        return sku;
+      default:
+        return exhaustiveMatchGuard(sku);
+    }
+  }
+
+  private async levelOf(sku: Sku): Promise<Result<StockLevelView, GetStockLevelError>> {
+    const level = await this.levels.findLevel(sku);
+    if (level === null) return Err.make(VariantNotFound.make(sku.value));
 
     return Ok.make(toStockLevelView(level));
   }

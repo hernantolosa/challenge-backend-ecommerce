@@ -3,7 +3,7 @@ import { type Result } from '../../../../src/utils/result/result';
 import { type InvariantViolated } from '../../../../src/utils/errors/invariant-violated.error';
 
 function valueOf(result: Result<Sku, InvariantViolated>): string | undefined {
-  return result.ok ? result.value.value : undefined;
+  return result.kind === 'Ok' ? result.value.value : undefined;
 }
 
 describe('Sku', () => {
@@ -23,7 +23,7 @@ describe('Sku', () => {
     ['too long', 'A'.repeat(SKU_MAX_LENGTH + 1)],
   ])('rejects a %s value by length', (_case, raw) => {
     expect(Sku.make(raw)).toEqual({
-      ok: false,
+      kind: 'InvariantViolated',
       error: {
         kind: 'InvariantViolated',
         field: 'sku',
@@ -42,7 +42,7 @@ describe('Sku', () => {
     ['non ascii letter', 'ZAPATILLA-Ñ'],
   ])('rejects a value with %s', (_case, raw) => {
     expect(Sku.make(raw)).toEqual({
-      ok: false,
+      kind: 'InvariantViolated',
       error: {
         kind: 'InvariantViolated',
         field: 'sku',

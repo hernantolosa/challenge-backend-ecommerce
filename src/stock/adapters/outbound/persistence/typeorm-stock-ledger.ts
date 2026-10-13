@@ -27,7 +27,7 @@ export class TypeOrmStockLedger implements StockLedger, StockLevelReader {
   async record(entry: LedgerEntry): Promise<Result<StockMovement, RecordEntryError>> {
     try {
       const [applied] = await this.applyAdjustment(entry);
-      if (applied === undefined) return Err.make(await this.explainRejection(entry));
+      if (applied === undefined) return this.explainRejection(entry);
 
       return Ok.make(toStockMovement(entry, applied));
     } catch (error) {
@@ -63,11 +63,13 @@ export class TypeOrmStockLedger implements StockLedger, StockLevelReader {
     ]);
   }
 
-  private async explainRejection(entry: LedgerEntry): Promise<VariantNotFound | InsufficientStock> {
+  private async explainRejection(
+    entry: LedgerEntry,
+  ): Promise<Err<VariantNotFound> | Err<InsufficientStock>> {
     const { sku, quantity } = entry.adjustment;
     const level = await this.findLevel(sku);
-    if (level === null) return VariantNotFound.make(sku.value);
+    if (level === null) return Err.make(VariantNotFound.make(sku.value));
 
-    return InsufficientStock.make(sku.value, quantity.value, level.onHand);
+    return Err.make(InsufficientStock.make(sku.value, quantity.value, level.onHand));
   }
 }

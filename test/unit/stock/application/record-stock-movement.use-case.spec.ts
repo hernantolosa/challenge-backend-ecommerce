@@ -1,3 +1,4 @@
+import { unwrap } from '../../../support/unwrap';
 import { RecordStockMovement } from '../../../../src/stock/application/use-cases/record-stock-movement.use-case';
 import { MovementReason } from '../../../../src/stock/domain/movement-reason';
 import { FAKE_CLOCK, InMemoryStockLedger } from '../../../fakes/in-memory-stock-ledger';
@@ -26,7 +27,7 @@ describe('RecordStockMovement', () => {
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 3 }));
 
       expect(result).toEqual({
-        ok: true,
+        kind: 'Ok',
         value: {
           replayed: false,
           movement: {
@@ -62,7 +63,7 @@ describe('RecordStockMovement', () => {
     it('allows selling the last available unit, leaving the stock at zero', async () => {
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 10 }));
 
-      expect(result).toMatchObject({ ok: true, value: { movement: { balanceAfter: 0 } } });
+      expect(result).toMatchObject({ kind: 'Ok', value: { movement: { balanceAfter: 0 } } });
       expect(ledger.levelOf(SNEAKER_SKU)).toBe(0);
     });
 
@@ -71,7 +72,7 @@ describe('RecordStockMovement', () => {
         aRecordCommand({ sku: SNEAKER_SKU.toLowerCase() }),
       );
 
-      expect(result).toMatchObject({ ok: true, value: { movement: { sku: SNEAKER_SKU } } });
+      expect(result).toMatchObject({ kind: 'Ok', value: { movement: { sku: SNEAKER_SKU } } });
     });
 
     it('records who performed the movement', async () => {
@@ -86,7 +87,7 @@ describe('RecordStockMovement', () => {
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 11 }));
 
       expect(result).toEqual({
-        ok: false,
+        kind: 'InsufficientStock',
         error: { kind: 'InsufficientStock', sku: SNEAKER_SKU, requested: 11, available: 10 },
       });
     });
@@ -105,7 +106,7 @@ describe('RecordStockMovement', () => {
       const retry = await recordStockMovement.execute(aRecordCommand({ quantity: 11 }));
 
       expect(retry).toMatchObject({
-        ok: true,
+        kind: 'Ok',
         value: { replayed: false, movement: { balanceAfter: 9 } },
       });
     });
@@ -115,7 +116,10 @@ describe('RecordStockMovement', () => {
     it('rejects the movement', async () => {
       const result = await recordStockMovement.execute(aRecordCommand({ sku: UNKNOWN_SKU }));
 
-      expect(result).toEqual({ ok: false, error: { kind: 'VariantNotFound', sku: UNKNOWN_SKU } });
+      expect(result).toEqual({
+        kind: 'VariantNotFound',
+        error: { kind: 'VariantNotFound', sku: UNKNOWN_SKU },
+      });
       expect(ledger.movements).toHaveLength(0);
     });
   });
@@ -129,7 +133,10 @@ describe('RecordStockMovement', () => {
     ])('rejects an invalid %s without touching the ledger', async (field, command) => {
       const result = await recordStockMovement.execute(command);
 
-      expect(result).toMatchObject({ ok: false, error: { kind: 'InvariantViolated', field } });
+      expect(result).toMatchObject({
+        kind: 'InvariantViolated',
+        error: { kind: 'InvariantViolated', field },
+      });
       expect(ledger.movements).toHaveLength(0);
       expect(ledger.levelOf(SNEAKER_SKU)).toBe(10);
     });
@@ -140,10 +147,8 @@ describe('RecordStockMovement', () => {
       const first = await recordStockMovement.execute(aRecordCommand());
       const retry = await recordStockMovement.execute(aRecordCommand());
 
-      expect(first.ok && retry.ok && retry.value.movement).toEqual(
-        first.ok && first.value.movement,
-      );
-      expect(retry).toMatchObject({ ok: true, value: { replayed: true } });
+      expect(unwrap(retry).movement).toEqual(unwrap(first).movement);
+      expect(retry).toMatchObject({ kind: 'Ok', value: { replayed: true } });
     });
 
     it('applies the stock change only once across retries', async () => {
@@ -165,7 +170,7 @@ describe('RecordStockMovement', () => {
         }),
       );
 
-      expect(retry).toMatchObject({ ok: true, value: { replayed: true } });
+      expect(retry).toMatchObject({ kind: 'Ok', value: { replayed: true } });
     });
 
     it('rejects reusing a key for a different request', async () => {
@@ -174,7 +179,7 @@ describe('RecordStockMovement', () => {
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 5 }));
 
       expect(result).toEqual({
-        ok: false,
+        kind: 'IdempotencyKeyReused',
         error: { kind: 'IdempotencyKeyReused', idempotencyKey: IDEMPOTENCY_KEY },
       });
       expect(ledger.levelOf(SNEAKER_SKU)).toBe(8);
@@ -192,7 +197,7 @@ describe('RecordStockMovement', () => {
 
       const result = await recordStockMovement.execute(aRecordCommand({ actor: OTHER_ACTOR }));
 
-      expect(result).toMatchObject({ ok: true, value: { replayed: false } });
+      expect(result).toMatchObject({ kind: 'Ok', value: { replayed: false } });
       expect(ledger.levelOf(SNEAKER_SKU)).toBe(6);
     });
   });
@@ -205,7 +210,7 @@ describe('RecordStockMovement', () => {
       const result = await recordStockMovement.execute(aRecordCommand());
 
       expect(result).toMatchObject({
-        ok: true,
+        kind: 'Ok',
         value: { replayed: true, movement: { id: 'winner' } },
       });
     });
@@ -216,7 +221,7 @@ describe('RecordStockMovement', () => {
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 2 }));
 
       expect(result).toEqual({
-        ok: false,
+        kind: 'IdempotencyKeyReused',
         error: { kind: 'IdempotencyKeyReused', idempotencyKey: IDEMPOTENCY_KEY },
       });
     });

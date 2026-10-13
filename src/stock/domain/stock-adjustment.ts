@@ -1,4 +1,5 @@
 import { type InvariantViolated } from '../../utils/errors/invariant-violated.error';
+import { exhaustiveMatchGuard } from '../../utils/exhaustive-match-guard';
 import { Ok } from '../../utils/result/ok';
 import { type Result } from '../../utils/result/result';
 import { type StockAdjustmentInput } from './interfaces/stock-adjustment-input.interface';
@@ -16,12 +17,31 @@ export class StockAdjustment {
 
   static make(input: StockAdjustmentInput): Result<StockAdjustment, InvariantViolated> {
     const sku = Sku.make(input.sku);
-    if (!sku.ok) return sku;
 
+    switch (sku.kind) {
+      case 'Ok':
+        return StockAdjustment.withSku(sku.value, input);
+      case 'InvariantViolated':
+        return sku;
+      default:
+        return exhaustiveMatchGuard(sku);
+    }
+  }
+
+  private static withSku(
+    sku: Sku,
+    input: StockAdjustmentInput,
+  ): Result<StockAdjustment, InvariantViolated> {
     const quantity = Quantity.make(input.quantity);
-    if (!quantity.ok) return quantity;
 
-    return Ok.make(new StockAdjustment(sku.value, quantity.value, input.reason));
+    switch (quantity.kind) {
+      case 'Ok':
+        return Ok.make(new StockAdjustment(sku, quantity.value, input.reason));
+      case 'InvariantViolated':
+        return quantity;
+      default:
+        return exhaustiveMatchGuard(quantity);
+    }
   }
 
   get delta(): number {

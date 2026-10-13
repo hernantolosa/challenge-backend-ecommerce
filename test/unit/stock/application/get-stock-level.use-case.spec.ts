@@ -11,28 +11,28 @@ describe('GetStockLevel', () => {
 
   it('returns the stock available for a variant', async () => {
     expect(await getStockLevel.execute(SNEAKER_SKU)).toEqual({
-      ok: true,
+      kind: 'Ok',
       value: { sku: SNEAKER_SKU, onHand: 4 },
     });
   });
 
   it('normalizes the sku before looking it up', async () => {
     expect(await getStockLevel.execute(` ${SNEAKER_SKU.toLowerCase()} `)).toMatchObject({
-      ok: true,
+      kind: 'Ok',
       value: { onHand: 4 },
     });
   });
 
   it('reports an unknown variant', async () => {
     expect(await getStockLevel.execute(UNKNOWN_SKU)).toEqual({
-      ok: false,
+      kind: 'VariantNotFound',
       error: { kind: 'VariantNotFound', sku: UNKNOWN_SKU },
     });
   });
 
   it('rejects an invalid sku', async () => {
     expect(await getStockLevel.execute('NOT A SKU')).toMatchObject({
-      ok: false,
+      kind: 'InvariantViolated',
       error: { kind: 'InvariantViolated', field: 'sku' },
     });
   });

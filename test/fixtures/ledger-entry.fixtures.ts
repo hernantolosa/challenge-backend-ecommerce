@@ -1,3 +1,4 @@
+import { unwrap } from '../support/unwrap';
 import { randomUUID } from 'node:crypto';
 import { type LedgerEntry } from '../../src/stock/application/ports/ledger-entry.interface';
 import { IdempotencyKey } from '../../src/stock/domain/value-objects/idempotency-key';
@@ -21,11 +22,9 @@ export function aLedgerEntry(seed: LedgerEntrySeed = {}): LedgerEntry {
   });
   const idempotencyKey = IdempotencyKey.make(seed.idempotencyKey ?? randomUUID());
 
-  if (!adjustment.ok || !idempotencyKey.ok) throw new Error('Invalid ledger entry fixture');
-
   return {
-    adjustment: adjustment.value,
+    adjustment: unwrap(adjustment),
     actor: seed.actor ?? ACTOR,
-    idempotencyKey: idempotencyKey.value,
+    idempotencyKey: unwrap(idempotencyKey),
   };
 }

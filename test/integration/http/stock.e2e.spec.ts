@@ -94,7 +94,7 @@ describe('Stock HTTP API', () => {
 
       expect(response.status).toBe(409);
       expect(response.body).toMatchObject({
-        error: 'InsufficientStock',
+        code: 'InsufficientStock',
         requested: 11,
         available: 10,
       });
@@ -105,7 +105,7 @@ describe('Stock HTTP API', () => {
       const response = await postMovement(aMovementBody({ sku: UNKNOWN_SKU }));
 
       expect(response.status).toBe(404);
-      expect(response.body).toMatchObject({ error: 'VariantNotFound' });
+      expect(response.body).toMatchObject({ code: 'VariantNotFound' });
     });
 
     describe('idempotency', () => {
@@ -126,7 +126,7 @@ describe('Stock HTTP API', () => {
         const response = await postMovement(aMovementBody({ quantity: 3 }), IDEMPOTENCY_KEY);
 
         expect(response.status).toBe(422);
-        expect(response.body).toMatchObject({ error: 'IdempotencyKeyReused' });
+        expect(response.body).toMatchObject({ code: 'IdempotencyKeyReused' });
       });
 
       it('returns 400 when the Idempotency-Key header is missing', async () => {
@@ -140,7 +140,7 @@ describe('Stock HTTP API', () => {
 
         expect(response.status).toBe(400);
         expect(response.body).toMatchObject({
-          error: 'InvariantViolated',
+          code: 'InvariantViolated',
           field: 'idempotencyKey',
         });
       });
@@ -171,7 +171,7 @@ describe('Stock HTTP API', () => {
         const response = await postMovement(body);
 
         expect(response.status).toBe(400);
-        expect(response.body).toMatchObject({ error: 'InvariantViolated', field });
+        expect(response.body).toMatchObject({ code: 'InvariantViolated', field });
       });
 
       it('returns 400 for malformed JSON', async () => {
@@ -268,6 +268,58 @@ describe('Stock HTTP API', () => {
         .set('Authorization', `Bearer ${issueToken({ scopes: [Scope.STOCK_WRITE] })}`);
 
       expect(response.status).toBe(403);
+    });
+  });
+
+  describe('error responses', () => {
+    it.each([
+      ['a business failure', 409, 'InsufficientStock', aMovementBody({ quantity: 11 })],
+      ['a domain invariant', 400, 'InvariantViolated', aMovementBody({ quantity: 0 })],
+      ['a validation failure', 400, 'BadRequest', aMovementBody({ reason: 'THEFT' })],
+    ])('formats %s as RFC 9457 problem details', async (_case, status, code, body) => {
+      const response = await postMovement(body);
+
+      expect(response.status).toBe(status);
+      expect(response.headers['content-type']).toMatch(/^application\/problem\+json/);
+      expect(response.body).toMatchObject({ type: 'about:blank', status, code });
+      expect(response.body).toHaveProperty('title');
+      expect(response.body).toHaveProperty('detail');
+    });
+
+    it('lists every validation error', async () => {
+      const response = await postMovement(aMovementBody({ quantity: '2', reason: 'THEFT' }));
+
+      expect(response.body).toMatchObject({
+        code: 'BadRequest',
+        detail: 'Request validation failed',
+      });
+      expect((response.body as { errors: unknown[] }).errors).toHaveLength(2);
+    });
+
+    it.each([
+      ['an unauthenticated request', 401, 'Unauthorized', null],
+      ['a forbidden request', 403, 'Forbidden', issueToken({ scopes: [Scope.STOCK_READ] })],
+    ])('formats %s as problem details', async (_case, status, code, token) => {
+      const response = await postMovement(aMovementBody(), randomUUID(), token);
+
+      expect(response.status).toBe(status);
+      expect(response.headers['content-type']).toMatch(/^application\/problem\+json/);
+      expect(response.body).toMatchObject({ type: 'about:blank', status, code });
+    });
+
+    it('formats body parser failures as problem details', async () => {
+      const response = await postRawJson('{"sku": ');
+
+      expect(response.status).toBe(400);
+      expect(response.headers['content-type']).toMatch(/^application\/problem\+json/);
+      expect(response.body).toMatchObject({ status: 400, code: 'BadRequest' });
+    });
+
+    it('formats an oversized payload as problem details', async () => {
+      const response = await postMovement(aMovementBody({ sku: 'A'.repeat(20_000) }));
+
+      expect(response.status).toBe(413);
+      expect(response.body).toMatchObject({ status: 413, code: 'PayloadTooLarge' });
     });
   });
 

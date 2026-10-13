@@ -1,5 +1,5 @@
 export class Ok<T> {
-  readonly ok = true;
+  readonly kind = 'Ok';
 
   private constructor(readonly value: T) {}
 

@@ -1,11 +1,10 @@
+import { unwrap } from '../../../support/unwrap';
 import { MovementReason, MOVEMENT_REASONS } from '../../../../src/stock/domain/movement-reason';
 import { StockAdjustment } from '../../../../src/stock/domain/stock-adjustment';
 import { anAdjustmentInput, aStockMovement } from '../../../fixtures/stock.fixtures';
 
 function adjustmentFor(overrides: Parameters<typeof anAdjustmentInput>[0]): StockAdjustment {
-  const result = StockAdjustment.make(anAdjustmentInput(overrides));
-  if (!result.ok) throw new Error(`Invalid fixture: ${result.error.message}`);
-  return result.value;
+  return unwrap(StockAdjustment.make(anAdjustmentInput(overrides)));
 }
 
 describe('StockAdjustment', () => {
@@ -31,14 +30,14 @@ describe('StockAdjustment', () => {
 
   it('reports the first violated invariant', () => {
     expect(StockAdjustment.make(anAdjustmentInput({ sku: '', quantity: 0 }))).toMatchObject({
-      ok: false,
+      kind: 'InvariantViolated',
       error: { kind: 'InvariantViolated', field: 'sku' },
     });
   });
 
   it('reports an invalid quantity', () => {
     expect(StockAdjustment.make(anAdjustmentInput({ quantity: -1 }))).toMatchObject({
-      ok: false,
+      kind: 'InvariantViolated',
       error: { kind: 'InvariantViolated', field: 'quantity' },
     });
   });

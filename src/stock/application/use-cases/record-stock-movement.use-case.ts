@@ -21,30 +21,41 @@ export class RecordStockMovement {
     command: RecordStockMovementCommand,
   ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
     const entry = toLedgerEntry(command);
-    if (!entry.ok) return entry;
 
-    const previous = await this.ledger.findMovement(entry.value.actor, entry.value.idempotencyKey);
-    if (previous !== null) return replay(previous, entry.value);
+    switch (entry.kind) {
+      case 'Ok':
+        return this.recordOnce(entry.value);
+      case 'InvariantViolated':
+        return entry;
+      default:
+        return exhaustiveMatchGuard(entry);
+    }
+  }
 
-    return this.recordNew(entry.value);
+  private async recordOnce(
+    entry: LedgerEntry,
+  ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
+    const previous = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
+    if (previous !== null) return replay(previous, entry);
+
+    return this.recordNew(entry);
   }
 
   private async recordNew(
     entry: LedgerEntry,
   ): Promise<Result<RecordedStockMovementView, RecordStockMovementError>> {
     const recorded = await this.ledger.record(entry);
-    if (recorded.ok) {
-      return Ok.make({ movement: toStockMovementView(recorded.value), replayed: false });
-    }
 
-    switch (recorded.error.kind) {
+    switch (recorded.kind) {
+      case 'Ok':
+        return Ok.make({ movement: toStockMovementView(recorded.value), replayed: false });
       case 'IdempotencyKeyTaken':
         return this.replayConcurrentWinner(entry);
       case 'VariantNotFound':
       case 'InsufficientStock':
-        return Err.make(recorded.error);
+        return recorded;
       default:
-        return exhaustiveMatchGuard(recorded.error);
+        return exhaustiveMatchGuard(recorded);
     }
   }
 
@@ -62,16 +73,31 @@ function toLedgerEntry(
   command: RecordStockMovementCommand,
 ): Result<LedgerEntry, InvariantViolated> {
   const adjustment = StockAdjustment.make(command);
-  if (!adjustment.ok) return adjustment;
 
+  switch (adjustment.kind) {
+    case 'Ok':
+      return withIdempotencyKey(adjustment.value, command);
+    case 'InvariantViolated':
+      return adjustment;
+    default:
+      return exhaustiveMatchGuard(adjustment);
+  }
+}
+
+function withIdempotencyKey(
+  adjustment: StockAdjustment,
+  command: RecordStockMovementCommand,
+): Result<LedgerEntry, InvariantViolated> {
   const idempotencyKey = IdempotencyKey.make(command.idempotencyKey);
-  if (!idempotencyKey.ok) return idempotencyKey;
 
-  return Ok.make({
-    adjustment: adjustment.value,
-    actor: command.actor,
-    idempotencyKey: idempotencyKey.value,
-  });
+  switch (idempotencyKey.kind) {
+    case 'Ok':
+      return Ok.make({ adjustment, actor: command.actor, idempotencyKey: idempotencyKey.value });
+    case 'InvariantViolated':
+      return idempotencyKey;
+    default:
+      return exhaustiveMatchGuard(idempotencyKey);
+  }
 }
 
 function replay(

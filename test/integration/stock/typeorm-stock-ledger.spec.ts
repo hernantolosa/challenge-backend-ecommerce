@@ -1,3 +1,4 @@
+import { unwrap } from '../../support/unwrap';
 import { type DataSource } from 'typeorm';
 import { TypeOrmStockLedger } from '../../../src/stock/adapters/outbound/persistence/typeorm-stock-ledger';
 import { Sku } from '../../../src/stock/domain/value-objects/sku';
@@ -19,9 +20,7 @@ import {
 import { openTestDatabase, resetTestDatabase } from '../../support/test-database';
 
 function skuOf(raw: string): Sku {
-  const sku = Sku.make(raw);
-  if (!sku.ok) throw new Error('Invalid sku fixture');
-  return sku.value;
+  return unwrap(Sku.make(raw));
 }
 
 describe('TypeOrmStockLedger', () => {
@@ -48,7 +47,7 @@ describe('TypeOrmStockLedger', () => {
       const result = await ledger.record(aLedgerEntry({ quantity: 3 }));
 
       expect(result).toMatchObject({
-        ok: true,
+        kind: 'Ok',
         value: {
           sku: SNEAKER_SKU,
           quantity: 3,
@@ -57,8 +56,8 @@ describe('TypeOrmStockLedger', () => {
           actor: ACTOR,
         },
       });
-      expect(result.ok && result.value.id).toMatch(/^[0-9a-f-]{36}$/);
-      expect(result.ok && result.value.occurredAt).toBeInstanceOf(Date);
+      expect(unwrap(result).id).toMatch(/^[0-9a-f-]{36}$/);
+      expect(unwrap(result).occurredAt).toBeInstanceOf(Date);
       expect(await onHandOf(dataSource, variant.variantId)).toBe(7);
       expect(await movementCountOf(dataSource, variant.variantId)).toBe(1);
     });
@@ -72,14 +71,14 @@ describe('TypeOrmStockLedger', () => {
     it('allows the stock to reach exactly zero', async () => {
       const result = await ledger.record(aLedgerEntry({ quantity: 10 }));
 
-      expect(result).toMatchObject({ ok: true, value: { balanceAfter: 0 } });
+      expect(result).toMatchObject({ kind: 'Ok', value: { balanceAfter: 0 } });
     });
 
     it('rejects an outbound movement larger than the stock without writing anything', async () => {
       const result = await ledger.record(aLedgerEntry({ quantity: 11 }));
 
       expect(result).toEqual({
-        ok: false,
+        kind: 'InsufficientStock',
         error: { kind: 'InsufficientStock', sku: SNEAKER_SKU, requested: 11, available: 10 },
       });
       expect(await onHandOf(dataSource, variant.variantId)).toBe(10);
@@ -89,7 +88,10 @@ describe('TypeOrmStockLedger', () => {
     it('rejects an unknown variant', async () => {
       const result = await ledger.record(aLedgerEntry({ sku: UNKNOWN_SKU }));
 
-      expect(result).toEqual({ ok: false, error: { kind: 'VariantNotFound', sku: UNKNOWN_SKU } });
+      expect(result).toEqual({
+        kind: 'VariantNotFound',
+        error: { kind: 'VariantNotFound', sku: UNKNOWN_SKU },
+      });
     });
 
     it('reports a taken idempotency key and rolls back the stock change', async () => {
@@ -97,7 +99,10 @@ describe('TypeOrmStockLedger', () => {
 
       const duplicate = await ledger.record(aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY }));
 
-      expect(duplicate).toEqual({ ok: false, error: { kind: 'IdempotencyKeyTaken' } });
+      expect(duplicate).toEqual({
+        kind: 'IdempotencyKeyTaken',
+        error: { kind: 'IdempotencyKeyTaken' },
+      });
       expect(await onHandOf(dataSource, variant.variantId)).toBe(9);
       expect(await movementCountOf(dataSource, variant.variantId)).toBe(1);
     });
@@ -109,7 +114,7 @@ describe('TypeOrmStockLedger', () => {
         aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY, actor: OTHER_ACTOR }),
       );
 
-      expect(result.ok).toBe(true);
+      expect(result.kind).toBe('Ok');
       expect(await onHandOf(dataSource, variant.variantId)).toBe(8);
     });
 
@@ -128,10 +133,8 @@ describe('TypeOrmStockLedger', () => {
 
       const results = await Promise.all(buyers);
 
-      const sold = results.filter((result) => result.ok);
-      const rejected = results.filter(
-        (result) => !result.ok && result.error.kind === 'InsufficientStock',
-      );
+      const sold = results.filter((result) => result.kind === 'Ok');
+      const rejected = results.filter((result) => result.kind === 'InsufficientStock');
       expect(sold).toHaveLength(10);
       expect(rejected).toHaveLength(40);
       expect(await onHandOf(dataSource, variant.variantId)).toBe(0);
@@ -143,7 +146,9 @@ describe('TypeOrmStockLedger', () => {
 
       const results = await Promise.all(buyers);
 
-      const balances = results.flatMap((result) => (result.ok ? [result.value.balanceAfter] : []));
+      const balances = results.flatMap((result) =>
+        result.kind === 'Ok' ? [result.value.balanceAfter] : [],
+      );
       expect([...balances].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     });
 
@@ -154,10 +159,8 @@ describe('TypeOrmStockLedger', () => {
 
       const results = await Promise.all(retries);
 
-      expect(results.filter((result) => result.ok)).toHaveLength(1);
-      expect(
-        results.filter((result) => !result.ok && result.error.kind === 'IdempotencyKeyTaken'),
-      ).toHaveLength(9);
+      expect(results.filter((result) => result.kind === 'Ok')).toHaveLength(1);
+      expect(results.filter((result) => result.kind === 'IdempotencyKeyTaken')).toHaveLength(9);
       expect(await onHandOf(dataSource, variant.variantId)).toBe(9);
     });
   });
@@ -191,7 +194,7 @@ describe('TypeOrmStockLedger', () => {
 
       const found = await ledger.findMovement(ACTOR, idempotencyKey);
 
-      expect(recorded.ok && found).toEqual(recorded.ok && recorded.value);
+      expect(found).toEqual(unwrap(recorded));
     });
 
     it('does not reveal a movement to another actor', async () => {

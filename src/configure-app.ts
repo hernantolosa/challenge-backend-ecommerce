@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import { ProblemDetailsFilter } from './utils/http/problem-details.filter';
 
 const MAX_JSON_BODY = '10kb';
 
@@ -15,5 +16,6 @@ export function configureApp(app: NestExpressApplication): void {
       transform: true,
     }),
   );
+  app.useGlobalFilters(new ProblemDetailsFilter());
   app.enableShutdownHooks();
 }

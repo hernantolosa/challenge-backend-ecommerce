@@ -1,3 +1,4 @@
+import { unwrap } from '../../../support/unwrap';
 import { IdempotencyKey } from '../../../../src/stock/domain/value-objects/idempotency-key';
 import { IDEMPOTENCY_KEY } from '../../../fixtures/stock.fixtures';
 
@@ -5,13 +6,13 @@ describe('IdempotencyKey', () => {
   it('accepts a UUID', () => {
     const result = IdempotencyKey.make(IDEMPOTENCY_KEY);
 
-    expect(result.ok && result.value.value).toBe(IDEMPOTENCY_KEY);
+    expect(unwrap(result).value).toBe(IDEMPOTENCY_KEY);
   });
 
   it('normalizes case and surrounding whitespace so retries match the same key', () => {
     const result = IdempotencyKey.make(`  ${IDEMPOTENCY_KEY.toUpperCase()} `);
 
-    expect(result.ok && result.value.value).toBe(IDEMPOTENCY_KEY);
+    expect(unwrap(result).value).toBe(IDEMPOTENCY_KEY);
   });
 
   it.each([
@@ -22,7 +23,7 @@ describe('IdempotencyKey', () => {
     ['nil uuid', '00000000-0000-0000-0000-000000000000'],
   ])('rejects a %s key', (_case, raw) => {
     expect(IdempotencyKey.make(raw)).toEqual({
-      ok: false,
+      kind: 'InvariantViolated',
       error: {
         kind: 'InvariantViolated',
         field: 'idempotencyKey',

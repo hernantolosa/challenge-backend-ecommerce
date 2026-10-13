@@ -1,3 +1,4 @@
+import { unwrap } from '../../../support/unwrap';
 import {
   MAX_MOVEMENT_QUANTITY,
   Quantity,
@@ -7,7 +8,7 @@ describe('Quantity', () => {
   it.each([1, 7, MAX_MOVEMENT_QUANTITY])('accepts %p units', (raw) => {
     const result = Quantity.make(raw);
 
-    expect(result.ok && result.value.value).toBe(raw);
+    expect(unwrap(result).value).toBe(raw);
   });
 
   it.each([
@@ -20,7 +21,7 @@ describe('Quantity', () => {
     ['unsafe integer', Number.MAX_SAFE_INTEGER + 2],
   ])('rejects a %s quantity', (_case, raw) => {
     expect(Quantity.make(raw)).toEqual({
-      ok: false,
+      kind: 'InvariantViolated',
       error: {
         kind: 'InvariantViolated',
         field: 'quantity',

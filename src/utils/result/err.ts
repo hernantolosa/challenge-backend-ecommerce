@@ -1,9 +1,13 @@
-export class Err<E> {
-  readonly ok = false;
+import { type Failure } from './failure.interface';
 
-  private constructor(readonly error: E) {}
+export class Err<E extends Failure> {
+  readonly kind: E['kind'];
 
-  static make<E>(error: E): Err<E> {
+  private constructor(readonly error: E) {
+    this.kind = error.kind;
+  }
+
+  static make<E extends Failure>(error: E): Err<E> {
     return new Err(error);
   }
 }
