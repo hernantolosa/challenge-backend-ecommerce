@@ -1,0 +1,19 @@
+import { ValidationPipe } from '@nestjs/common';
+import { type NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
+
+const MAX_JSON_BODY = '10kb';
+
+export function configureApp(app: NestExpressApplication): void {
+  app.use(helmet());
+  app.useBodyParser('json', { limit: MAX_JSON_BODY });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
+      transform: true,
+    }),
+  );
+  app.enableShutdownHooks();
+}
