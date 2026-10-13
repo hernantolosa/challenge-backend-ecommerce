@@ -1,5 +1,6 @@
 import { unwrap } from '@test/support/unwrap';
 import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import { FAKE_CLOCK, InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
 import {
@@ -108,6 +109,42 @@ describe('RecordStockMovement', () => {
       expect(retry).toMatchObject({
         kind: 'Ok',
         value: { replayed: false, movement: { balanceAfter: 9 } },
+      });
+    });
+  });
+
+  describe('when an inbound movement would exceed the stock capacity', () => {
+    beforeEach(() => {
+      ledger.withStock(SNEAKER_SKU, MAX_STOCK_LEVEL - 5);
+    });
+
+    it('rejects the movement reporting the capacity', async () => {
+      const result = await recordStockMovement.execute(
+        aRecordCommand({ reason: MovementReason.RESTOCK, quantity: 6 }),
+      );
+
+      expect(result).toEqual({
+        kind: 'StockCapacityExceeded',
+        error: {
+          kind: 'StockCapacityExceeded',
+          sku: SNEAKER_SKU,
+          requested: 6,
+          onHand: MAX_STOCK_LEVEL - 5,
+          capacity: MAX_STOCK_LEVEL,
+        },
+      });
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(MAX_STOCK_LEVEL - 5);
+      expect(ledger.movements).toHaveLength(0);
+    });
+
+    it('allows filling the stock up to exactly the capacity', async () => {
+      const result = await recordStockMovement.execute(
+        aRecordCommand({ reason: MovementReason.RESTOCK, quantity: 5 }),
+      );
+
+      expect(result).toMatchObject({
+        kind: 'Ok',
+        value: { movement: { balanceAfter: MAX_STOCK_LEVEL } },
       });
     });
   });

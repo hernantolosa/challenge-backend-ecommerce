@@ -3,7 +3,9 @@ import { type RecordEntryError } from '@stock/application/errors/record-entry.er
 import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
 import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
 import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
 import { type StockLevel } from '@stock/domain/interfaces/stock-level.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
@@ -50,6 +52,11 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     const balanceAfter = onHand + entry.adjustment.stockDelta;
     if (balanceAfter < 0) {
       return Err.make(InsufficientStock.make(sku, entry.adjustment.quantity.value, onHand));
+    }
+    if (balanceAfter > MAX_STOCK_LEVEL) {
+      return Err.make(
+        StockCapacityExceeded.make(sku, entry.adjustment.quantity.value, onHand, MAX_STOCK_LEVEL),
+      );
     }
 
     return Ok.make(this.append(entry, balanceAfter));

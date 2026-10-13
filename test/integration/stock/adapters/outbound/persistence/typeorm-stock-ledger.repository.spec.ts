@@ -2,6 +2,7 @@ import { unwrap } from '@test/support/unwrap';
 import { type DataSource } from 'typeorm';
 import { TypeOrmStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
 import { Sku } from '@stock/domain/value-objects/sku';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import {
   movementCountOf,
@@ -124,6 +125,47 @@ describe('TypeOrmStockLedgerRepository', () => {
       await ledger.record(aLedgerEntry({ quantity: 2 }));
 
       expect(await onHandOf(dataSource, other.variantId)).toBe(4);
+    });
+  });
+
+  describe('stock capacity', () => {
+    it('rejects a restock that would overflow the stock column instead of failing', async () => {
+      const full = await seedVariant(dataSource, { sku: 'SNK-FULL', onHand: MAX_STOCK_LEVEL - 10 });
+
+      const result = await ledger.record(
+        aLedgerEntry({ sku: 'SNK-FULL', quantity: 100_000, reason: MovementReason.RESTOCK }),
+      );
+
+      expect(result).toEqual({
+        kind: 'StockCapacityExceeded',
+        error: {
+          kind: 'StockCapacityExceeded',
+          sku: 'SNK-FULL',
+          requested: 100_000,
+          onHand: MAX_STOCK_LEVEL - 10,
+          capacity: MAX_STOCK_LEVEL,
+        },
+      });
+      expect(await onHandOf(dataSource, full.variantId)).toBe(MAX_STOCK_LEVEL - 10);
+      expect(await movementCountOf(dataSource, full.variantId)).toBe(0);
+    });
+
+    it('accepts a restock that reaches exactly the capacity', async () => {
+      await seedVariant(dataSource, { sku: 'SNK-FULL', onHand: MAX_STOCK_LEVEL - 10 });
+
+      const result = await ledger.record(
+        aLedgerEntry({ sku: 'SNK-FULL', quantity: 10, reason: MovementReason.RESTOCK }),
+      );
+
+      expect(result).toMatchObject({ kind: 'Ok', value: { balanceAfter: MAX_STOCK_LEVEL } });
+    });
+
+    it('still lets outbound movements through on a full variant', async () => {
+      await seedVariant(dataSource, { sku: 'SNK-FULL', onHand: MAX_STOCK_LEVEL });
+
+      const result = await ledger.record(aLedgerEntry({ sku: 'SNK-FULL', quantity: 1 }));
+
+      expect(result).toMatchObject({ kind: 'Ok', value: { balanceAfter: MAX_STOCK_LEVEL - 1 } });
     });
   });
 

@@ -2,6 +2,7 @@ import { type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import * as request from 'supertest';
 import { Scope } from '@infrastructure/auth/enums/scope';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
 import { IDEMPOTENCY_KEY, SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';
@@ -99,6 +100,22 @@ describe('Stock HTTP API', () => {
         available: 10,
       });
       expect(await onHandOf(testApp.dataSource, variant.variantId)).toBe(10);
+    });
+
+    it('returns 409 when a restock would exceed the stock capacity', async () => {
+      await seedVariant(testApp.dataSource, { sku: 'SNK-FULL', onHand: MAX_STOCK_LEVEL - 1 });
+
+      const response = await postMovement(
+        aMovementBody({ sku: 'SNK-FULL', quantity: 2, reason: MovementReason.RESTOCK }),
+      );
+
+      expect(response.status).toBe(409);
+      expect(response.body).toMatchObject({
+        code: 'StockCapacityExceeded',
+        requested: 2,
+        onHand: MAX_STOCK_LEVEL - 1,
+        capacity: MAX_STOCK_LEVEL,
+      });
     });
 
     it('returns 404 for an unknown variant', async () => {

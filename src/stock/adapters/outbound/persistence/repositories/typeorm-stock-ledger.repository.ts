@@ -10,7 +10,9 @@ import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.int
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
 import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
 import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-capacity';
 import { type StockLevel } from '@stock/domain/interfaces/stock-level.interface';
 import { type StockMovement } from '@stock/domain/interfaces/stock-movement.interface';
 import { type IdempotencyKey } from '@stock/domain/value-objects/idempotency-key';
@@ -64,16 +66,22 @@ export class TypeOrmStockLedgerRepository implements StockLedger, StockLevelRead
       adjustment.reason,
       entry.actor,
       entry.idempotencyKey.value,
+      MAX_STOCK_LEVEL,
     ]);
   }
 
   private async rejectionReasonFor(
     entry: LedgerEntry,
-  ): Promise<Err<VariantNotFound> | Err<InsufficientStock>> {
-    const { sku, quantity } = entry.adjustment;
+  ): Promise<Err<VariantNotFound> | Err<InsufficientStock> | Err<StockCapacityExceeded>> {
+    const { sku, quantity, stockDelta } = entry.adjustment;
     const level = await this.findLevel(sku);
     if (level === null) return Err.make(VariantNotFound.make(sku.value));
 
-    return Err.make(InsufficientStock.make(sku.value, quantity.value, level.onHand));
+    if (level.onHand + stockDelta < 0) {
+      return Err.make(InsufficientStock.make(sku.value, quantity.value, level.onHand));
+    }
+    return Err.make(
+      StockCapacityExceeded.make(sku.value, quantity.value, level.onHand, MAX_STOCK_LEVEL),
+    );
   }
 }

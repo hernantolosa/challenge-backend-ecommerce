@@ -5,7 +5,7 @@ export const APPLY_ADJUSTMENT_AND_APPEND_MOVEMENT_SQL = `
     FROM variants AS variant
     WHERE variant.id = level.variant_id
       AND variant.sku = $1
-      AND level.on_hand + $2 >= 0
+      AND level.on_hand::bigint + $2 BETWEEN 0 AND $7
     RETURNING level.variant_id, level.on_hand
   )
   INSERT INTO stock_movements (variant_id, quantity, reason, balance_after, actor, idempotency_key)

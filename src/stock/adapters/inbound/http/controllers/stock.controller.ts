@@ -47,6 +47,8 @@ export class StockController {
         throw StockProblems.variantNotFound(outcome.error);
       case 'InsufficientStock':
         throw StockProblems.insufficientStock(outcome.error);
+      case 'StockCapacityExceeded':
+        throw StockProblems.stockCapacityExceeded(outcome.error);
       case 'IdempotencyKeyReused':
         throw StockProblems.idempotencyKeyReused(outcome.error);
       default:

@@ -53,6 +53,7 @@ export class RecordStockMovement {
         return this.replayMovementRecordedConcurrently(entry);
       case 'VariantNotFound':
       case 'InsufficientStock':
+      case 'StockCapacityExceeded':
         return recorded;
       default:
         return exhaustiveMatchGuard(recorded);
