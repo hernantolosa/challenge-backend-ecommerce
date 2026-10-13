@@ -9,8 +9,12 @@ import { CommonProblems } from '@infrastructure/http/problems/common.problems';
 import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
 import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
 import { RecordStockMovementRequestDto } from '@stock/adapters/inbound/http/requests/record-stock-movement-request.dto';
-import { StockLevelResponseDto } from '@stock/adapters/inbound/http/responses/stock-level-response.dto';
-import { StockMovementResponseDto } from '@stock/adapters/inbound/http/responses/stock-movement-response.dto';
+import { toStockLevelResponseDto } from '@stock/adapters/inbound/http/mappers/stock-level-response.mapper';
+import { toStockMovementResponseDto } from '@stock/adapters/inbound/http/mappers/stock-movement-response.mapper';
+import { IdempotencyKeyHeaderDto } from '@stock/adapters/inbound/http/requests/idempotency-key-header.dto';
+import { StockLevelParamsDto } from '@stock/adapters/inbound/http/requests/stock-level-params.dto';
+import { type StockLevelResponseDto } from '@stock/adapters/inbound/http/responses/stock-level-response.dto';
+import { type StockMovementResponseDto } from '@stock/adapters/inbound/http/responses/stock-movement-response.dto';
 import { IdempotencyKeyHeader } from '@stock/adapters/inbound/http/decorators/idempotency-key.decorator';
 import { StockProblems } from '@stock/adapters/inbound/http/problems/stock.problems';
 
@@ -27,20 +31,20 @@ export class StockController {
   @RequireScope(Scope.STOCK_WRITE)
   async recordMovement(
     @Body() body: RecordStockMovementRequestDto,
-    @IdempotencyKeyHeader() idempotencyKey: string,
+    @IdempotencyKeyHeader() header: IdempotencyKeyHeaderDto,
     @CurrentPrincipal() principal: Principal,
     @Res({ passthrough: true }) response: Response,
   ): Promise<StockMovementResponseDto> {
     const outcome = await this.recordStockMovement.execute({
       ...body,
-      idempotencyKey,
+      idempotencyKey: header.idempotencyKey,
       actor: principal.subject,
     });
 
     switch (outcome.kind) {
       case 'Ok':
         if (outcome.value.replayed) markResponseAsReplayed(response);
-        return StockMovementResponseDto.from(outcome.value.movement);
+        return toStockMovementResponseDto(outcome.value.movement);
       case 'InvariantViolated':
         throw CommonProblems.invariantViolated(outcome.error);
       case 'VariantNotFound':
@@ -58,12 +62,12 @@ export class StockController {
 
   @Get(':sku')
   @RequireScope(Scope.STOCK_READ)
-  async findStockLevel(@Param('sku') sku: string): Promise<StockLevelResponseDto> {
-    const outcome = await this.getStockLevel.execute(sku);
+  async findStockLevel(@Param() params: StockLevelParamsDto): Promise<StockLevelResponseDto> {
+    const outcome = await this.getStockLevel.execute(params.sku);
 
     switch (outcome.kind) {
       case 'Ok':
-        return StockLevelResponseDto.from(outcome.value);
+        return toStockLevelResponseDto(outcome.value);
       case 'InvariantViolated':
         throw CommonProblems.invariantViolated(outcome.error);
       case 'VariantNotFound':

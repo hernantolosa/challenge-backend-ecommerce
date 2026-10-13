@@ -4,7 +4,7 @@ import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
 
 export const SKU_MAX_LENGTH = 64;
-const SKU_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/;
+export const SKU_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/;
 
 export class Sku {
   private constructor(readonly value: string) {}

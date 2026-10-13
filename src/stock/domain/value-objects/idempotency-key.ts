@@ -3,7 +3,8 @@ import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+export const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 export class IdempotencyKey {
   private constructor(readonly value: string) {}

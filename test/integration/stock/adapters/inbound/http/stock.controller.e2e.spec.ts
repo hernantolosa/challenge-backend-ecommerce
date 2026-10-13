@@ -157,8 +157,8 @@ describe('Stock HTTP API', () => {
 
         expect(response.status).toBe(400);
         expect(response.body).toMatchObject({
-          code: 'InvariantViolated',
-          field: 'idempotencyKey',
+          code: 'BadRequest',
+          errors: ['Idempotency-Key must be a valid UUID'],
         });
       });
     });
@@ -180,15 +180,27 @@ describe('Stock HTTP API', () => {
       });
 
       it.each([
-        ['quantity', aMovementBody({ quantity: 0 })],
-        ['quantity', aMovementBody({ quantity: -5 })],
-        ['quantity', aMovementBody({ quantity: 100_001 })],
-        ['sku', aMovementBody({ sku: "SNK'; DROP TABLE variants;--" })],
-      ])('returns 400 when the %s breaks a domain invariant', async (field, body) => {
+        ['a zero quantity', aMovementBody({ quantity: 0 }), 'quantity must not be less than 1'],
+        [
+          'a negative quantity',
+          aMovementBody({ quantity: -5 }),
+          'quantity must not be less than 1',
+        ],
+        [
+          'a quantity above the limit',
+          aMovementBody({ quantity: 100_001 }),
+          'quantity must not be greater than 100000',
+        ],
+        [
+          'a malformed sku',
+          aMovementBody({ sku: "SNK'; DROP TABLE variants;--" }),
+          'sku must contain only letters, digits and single hyphens',
+        ],
+      ])('rejects %s at the edge before reaching the domain', async (_case, body, error) => {
         const response = await postMovement(body);
 
         expect(response.status).toBe(400);
-        expect(response.body).toMatchObject({ code: 'InvariantViolated', field });
+        expect(response.body).toMatchObject({ code: 'BadRequest', errors: [error] });
       });
 
       it('returns 400 for malformed JSON', async () => {
@@ -271,6 +283,18 @@ describe('Stock HTTP API', () => {
       expect(response.body).toEqual({ sku: SNEAKER_SKU, onHand: 10 });
     });
 
+    it('returns 400 for a malformed sku in the path', async () => {
+      const response = await request(server)
+        .get('/stock/not_a_sku')
+        .set('Authorization', `Bearer ${issueToken()}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({
+        code: 'BadRequest',
+        errors: ['sku must contain only letters, digits and single hyphens'],
+      });
+    });
+
     it('returns 404 for an unknown variant', async () => {
       const response = await request(server)
         .get(`/stock/${UNKNOWN_SKU}`)
@@ -291,7 +315,6 @@ describe('Stock HTTP API', () => {
   describe('error responses', () => {
     it.each([
       ['a business failure', 409, 'InsufficientStock', aMovementBody({ quantity: 11 })],
-      ['a domain invariant', 400, 'InvariantViolated', aMovementBody({ quantity: 0 })],
       ['a validation failure', 400, 'BadRequest', aMovementBody({ reason: 'THEFT' })],
     ])('formats %s as RFC 9457 problem details', async (_case, status, code, body) => {
       const response = await postMovement(body);
@@ -303,14 +326,22 @@ describe('Stock HTTP API', () => {
       expect(response.body).toHaveProperty('detail');
     });
 
-    it('lists every validation error', async () => {
-      const response = await postMovement(aMovementBody({ quantity: '2', reason: 'THEFT' }));
+    it('reports every invalid field of the request at once', async () => {
+      const response = await postMovement(
+        aMovementBody({ sku: 'NOT A SKU', quantity: 0, reason: 'THEFT' }),
+      );
 
       expect(response.body).toMatchObject({
         code: 'BadRequest',
         detail: 'Request validation failed',
       });
-      expect((response.body as { errors: unknown[] }).errors).toHaveLength(2);
+      expect((response.body as { errors: string[] }).errors).toEqual(
+        expect.arrayContaining([
+          'sku must contain only letters, digits and single hyphens',
+          'quantity must not be less than 1',
+          expect.stringContaining('reason must be one of the following values') as unknown,
+        ]),
+      );
     });
 
     it.each([

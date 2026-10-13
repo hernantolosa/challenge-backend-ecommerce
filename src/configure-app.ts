@@ -26,6 +26,7 @@ export function configureApp(app: NestExpressApplication): void {
       forbidNonWhitelisted: true,
       forbidUnknownValues: true,
       transform: true,
+      validateCustomDecorators: true,
     }),
   );
   app.useGlobalFilters(new ProblemDetailsFilter(logger));

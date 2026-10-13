@@ -1,11 +1,10 @@
-import { BadRequestException, createParamDecorator, type ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
 import { type Request } from 'express';
 
-export const IdempotencyKeyHeader = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): string => {
-    const key = context.switchToHttp().getRequest<Request>().header('idempotency-key');
-    if (key === undefined) throw new BadRequestException('Idempotency-Key header is required');
+const IDEMPOTENCY_KEY_HEADER = 'idempotency-key';
 
-    return key;
-  },
+export const IdempotencyKeyHeader = createParamDecorator(
+  (_data: unknown, context: ExecutionContext): { idempotencyKey: string | undefined } => ({
+    idempotencyKey: context.switchToHttp().getRequest<Request>().header(IDEMPOTENCY_KEY_HEADER),
+  }),
 );
