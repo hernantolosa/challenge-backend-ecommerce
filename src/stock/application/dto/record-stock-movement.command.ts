@@ -1,4 +1,4 @@
-import { type MovementReason } from '../../domain/movement-reason';
+import { type MovementReason } from '../../domain/enums/movement-reason';
 
 export interface RecordStockMovementCommand {
   readonly sku: string;

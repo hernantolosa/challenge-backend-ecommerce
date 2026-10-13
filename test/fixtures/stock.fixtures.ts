@@ -1,5 +1,5 @@
 import { type RecordStockMovementCommand } from '../../src/stock/application/dto/record-stock-movement.command';
-import { MovementReason } from '../../src/stock/domain/movement-reason';
+import { MovementReason } from '../../src/stock/domain/enums/movement-reason';
 import { type StockAdjustmentInput } from '../../src/stock/domain/interfaces/stock-adjustment-input.interface';
 import { type StockMovement } from '../../src/stock/domain/interfaces/stock-movement.interface';
 

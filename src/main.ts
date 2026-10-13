@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { Environment } from './config/environment';
+import { Environment } from './infrastructure/config/environment';
 import { configureApp } from './configure-app';
 
 async function bootstrap(): Promise<void> {

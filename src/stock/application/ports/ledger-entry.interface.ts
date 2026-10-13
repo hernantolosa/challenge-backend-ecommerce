@@ -1,4 +1,4 @@
-import { type StockAdjustment } from '../../domain/stock-adjustment';
+import { type StockAdjustment } from '../../domain/value-objects/stock-adjustment';
 import { type IdempotencyKey } from '../../domain/value-objects/idempotency-key';
 
 export interface LedgerEntry {

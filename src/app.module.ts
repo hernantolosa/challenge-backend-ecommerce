@@ -4,10 +4,10 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { CatalogModule } from './catalog/catalog.module';
-import { Environment } from './config/environment';
-import { EnvironmentModule } from './config/environment.module';
-import { throttlerOptions } from './config/throttler.options';
-import { databaseOptions } from './database/database.options';
+import { Environment } from './infrastructure/config/environment';
+import { EnvironmentModule } from './infrastructure/config/environment.module';
+import { throttlerOptions } from './infrastructure/config/throttler.options';
+import { databaseOptions } from './infrastructure/database/database.options';
 import { StockModule } from './stock/stock.module';
 
 @Module({

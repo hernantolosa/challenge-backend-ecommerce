@@ -1,6 +1,6 @@
 import { IdempotencyKeyReused } from '../../domain/errors/idempotency-key-reused.error';
 import { type StockMovement } from '../../domain/interfaces/stock-movement.interface';
-import { StockAdjustment } from '../../domain/stock-adjustment';
+import { StockAdjustment } from '../../domain/value-objects/stock-adjustment';
 import { IdempotencyKey } from '../../domain/value-objects/idempotency-key';
 import { type InvariantViolated } from '../../../utils/errors/invariant-violated.error';
 import { exhaustiveMatchGuard } from '../../../utils/exhaustive-match-guard';

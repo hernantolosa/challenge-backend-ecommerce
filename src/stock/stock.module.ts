@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
-import { StockController } from './adapters/inbound/http/stock.controller';
-import { TypeOrmStockLedger } from './adapters/outbound/persistence/typeorm-stock-ledger';
+import { AuthModule } from '../infrastructure/auth/auth.module';
+import { StockController } from './adapters/inbound/http/controllers/stock.controller';
+import { TypeOrmStockLedger } from './adapters/outbound/persistence/repositories/typeorm-stock-ledger.repository';
 import { StockLedger } from './application/ports/stock-ledger.port';
 import { StockLevelReader } from './application/ports/stock-level-reader.port';
 import { GetStockLevel } from './application/use-cases/get-stock-level.use-case';
