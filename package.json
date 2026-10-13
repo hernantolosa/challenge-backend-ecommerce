@@ -15,6 +15,7 @@
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
+    "migration:check": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts --check src/database/migrations/PendingChanges",
     "test": "jest --selectProjects unit",
     "test:integration": "jest --selectProjects integration --runInBand",
     "test:all": "jest --runInBand"

@@ -15,5 +15,7 @@ export function databaseOptions(environment: DatabaseEnvironment): PostgresConne
     migrations: MIGRATIONS,
     synchronize: false,
     migrationsRun: false,
+    uuidExtension: 'pgcrypto',
+    installExtensions: false,
   };
 }
