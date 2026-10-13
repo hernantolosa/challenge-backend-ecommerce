@@ -1,3 +1,4 @@
+import { FAKE_CLOCK } from '@test/fixtures/clock.fixtures';
 import { IdempotencyKeyTaken } from '@stock/application/errors/idempotency-key-taken.error';
 import { type RecordEntryError } from '@stock/application/errors/record-entry.error';
 import { type LedgerEntry } from '@stock/application/interfaces/ledger-entry.interface';
@@ -11,8 +12,6 @@ import { type Sku } from '@stock/domain/value-objects/sku';
 import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
 import { type Result } from '@utils/result/types/result.type';
-
-export const FAKE_CLOCK = new Date('2026-10-13T12:00:00.000Z');
 
 export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   private readonly levels = new Map<string, number>();

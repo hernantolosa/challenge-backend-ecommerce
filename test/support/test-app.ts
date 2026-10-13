@@ -8,13 +8,8 @@ import { AppModule } from '@src/app.module';
 import { configureApp } from '@src/configure-app';
 import { StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { MemoryLogDestination } from '@test/fakes/memory-log-destination';
-import { type TestAppOptions } from './test-app-options.interface';
-
-export interface TestApp {
-  readonly app: NestExpressApplication;
-  readonly dataSource: DataSource;
-  readonly logs: MemoryLogDestination;
-}
+import { type TestApp } from '@test/support/interfaces/test-app.interface';
+import { type TestAppOptions } from '@test/support/interfaces/test-app-options.interface';
 
 export async function startTestApp(options: TestAppOptions = {}): Promise<TestApp> {
   const logs = new MemoryLogDestination();

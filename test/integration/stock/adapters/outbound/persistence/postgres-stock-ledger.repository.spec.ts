@@ -1,28 +1,20 @@
-import { unwrap } from '@test/support/unwrap';
 import { type DataSource } from 'typeorm';
 import { PostgresStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/postgres-stock-ledger.repository';
-import { Sku } from '@stock/domain/value-objects/sku';
 import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
-import {
-  movementCountOf,
-  onHandOf,
-  seedVariant,
-  type SeededVariant,
-} from '@test/fixtures/catalog.fixtures';
+import { movementCountOf, onHandOf, seedVariant } from '@test/fixtures/catalog.fixtures';
+import { type SeededVariant } from '@test/fixtures/interfaces/seeded-variant.interface';
 import { aLedgerEntry } from '@test/fixtures/ledger-entry.fixtures';
 import {
   ACTOR,
+  aSku,
   IDEMPOTENCY_KEY,
   OTHER_ACTOR,
   SNEAKER_SKU,
   UNKNOWN_SKU,
 } from '@test/fixtures/stock.fixtures';
+import { unwrap } from '@test/support/unwrap';
 import { openTestDatabase, resetTestDatabase } from '@test/support/test-database';
-
-function skuOf(raw: string): Sku {
-  return unwrap(Sku.make(raw));
-}
 
 describe('PostgresStockLedgerRepository', () => {
   let dataSource: DataSource;
@@ -67,6 +59,14 @@ describe('PostgresStockLedgerRepository', () => {
       await ledger.record(aLedgerEntry({ quantity: 5, reason: MovementReason.RESTOCK }));
 
       expect(await onHandOf(dataSource, variant.variantId)).toBe(15);
+    });
+
+    it('decreases the stock for a manual decrease adjustment', async () => {
+      await ledger.record(
+        aLedgerEntry({ quantity: 4, reason: MovementReason.ADJUSTMENT_DECREASE }),
+      );
+
+      expect(await onHandOf(dataSource, variant.variantId)).toBe(6);
     });
 
     it('allows the stock to reach exactly zero', async () => {
@@ -293,11 +293,11 @@ describe('PostgresStockLedgerRepository', () => {
 
   describe('findLevel', () => {
     it('returns the current stock of a variant', async () => {
-      expect(await ledger.findLevel(skuOf(SNEAKER_SKU))).toEqual({ sku: SNEAKER_SKU, onHand: 10 });
+      expect(await ledger.findLevel(aSku(SNEAKER_SKU))).toEqual({ sku: SNEAKER_SKU, onHand: 10 });
     });
 
     it('returns null for an unknown variant', async () => {
-      expect(await ledger.findLevel(skuOf(UNKNOWN_SKU))).toBeNull();
+      expect(await ledger.findLevel(aSku(UNKNOWN_SKU))).toBeNull();
     });
   });
 });

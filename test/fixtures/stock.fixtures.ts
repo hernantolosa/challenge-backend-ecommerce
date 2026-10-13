@@ -1,3 +1,6 @@
+import { type StockMovementRow } from '@stock/adapters/outbound/persistence/rows/stock-movement.row';
+import { Sku } from '@stock/domain/value-objects/sku';
+import { unwrap } from '@test/support/unwrap';
 import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
 import { type StockAdjustmentInput } from '@stock/domain/interfaces/stock-adjustment-input.interface';
@@ -41,4 +44,12 @@ export function aStockMovement(overrides: Partial<StockMovement> = {}): StockMov
     occurredAt: new Date('2026-10-13T12:00:00.000Z'),
     ...overrides,
   };
+}
+
+export function aSku(raw: string = SNEAKER_SKU): Sku {
+  return unwrap(Sku.make(raw));
+}
+
+export function aStockMovementRow(overrides: Partial<StockMovementRow> = {}): StockMovementRow {
+  return { ...aStockMovement(), ...overrides };
 }

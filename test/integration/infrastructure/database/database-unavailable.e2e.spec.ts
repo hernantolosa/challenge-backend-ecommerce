@@ -1,10 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import * as request from 'supertest';
+import { MOVEMENTS_PATH } from '@test/fixtures/http.fixtures';
 import { type QueryRunner } from 'typeorm';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
-import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
+import { onHandOf, seedVariant } from '@test/fixtures/catalog.fixtures';
+import { type SeededVariant } from '@test/fixtures/interfaces/seeded-variant.interface';
 import { SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
-import { startTestApp, type TestApp } from '@test/support/test-app';
+import { type TestApp } from '@test/support/interfaces/test-app.interface';
+import { startTestApp } from '@test/support/test-app';
 import { resetTestDatabase } from '@test/support/test-database';
 import { issueToken } from '@test/support/tokens';
 import { waitForLog } from '@test/support/wait-for-log';
@@ -18,7 +21,7 @@ describe('When the database cannot serve a request in time', () => {
 
   function postSale(): request.Test {
     return request(testApp.app.getHttpServer())
-      .post('/stock/movimientos')
+      .post(MOVEMENTS_PATH)
       .set('Authorization', `Bearer ${issueToken()}`)
       .set('Idempotency-Key', randomUUID())
       .send({ sku: SNEAKER_SKU, quantity: 1, reason: MovementReason.SALE });

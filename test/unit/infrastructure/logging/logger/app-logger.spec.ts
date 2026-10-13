@@ -2,14 +2,8 @@ import { LogLevel } from '@infrastructure/logging/enums/log-level';
 import { AppLogger } from '@infrastructure/logging/logger/app-logger';
 import { createPinoLogger } from '@infrastructure/logging/logger/logger.factory';
 import { TraceContextStore } from '@infrastructure/logging/tracing/trace-context.store';
+import { aTraceContext, SPAN_ID, TRACE_ID } from '@test/fixtures/trace.fixtures';
 import { MemoryLogDestination } from '@test/fakes/memory-log-destination';
-
-const TRACE = {
-  traceId: '4bf92f3577b34da6a3ce929d0e0e4736',
-  spanId: '00f067aa0ba902b7',
-  parentSpanId: null,
-  traceFlags: '01',
-};
 
 describe('AppLogger', () => {
   let destination: MemoryLogDestination;
@@ -44,11 +38,11 @@ describe('AppLogger', () => {
   });
 
   it('adds the trace and span ids of the current request automatically', () => {
-    traces.run(TRACE, () => logger.info('inside a request'));
+    traces.run(aTraceContext(), () => logger.info('inside a request'));
 
     expect(destination.entries()[0]).toMatchObject({
-      traceId: TRACE.traceId,
-      spanId: TRACE.spanId,
+      traceId: TRACE_ID,
+      spanId: SPAN_ID,
       parentSpanId: null,
     });
   });

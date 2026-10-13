@@ -1,9 +1,11 @@
 import { startServerSpan } from '@infrastructure/logging/tracing/start-server-span';
 
-const TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
-const PARENT_SPAN_ID = '00f067aa0ba902b7';
-const HEX_32 = /^[0-9a-f]{32}$/;
-const HEX_16 = /^[0-9a-f]{16}$/;
+import {
+  PARENT_SPAN_ID,
+  SPAN_ID_FORMAT,
+  TRACE_ID,
+  TRACE_ID_FORMAT,
+} from '@test/fixtures/trace.fixtures';
 
 describe('startServerSpan', () => {
   it('continues the trace of an incoming request under a new span', () => {
@@ -14,15 +16,15 @@ describe('startServerSpan', () => {
       parentSpanId: PARENT_SPAN_ID,
       traceFlags: '00',
     });
-    expect(span.spanId).toMatch(HEX_16);
+    expect(span.spanId).toMatch(SPAN_ID_FORMAT);
     expect(span.spanId).not.toBe(PARENT_SPAN_ID);
   });
 
   it('starts a new sampled trace when the request carries none', () => {
     const span = startServerSpan(undefined);
 
-    expect(span.traceId).toMatch(HEX_32);
-    expect(span.spanId).toMatch(HEX_16);
+    expect(span.traceId).toMatch(TRACE_ID_FORMAT);
+    expect(span.spanId).toMatch(SPAN_ID_FORMAT);
     expect(span).toMatchObject({ parentSpanId: null, traceFlags: '01' });
   });
 

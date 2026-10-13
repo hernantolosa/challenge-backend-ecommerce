@@ -8,23 +8,24 @@ function adjustmentFor(overrides: Parameters<typeof anAdjustmentInput>[0]): Stoc
   return unwrap(StockAdjustment.make(anAdjustmentInput(overrides)));
 }
 
+const EXPECTED_DIRECTIONS: Readonly<Record<MovementReason, number>> = {
+  [MovementReason.SALE]: -1,
+  [MovementReason.ADJUSTMENT_DECREASE]: -1,
+  [MovementReason.RETURN]: 1,
+  [MovementReason.RESTOCK]: 1,
+  [MovementReason.ADJUSTMENT_INCREASE]: 1,
+};
+
 describe('StockAdjustment', () => {
-  it.each([
-    [MovementReason.SALE, -3],
-    [MovementReason.ADJUSTMENT_DECREASE, -3],
-    [MovementReason.RETURN, 3],
-    [MovementReason.RESTOCK, 3],
-    [MovementReason.ADJUSTMENT_INCREASE, 3],
-  ])('derives the stock delta of a %s from the reason, not from the client', (reason, delta) => {
-    expect(adjustmentFor({ reason, quantity: 3 }).stockDelta).toBe(delta);
-  });
+  it.each(MOVEMENT_REASONS.map((reason) => [reason, EXPECTED_DIRECTIONS[reason] * 3] as const))(
+    'derives the stock delta of a %s from the reason, not from the client',
+    (reason, delta) => {
+      expect(adjustmentFor({ reason, quantity: 3 }).stockDelta).toBe(delta);
+    },
+  );
 
-  it('covers every movement reason with a direction', () => {
-    const deltas = MOVEMENT_REASONS.map(
-      (reason) => adjustmentFor({ reason, quantity: 1 }).stockDelta,
-    );
-
-    expect(deltas.every((delta) => Math.abs(delta) === 1)).toBe(true);
+  it('assigns a direction to every movement reason', () => {
+    expect(Object.keys(EXPECTED_DIRECTIONS).sort()).toEqual([...MOVEMENT_REASONS].sort());
   });
 
   it('normalizes the sku', () => {

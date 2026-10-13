@@ -1,18 +1,25 @@
 import { type MemoryLogDestination } from '@test/fakes/memory-log-destination';
-import { type LogEntry } from './log-entry.type';
+import { type LogEntry } from '@test/support/types/log-entry.type';
 
-const TIMEOUT_MS = 1_000;
+const TIMEOUT_MS = 2_000;
 
-export async function waitForLog(
+export function waitForLog(
   logs: MemoryLogDestination,
   matches: (entry: LogEntry) => boolean,
 ): Promise<LogEntry> {
-  const deadline = Date.now() + TIMEOUT_MS;
+  const written = logs.entries().find(matches);
+  if (written !== undefined) return Promise.resolve(written);
 
-  while (Date.now() < deadline) {
-    const entry = logs.entries().find(matches);
-    if (entry !== undefined) return entry;
-    await new Promise<void>((resolve) => setImmediate(resolve));
-  }
-  throw new Error('Expected log entry was not written');
+  return new Promise<LogEntry>((resolve, reject) => {
+    const stopListening = logs.onWrite((entry) => {
+      if (!matches(entry)) return;
+      clearTimeout(timeout);
+      stopListening();
+      resolve(entry);
+    });
+    const timeout = setTimeout(() => {
+      stopListening();
+      reject(new Error('Expected log entry was not written'));
+    }, TIMEOUT_MS);
+  });
 }

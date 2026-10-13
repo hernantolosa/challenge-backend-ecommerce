@@ -1,7 +1,8 @@
 import { type DataSource } from 'typeorm';
 import { PostgresStockLedgerRepository } from '@stock/adapters/outbound/persistence/repositories/postgres-stock-ledger.repository';
 import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
-import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
+import { onHandOf, seedVariant } from '@test/fixtures/catalog.fixtures';
+import { type SeededVariant } from '@test/fixtures/interfaces/seeded-variant.interface';
 import { aRecordCommand, SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
 import { openTestDatabase, resetTestDatabase } from '@test/support/test-database';
 

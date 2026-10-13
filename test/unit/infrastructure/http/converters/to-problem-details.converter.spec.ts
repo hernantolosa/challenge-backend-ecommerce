@@ -1,4 +1,4 @@
-import { QueryFailedError } from 'typeorm';
+import { aQueryFailure } from '@test/fixtures/database-failure.fixtures';
 import { ForbiddenException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { ProblemExceptionBuilder } from '@infrastructure/http/builders/problem-exception.builder';
 import {
@@ -63,17 +63,9 @@ describe('toProblemDetails', () => {
 });
 
 describe('toProblemDetails for database unavailability', () => {
-  function queryFailure(code: string): QueryFailedError {
-    return new QueryFailedError(
-      'UPDATE stock_levels',
-      [],
-      Object.assign(new Error('db'), { code }),
-    );
-  }
-
   it.each([
-    ['a lock timeout', queryFailure('55P03')],
-    ['a statement timeout', queryFailure('57014')],
+    ['a lock timeout', aQueryFailure('55P03')],
+    ['a statement timeout', aQueryFailure('57014')],
     ['a pool acquire timeout', new Error('timeout exceeded when trying to connect')],
     ['a connection timeout', new Error('Connection terminated due to connection timeout')],
   ])('answers 503 for %s', (_case, exception) => {
@@ -85,7 +77,7 @@ describe('toProblemDetails for database unavailability', () => {
   });
 
   it('keeps other database failures as internal errors', () => {
-    expect(toProblemDetails(queryFailure('23502'))).toBeNull();
+    expect(toProblemDetails(aQueryFailure('23502'))).toBeNull();
   });
 });
 

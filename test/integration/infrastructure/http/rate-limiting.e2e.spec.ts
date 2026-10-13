@@ -1,13 +1,15 @@
 import { type Server } from 'node:http';
 import * as request from 'supertest';
-import { startTestApp, type TestApp } from '@test/support/test-app';
+import { MOVEMENTS_PATH } from '@test/fixtures/http.fixtures';
+import { type TestApp } from '@test/support/interfaces/test-app.interface';
+import { startTestApp } from '@test/support/test-app';
 
 const LIMIT = 3;
 const FIRST_CLIENT = '203.0.113.10';
 const SECOND_CLIENT = '203.0.113.20';
 
 function unauthenticatedPost(server: Server, forwardedFor: string): request.Test {
-  return request(server).post('/stock/movimientos').set('X-Forwarded-For', forwardedFor).send({});
+  return request(server).post(MOVEMENTS_PATH).set('X-Forwarded-For', forwardedFor).send({});
 }
 
 async function exhaustLimit(server: Server, forwardedFor: string): Promise<number[]> {

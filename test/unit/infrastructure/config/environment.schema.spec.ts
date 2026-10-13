@@ -1,16 +1,7 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+import { HARDENED_PRODUCTION, VALID_ENVIRONMENT } from '@test/fixtures/environment.fixtures';
 import { Environment } from '@infrastructure/config/schemas/environment.schema';
-
-const VALID_ENVIRONMENT: Readonly<Record<string, string>> = {
-  DB_HOST: 'localhost',
-  DB_USERNAME: 'app',
-  DB_PASSWORD: 'app-password',
-  DB_DATABASE: 'ecommerce',
-  JWT_SECRET: 'Tq7vX2mR9pL4wK8zN3bH6cJ1fG5dS0aYeUiOoPlMnBvCxZ',
-  JWT_ISSUER: 'https://auth.example.com',
-  JWT_AUDIENCE: 'ecommerce-api',
-};
 
 function invalidKeysOf(overrides: Readonly<Record<string, string>>): string[] {
   const environment = plainToInstance(
@@ -60,24 +51,20 @@ describe('Environment', () => {
   });
 
   describe('in production', () => {
-    const PRODUCTION: Readonly<Record<string, string>> = {
-      NODE_ENV: 'production',
-      DB_SSL: 'true',
-      DB_PASSWORD: 'N7q!vR2x$Lp9wZ4m',
-    };
-
     it('accepts a hardened configuration', () => {
-      expect(invalidKeysOf(PRODUCTION)).toEqual([]);
+      expect(invalidKeysOf(HARDENED_PRODUCTION)).toEqual([]);
     });
 
     it('requires TLS to the database', () => {
-      expect(invalidKeysOf({ ...PRODUCTION, DB_SSL: 'false' })).toEqual(['DB_SSL']);
+      expect(invalidKeysOf({ ...HARDENED_PRODUCTION, DB_SSL: 'false' })).toEqual(['DB_SSL']);
     });
 
     it.each([['postgres'], ['PASSWORD'], ['short-pass']])(
       'rejects the database password %p',
       (password) => {
-        expect(invalidKeysOf({ ...PRODUCTION, DB_PASSWORD: password })).toEqual(['DB_PASSWORD']);
+        expect(invalidKeysOf({ ...HARDENED_PRODUCTION, DB_PASSWORD: password })).toEqual([
+          'DB_PASSWORD',
+        ]);
       },
     );
 

@@ -4,24 +4,11 @@ import { ProductOrmEntity } from '@catalog/adapters/outbound/persistence/entitie
 import { VariantOrmEntity } from '@catalog/adapters/outbound/persistence/entities/variant.orm-entity';
 import { loadDatabaseEnvironment } from '@infrastructure/config/loaders/load-environment';
 import { databaseOptions } from '@infrastructure/database/options/database.options';
+import { type CatalogProductSeed } from '@scripts/interfaces/catalog-product-seed.interface';
+import { type CatalogVariantSeed } from '@scripts/interfaces/catalog-variant-seed.interface';
 import { StockLevelOrmEntity } from '@stock/adapters/outbound/persistence/entities/stock-level.orm-entity';
 
-interface VariantSeed {
-  readonly sku: string;
-  readonly size: string;
-  readonly color: string;
-  readonly onHand: number;
-}
-
-interface ProductSeed {
-  readonly category: string;
-  readonly name: string;
-  readonly description: string;
-  readonly priceCents: number;
-  readonly variants: readonly VariantSeed[];
-}
-
-const CATALOG: readonly ProductSeed[] = [
+const CATALOG: readonly CatalogProductSeed[] = [
   {
     category: 'Running',
     name: 'Trail Runner',
@@ -45,7 +32,7 @@ const CATALOG: readonly ProductSeed[] = [
   },
 ];
 
-async function seedProduct(manager: EntityManager, seed: ProductSeed): Promise<void> {
+async function seedProduct(manager: EntityManager, seed: CatalogProductSeed): Promise<void> {
   await manager.upsert(CategoryOrmEntity, { name: seed.category }, ['name']);
   const category = await manager.findOneByOrFail(CategoryOrmEntity, { name: seed.category });
 
@@ -64,7 +51,7 @@ async function seedProduct(manager: EntityManager, seed: ProductSeed): Promise<v
 async function seedVariant(
   manager: EntityManager,
   productId: string,
-  seed: VariantSeed,
+  seed: CatalogVariantSeed,
 ): Promise<void> {
   if (await manager.existsBy(VariantOrmEntity, { sku: seed.sku })) return;
 

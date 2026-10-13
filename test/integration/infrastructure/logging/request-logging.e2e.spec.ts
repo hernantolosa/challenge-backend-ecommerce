@@ -2,23 +2,22 @@ import { randomUUID } from 'node:crypto';
 import { type Server } from 'node:http';
 import * as request from 'supertest';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
+import { FailingStockLedger } from '@test/fakes/failing-stock-ledger';
 import {
   DATABASE_FAILURE,
-  FailingStockLedger,
   LEAKED_PARAMETER,
   LEAKED_SQL,
-} from '@test/fakes/failing-stock-ledger';
+} from '@test/fixtures/database-failure.fixtures';
 import { seedVariant } from '@test/fixtures/catalog.fixtures';
+import { MOVEMENTS_PATH } from '@test/fixtures/http.fixtures';
 import { SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
-import { type LogEntry } from '@test/support/log-entry.type';
-import { startTestApp, type TestApp } from '@test/support/test-app';
+import { aTraceparent, PARENT_SPAN_ID, TRACE_ID } from '@test/fixtures/trace.fixtures';
+import { type LogEntry } from '@test/support/types/log-entry.type';
+import { type TestApp } from '@test/support/interfaces/test-app.interface';
+import { startTestApp } from '@test/support/test-app';
 import { resetTestDatabase } from '@test/support/test-database';
 import { issueToken } from '@test/support/tokens';
 import { waitForLog } from '@test/support/wait-for-log';
-
-const MOVEMENTS_PATH = '/stock/movimientos';
-const INCOMING_TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
-const INCOMING_SPAN_ID = '00f067aa0ba902b7';
 
 function isAccessLog(entry: LogEntry): boolean {
   return entry.message === 'request completed';
@@ -64,13 +63,13 @@ describe('Request logging and tracing', () => {
 
     it('continues the trace of an incoming W3C traceparent', async () => {
       const response = await postMovement(1, {
-        traceparent: `00-${INCOMING_TRACE_ID}-${INCOMING_SPAN_ID}-01`,
+        traceparent: aTraceparent(),
       });
 
-      expect(response.headers['x-trace-id']).toBe(INCOMING_TRACE_ID);
+      expect(response.headers['x-trace-id']).toBe(TRACE_ID);
       const entry = await waitForLog(testApp.logs, isAccessLog);
-      expect(entry).toMatchObject({ traceId: INCOMING_TRACE_ID, parentSpanId: INCOMING_SPAN_ID });
-      expect(entry.spanId).not.toBe(INCOMING_SPAN_ID);
+      expect(entry).toMatchObject({ traceId: TRACE_ID, parentSpanId: PARENT_SPAN_ID });
+      expect(entry.spanId).not.toBe(PARENT_SPAN_ID);
     });
 
     it('starts a fresh trace when the incoming traceparent is malformed', async () => {

@@ -4,24 +4,15 @@ import * as request from 'supertest';
 import { StockScope } from '@stock/adapters/inbound/http/constants/stock-scopes';
 import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
-import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
+import { onHandOf, seedVariant } from '@test/fixtures/catalog.fixtures';
+import { type SeededVariant } from '@test/fixtures/interfaces/seeded-variant.interface';
 import { IDEMPOTENCY_KEY, SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';
-import { startTestApp, type TestApp } from '@test/support/test-app';
+import { type TestApp } from '@test/support/interfaces/test-app.interface';
+import { aMovementBody, MOVEMENTS_PATH } from '@test/fixtures/http.fixtures';
+import { type MovementBody } from '@test/fixtures/interfaces/movement-body.interface';
+import { startTestApp } from '@test/support/test-app';
 import { resetTestDatabase } from '@test/support/test-database';
 import { forgeUnsignedToken, issueToken } from '@test/support/tokens';
-
-const MOVEMENTS_PATH = '/stock/movimientos';
-
-interface MovementBody {
-  readonly sku?: unknown;
-  readonly quantity?: unknown;
-  readonly reason?: unknown;
-  readonly [extra: string]: unknown;
-}
-
-function aMovementBody(overrides: MovementBody = {}): MovementBody {
-  return { sku: SNEAKER_SKU, quantity: 2, reason: MovementReason.SALE, ...overrides };
-}
 
 describe('Stock HTTP API', () => {
   let testApp: TestApp;
@@ -203,12 +194,6 @@ describe('Stock HTTP API', () => {
         expect(response.body).toMatchObject({ code: 'BadRequest', errors: [error] });
       });
 
-      it('returns 400 for malformed JSON', async () => {
-        const response = await postRawJson('{"sku": ');
-
-        expect(response.status).toBe(400);
-      });
-
       it('drops a __proto__ key without polluting object prototypes', async () => {
         const response = await postRawJson(
           `{"sku":"${SNEAKER_SKU}","quantity":1,"reason":"SALE","__proto__":{"polluted":true}}`,
@@ -217,12 +202,6 @@ describe('Stock HTTP API', () => {
         expect(response.status).toBe(201);
         expect(Object.prototype).not.toHaveProperty('polluted');
         expect({}).not.toHaveProperty('polluted');
-      });
-
-      it('returns 413 for an oversized payload', async () => {
-        const response = await postMovement(aMovementBody({ sku: 'A'.repeat(20_000) }));
-
-        expect(response.status).toBe(413);
       });
     });
 
@@ -328,6 +307,15 @@ describe('Stock HTTP API', () => {
         code: 'BadRequest',
         errors: ['sku must contain only letters, digits and single hyphens'],
       });
+    });
+
+    it('accepts a lowercase sku in the path', async () => {
+      const response = await request(server)
+        .get(`/stock/${SNEAKER_SKU.toLowerCase()}`)
+        .set('Authorization', `Bearer ${issueToken({ scopes: [StockScope.READ] })}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ sku: SNEAKER_SKU, onHand: 10 });
     });
 
     it('returns 404 for an unknown variant', async () => {

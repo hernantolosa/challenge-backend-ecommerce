@@ -18,6 +18,7 @@ const shared: Config = {
 };
 
 const config: Config = {
+  maxWorkers: 1,
   projects: [
     {
       ...shared,

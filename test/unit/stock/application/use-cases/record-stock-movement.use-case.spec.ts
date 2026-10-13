@@ -2,7 +2,8 @@ import { unwrap } from '@test/support/unwrap';
 import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
 import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock-level.constants';
 import { MovementReason } from '@stock/domain/enums/movement-reason';
-import { FAKE_CLOCK, InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
+import { InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
+import { FAKE_CLOCK } from '@test/fixtures/clock.fixtures';
 import {
   ACTOR,
   aRecordCommand,

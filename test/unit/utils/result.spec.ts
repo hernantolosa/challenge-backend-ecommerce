@@ -2,11 +2,8 @@ import { InvariantViolated } from '@utils/errors/invariant-violated.error';
 import { exhaustiveMatchGuard } from '@utils/exhaustive-match-guard';
 import { Err } from '@utils/result/err';
 import { Ok } from '@utils/result/ok';
+import { NotFound } from '@test/fakes/not-found.error';
 import { type Result } from '@utils/result/types/result.type';
-
-class NotFound {
-  readonly kind = 'NotFound';
-}
 
 function describeOutcome(result: Result<number, InvariantViolated | NotFound>): string {
   switch (result.kind) {
