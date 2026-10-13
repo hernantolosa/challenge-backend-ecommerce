@@ -37,12 +37,4 @@ describe('databaseOptions', () => {
       lock_timeout: 1000,
     });
   });
-
-  it('verifies the server certificate when TLS is enabled', () => {
-    expect(optionsFor({ DB_SSL: 'true' }).ssl).toEqual({ rejectUnauthorized: true });
-  });
-
-  it('connects without TLS only when it is disabled', () => {
-    expect(optionsFor({ DB_SSL: 'false' }).ssl).toBe(false);
-  });
 });

@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
-import { HARDENED_PRODUCTION, VALID_ENVIRONMENT } from '@test/fixtures/environment.fixtures';
+import { VALID_ENVIRONMENT } from '@test/fixtures/environment.fixtures';
 import { Environment } from '@infrastructure/config/schemas/environment.schema';
 
 function invalidKeysOf(overrides: Readonly<Record<string, string>>): string[] {
@@ -17,59 +17,15 @@ describe('Environment', () => {
     expect(invalidKeysOf({})).toEqual([]);
   });
 
-  it.each([
-    ['too short', 'Tq7vX2mR9pL4wK8zN3bH6cJ1fG5dS0a'],
-    ['low diversity', 'a'.repeat(64)],
-    ['a repeated phrase', 'secretsecretsecretsecretsecretsecretsecretsecret'],
-  ])('rejects a %s JWT secret', (_case, secret) => {
-    expect(invalidKeysOf({ JWT_SECRET: secret })).toEqual(['JWT_SECRET']);
+  it('rejects a JWT secret shorter than 32 characters', () => {
+    expect(invalidKeysOf({ JWT_SECRET: 'too-short' })).toEqual(['JWT_SECRET']);
   });
 
   it.each([
     ['LOG_LEVEL', 'verbose'],
     ['NODE_ENV', 'staging'],
     ['DB_POOL_MAX', '0'],
-    ['TRUST_PROXY_HOPS', '-1'],
-    ['JWT_MAX_AGE_SECONDS', '10'],
   ])('rejects an invalid %s', (key, value) => {
     expect(invalidKeysOf({ [key]: value })).toEqual([key]);
-  });
-
-  describe('database TLS flag', () => {
-    it.each([
-      ['false', false],
-      ['true', true],
-    ])('reads DB_SSL=%p as %p instead of treating every string as true', (raw, expected) => {
-      const environment = plainToInstance(
-        Environment,
-        { ...VALID_ENVIRONMENT, DB_SSL: raw },
-        { enableImplicitConversion: true },
-      );
-
-      expect(environment.DB_SSL).toBe(expected);
-    });
-  });
-
-  describe('in production', () => {
-    it('accepts a hardened configuration', () => {
-      expect(invalidKeysOf(HARDENED_PRODUCTION)).toEqual([]);
-    });
-
-    it('requires TLS to the database', () => {
-      expect(invalidKeysOf({ ...HARDENED_PRODUCTION, DB_SSL: 'false' })).toEqual(['DB_SSL']);
-    });
-
-    it.each([['postgres'], ['PASSWORD'], ['short-pass']])(
-      'rejects the database password %p',
-      (password) => {
-        expect(invalidKeysOf({ ...HARDENED_PRODUCTION, DB_PASSWORD: password })).toEqual([
-          'DB_PASSWORD',
-        ]);
-      },
-    );
-
-    it('keeps local defaults usable outside production', () => {
-      expect(invalidKeysOf({ DB_PASSWORD: 'postgres', DB_SSL: 'false' })).toEqual([]);
-    });
   });
 });

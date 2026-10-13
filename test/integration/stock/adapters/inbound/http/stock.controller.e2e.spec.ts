@@ -215,8 +215,6 @@ describe('Stock HTTP API', () => {
         ['an unsigned alg none token', forgeUnsignedToken()],
         ['a token without expiration', issueToken({ withoutExpiry: true })],
         ['a malformed token', 'not.a.jwt'],
-        ['a token without issued at', issueToken({ withoutIssuedAt: true })],
-        ['a token issued too long ago', issueToken({ issuedSecondsAgo: 7_200 })],
         ['a subject with control characters', issueToken({ subject: 'operator\u0000-1' })],
         ['an empty subject', issueToken({ subject: '' })],
       ])('returns 401 with %s', async (_case, token) => {

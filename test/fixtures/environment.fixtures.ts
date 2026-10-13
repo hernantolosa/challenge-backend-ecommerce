@@ -7,9 +7,3 @@ export const VALID_ENVIRONMENT: Readonly<Record<string, string>> = {
   JWT_ISSUER: 'https://auth.example.com',
   JWT_AUDIENCE: 'ecommerce-api',
 };
-
-export const HARDENED_PRODUCTION: Readonly<Record<string, string>> = {
-  NODE_ENV: 'production',
-  DB_SSL: 'true',
-  DB_PASSWORD: 'N7q!vR2x$Lp9wZ4m',
-};

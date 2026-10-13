@@ -21,9 +21,7 @@ function hasRequiredClaims(payload: unknown): payload is RequiredClaims {
     'scope' in payload &&
     typeof payload.scope === 'string' &&
     'exp' in payload &&
-    typeof payload.exp === 'number' &&
-    'iat' in payload &&
-    typeof payload.iat === 'number'
+    typeof payload.exp === 'number'
   );
 }
 
