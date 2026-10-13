@@ -1,12 +1,10 @@
-import { ProblemException } from '@shared/http/problem';
-import { StockProblems } from '@stock/http/stock.problems';
-import {
-  IdempotencyKeyReused,
-  InsufficientStock,
-  StockCapacityExceeded,
-  VariantNotFound,
-} from '@stock/domain/stock.errors';
-import { InvariantViolated } from '@shared/invariant-violated';
+import { ProblemException } from '@shared/http/problem.exception';
+import { StockProblems } from '@stock/adapters/http/stock.problems';
+import { IdempotencyKeyReused } from '@stock/domain/errors/idempotency-key-reused.error';
+import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
+import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
+import { InvariantViolated } from '@shared/errors/invariant-violated.error';
 import { IDEMPOTENCY_KEY, SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
 
 describe('HTTP problems for stock outcomes', () => {

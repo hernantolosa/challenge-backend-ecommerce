@@ -1,6 +1,6 @@
 import { unwrap } from '@test/support/unwrap';
 import { randomUUID } from 'node:crypto';
-import { type LedgerEntry } from '@stock/application/stock-ledger.port';
+import { type LedgerEntry } from '@stock/application/ports/ledger-entry';
 import { IdempotencyKey } from '@stock/domain/idempotency-key';
 import { MovementReason } from '@stock/domain/movement-reason';
 import { StockAdjustment } from '@stock/domain/stock-adjustment';
@@ -15,11 +15,11 @@ export interface LedgerEntrySeed {
 }
 
 export function aLedgerEntry(seed: LedgerEntrySeed = {}): LedgerEntry {
-  const adjustment = StockAdjustment.make({
-    sku: seed.sku ?? SNEAKER_SKU,
-    quantity: seed.quantity ?? 1,
-    reason: seed.reason ?? MovementReason.SALE,
-  });
+  const adjustment = StockAdjustment.make(
+    seed.sku ?? SNEAKER_SKU,
+    seed.quantity ?? 1,
+    seed.reason ?? MovementReason.SALE,
+  );
   const idempotencyKey = IdempotencyKey.make(seed.idempotencyKey ?? randomUUID());
 
   return {

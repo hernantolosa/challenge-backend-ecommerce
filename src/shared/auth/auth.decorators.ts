@@ -4,8 +4,9 @@ import {
   type CustomDecorator,
   type ExecutionContext,
 } from '@nestjs/common';
-import { unreachable } from '@shared/result';
-import { type AuthenticatedRequest, type Principal } from './principal';
+import { unreachable } from '@shared/result/match';
+import { type AuthenticatedRequest } from './authenticated-request';
+import { type Principal } from './principal';
 
 export const PUBLIC_ROUTE = 'auth:public-route';
 export const REQUIRED_SCOPE = 'auth:required-scope';

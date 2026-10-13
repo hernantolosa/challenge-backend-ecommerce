@@ -1,4 +1,4 @@
-import { exhaustiveMatchGuard } from '@shared/result';
+import { exhaustiveMatchGuard } from '@shared/result/match';
 
 export const MovementReason = {
   SALE: 'SALE',

@@ -1,8 +1,9 @@
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import { DataSource } from 'typeorm';
 import { MemoryLogDestination } from '@test/fakes/memory-log-destination';
-import { Environment, loadEnvironment } from '@config/environment';
-import { StockLedger } from '@stock/application/stock-ledger.port';
+import { Environment } from '@config/environment';
+import { loadEnvironment } from '@config/load-environment';
+import { StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { Test } from '@nestjs/testing';
 import { LogDestination } from '@shared/logging/log-destination';
 import { AppModule } from '@src/app.module';

@@ -1,6 +1,6 @@
 import { type DataSource } from 'typeorm';
-import { PostgresStockLedger } from '@stock/infrastructure/postgres-stock-ledger';
-import { RecordStockMovement } from '@stock/application/record-stock-movement.use-case';
+import { PostgresStockLedgerAdapter } from '@stock/adapters/persistence/postgres-stock-ledger.adapter';
+import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';
 import { aRecordCommand, SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
 import { openTestDatabase, resetTestDatabase } from '@test/support/test-database';
@@ -15,7 +15,7 @@ describe('RecordStockMovement against PostgreSQL', () => {
 
   beforeAll(async () => {
     dataSource = await openTestDatabase();
-    recordStockMovement = new RecordStockMovement(new PostgresStockLedger(dataSource));
+    recordStockMovement = new RecordStockMovement(new PostgresStockLedgerAdapter(dataSource));
   });
 
   beforeEach(async () => {

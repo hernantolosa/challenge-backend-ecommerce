@@ -1,17 +1,15 @@
-import { type InvariantViolated } from '@shared/invariant-violated';
-import { Err, exhaustiveMatchGuard, Ok, type Result } from '@shared/result';
+import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
+import { Err } from '@shared/result/err';
+import { exhaustiveMatchGuard } from '@shared/result/match';
+import { Ok } from '@shared/result/ok';
+import { type Result } from '@shared/result/result';
 import { directionOf, type MovementReason } from './movement-reason';
 import { Quantity } from './quantity';
 import { Sku } from './sku';
 import { MAX_STOCK_LEVEL } from './stock.constants';
-import { InsufficientStock, StockCapacityExceeded } from './stock.errors';
+import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
+import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';
 import { type StockMovement } from './stock-movement';
-
-export interface StockAdjustmentInput {
-  readonly sku: string;
-  readonly quantity: number;
-  readonly reason: MovementReason;
-}
 
 export class StockAdjustment {
   private constructor(
@@ -20,32 +18,37 @@ export class StockAdjustment {
     readonly reason: MovementReason,
   ) {}
 
-  static make(input: StockAdjustmentInput): Result<StockAdjustment, InvariantViolated> {
-    const sku = Sku.make(input.sku);
+  static make(
+    sku: string,
+    quantity: number,
+    reason: MovementReason,
+  ): Result<StockAdjustment, InvariantViolated> {
+    const validSku = Sku.make(sku);
 
-    switch (sku.kind) {
+    switch (validSku.kind) {
       case 'Ok':
-        return StockAdjustment.makeWithValidSku(sku.value, input);
+        return StockAdjustment.makeWithValidSku(validSku.value, quantity, reason);
       case 'InvariantViolated':
-        return sku;
+        return validSku;
       default:
-        return exhaustiveMatchGuard(sku);
+        return exhaustiveMatchGuard(validSku);
     }
   }
 
   private static makeWithValidSku(
     sku: Sku,
-    input: StockAdjustmentInput,
+    quantity: number,
+    reason: MovementReason,
   ): Result<StockAdjustment, InvariantViolated> {
-    const quantity = Quantity.make(input.quantity);
+    const validQuantity = Quantity.make(quantity);
 
-    switch (quantity.kind) {
+    switch (validQuantity.kind) {
       case 'Ok':
-        return Ok.make(new StockAdjustment(sku, quantity.value, input.reason));
+        return Ok.make(new StockAdjustment(sku, validQuantity.value, reason));
       case 'InvariantViolated':
-        return quantity;
+        return validQuantity;
       default:
-        return exhaustiveMatchGuard(quantity);
+        return exhaustiveMatchGuard(validQuantity);
     }
   }
 

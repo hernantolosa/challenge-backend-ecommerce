@@ -1,5 +1,5 @@
 import { type DataSource } from 'typeorm';
-import { PostgresStockLedger } from '@stock/infrastructure/postgres-stock-ledger';
+import { PostgresStockLedgerAdapter } from '@stock/adapters/persistence/postgres-stock-ledger.adapter';
 import { MAX_STOCK_LEVEL } from '@stock/domain/stock.constants';
 import { MovementReason } from '@stock/domain/movement-reason';
 import {
@@ -20,14 +20,14 @@ import {
 import { unwrap } from '@test/support/unwrap';
 import { openTestDatabase, resetTestDatabase } from '@test/support/test-database';
 
-describe('PostgresStockLedger', () => {
+describe('PostgresStockLedgerAdapter', () => {
   let dataSource: DataSource;
-  let ledger: PostgresStockLedger;
+  let ledger: PostgresStockLedgerAdapter;
   let variant: SeededVariant;
 
   beforeAll(async () => {
     dataSource = await openTestDatabase();
-    ledger = new PostgresStockLedger(dataSource);
+    ledger = new PostgresStockLedgerAdapter(dataSource);
   });
 
   beforeEach(async () => {

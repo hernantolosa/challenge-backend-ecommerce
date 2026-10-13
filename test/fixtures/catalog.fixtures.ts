@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { type DataSource } from 'typeorm';
-import { CategoryOrmEntity, ProductOrmEntity, VariantOrmEntity } from '@catalog/catalog.entities';
-import { StockLevelOrmEntity } from '@stock/infrastructure/stock.entities';
+import { CategoryOrmEntity } from '@catalog/entities/category.entity';
+import { ProductOrmEntity } from '@catalog/entities/product.entity';
+import { VariantOrmEntity } from '@catalog/entities/variant.entity';
+import { StockLevelOrmEntity } from '@stock/adapters/persistence/entities/stock-level.entity';
 
 export interface SeededVariant {
   readonly variantId: string;

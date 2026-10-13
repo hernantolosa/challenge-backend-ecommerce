@@ -10,8 +10,3 @@ export interface StockMovement {
   readonly idempotencyKey: string;
   readonly occurredAt: Date;
 }
-
-export interface StockLevel {
-  readonly sku: string;
-  readonly onHand: number;
-}

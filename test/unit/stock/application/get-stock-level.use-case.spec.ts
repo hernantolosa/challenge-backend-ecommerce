@@ -1,4 +1,4 @@
-import { GetStockLevel } from '@stock/application/get-stock-level.use-case';
+import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
 import { InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
 import { SNEAKER_SKU, UNKNOWN_SKU } from '@test/fixtures/stock.fixtures';
 

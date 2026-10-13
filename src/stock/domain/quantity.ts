@@ -1,5 +1,7 @@
-import { InvariantViolated } from '@shared/invariant-violated';
-import { Err, Ok, type Result } from '@shared/result';
+import { InvariantViolated } from '@shared/errors/invariant-violated.error';
+import { Err } from '@shared/result/err';
+import { Ok } from '@shared/result/ok';
+import { type Result } from '@shared/result/result';
 import {
   MAX_MOVEMENT_QUANTITY,
   MIN_MOVEMENT_QUANTITY,

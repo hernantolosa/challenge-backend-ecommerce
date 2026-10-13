@@ -1,6 +1,6 @@
 import { type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
-import { StockScope } from '@stock/http/stock.scopes';
+import { StockScope } from '@stock/adapters/http/stock.scopes';
 import { MAX_STOCK_LEVEL } from '@stock/domain/stock.constants';
 import { MovementReason } from '@stock/domain/movement-reason';
 import { onHandOf, seedVariant, type SeededVariant } from '@test/fixtures/catalog.fixtures';

@@ -1,4 +1,4 @@
-import { startTrace, traceContextOf } from '@shared/logging/trace-context';
+import { startTrace, traceContextOf } from '@shared/logging/request-trace';
 import {
   aRequestWithTraceparent,
   aTraceparent,

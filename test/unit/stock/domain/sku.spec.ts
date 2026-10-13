@@ -1,7 +1,7 @@
 import { SKU_MAX_LENGTH } from '@stock/domain/stock.constants';
 import { Sku } from '@stock/domain/sku';
-import { type Result } from '@shared/result';
-import { type InvariantViolated } from '@shared/invariant-violated';
+import { type Result } from '@shared/result/result';
+import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
 
 function valueOf(result: Result<Sku, InvariantViolated>): string | undefined {
   return result.kind === 'Ok' ? result.value.value : undefined;

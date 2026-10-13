@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { StockScope } from '@stock/http/stock.scopes';
+import { StockScope } from '@stock/adapters/http/stock.scopes';
 import { ACTOR } from '@test/fixtures/stock.fixtures';
 
 export interface TokenSeed {

@@ -2,10 +2,21 @@ import { unwrap } from '@test/support/unwrap';
 import { MAX_STOCK_LEVEL } from '@stock/domain/stock.constants';
 import { MovementReason, MOVEMENT_REASONS } from '@stock/domain/movement-reason';
 import { StockAdjustment } from '@stock/domain/stock-adjustment';
-import { anAdjustmentInput, aStockMovement, SNEAKER_SKU } from '@test/fixtures/stock.fixtures';
+import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
+import { type Result } from '@shared/result/result';
+import {
+  anAdjustmentInput,
+  aStockMovement,
+  SNEAKER_SKU,
+  type AdjustmentSeed,
+} from '@test/fixtures/stock.fixtures';
 
-function adjustmentFor(overrides: Parameters<typeof anAdjustmentInput>[0]): StockAdjustment {
-  return unwrap(StockAdjustment.make(anAdjustmentInput(overrides)));
+function makeFrom(seed: AdjustmentSeed): Result<StockAdjustment, InvariantViolated> {
+  return StockAdjustment.make(seed.sku, seed.quantity, seed.reason);
+}
+
+function adjustmentFor(overrides: Partial<AdjustmentSeed>): StockAdjustment {
+  return unwrap(makeFrom(anAdjustmentInput(overrides)));
 }
 
 const EXPECTED_DIRECTIONS: Readonly<Record<MovementReason, number>> = {
@@ -33,14 +44,14 @@ describe('StockAdjustment', () => {
   });
 
   it('reports the first violated invariant', () => {
-    expect(StockAdjustment.make(anAdjustmentInput({ sku: '', quantity: 0 }))).toMatchObject({
+    expect(makeFrom(anAdjustmentInput({ sku: '', quantity: 0 }))).toMatchObject({
       kind: 'InvariantViolated',
       error: { kind: 'InvariantViolated', field: 'sku' },
     });
   });
 
   it('reports an invalid quantity', () => {
-    expect(StockAdjustment.make(anAdjustmentInput({ quantity: -1 }))).toMatchObject({
+    expect(makeFrom(anAdjustmentInput({ quantity: -1 }))).toMatchObject({
       kind: 'InvariantViolated',
       error: { kind: 'InvariantViolated', field: 'quantity' },
     });

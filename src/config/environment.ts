@@ -1,16 +1,6 @@
-import { plainToInstance, type ClassConstructor } from 'class-transformer';
-import {
-  IsIn,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  Max,
-  Min,
-  MinLength,
-  validateSync,
-} from 'class-validator';
-import * as dotenv from 'dotenv';
+import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min, MinLength } from 'class-validator';
 import { type LevelWithSilent } from 'pino';
+import { DatabaseEnvironment } from './database-environment';
 
 const LOG_LEVELS: readonly LevelWithSilent[] = [
   'fatal',
@@ -21,49 +11,6 @@ const LOG_LEVELS: readonly LevelWithSilent[] = [
   'trace',
   'silent',
 ];
-
-export class DatabaseEnvironment {
-  @IsIn(['development', 'test', 'production'])
-  readonly NODE_ENV: string = 'development';
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_HOST!: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(65535)
-  readonly DB_PORT: number = 5432;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_USERNAME!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_PASSWORD!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly DB_DATABASE!: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  readonly DB_POOL_MAX: number = 10;
-
-  @IsInt()
-  @Min(100)
-  readonly DB_CONNECTION_TIMEOUT_MS: number = 2_000;
-
-  @IsInt()
-  @Min(100)
-  readonly DB_STATEMENT_TIMEOUT_MS: number = 5_000;
-
-  @IsInt()
-  @Min(100)
-  readonly DB_LOCK_TIMEOUT_MS: number = 2_000;
-}
 
 export class Environment extends DatabaseEnvironment {
   @IsIn(LOG_LEVELS)
@@ -93,24 +40,4 @@ export class Environment extends DatabaseEnvironment {
   @IsInt()
   @Min(1000)
   readonly THROTTLE_TTL_MS: number = 60_000;
-}
-
-export function loadEnvironment(): Environment {
-  return loadAndValidate(Environment);
-}
-
-export function loadDatabaseEnvironment(): DatabaseEnvironment {
-  return loadAndValidate(DatabaseEnvironment);
-}
-
-function loadAndValidate<T extends object>(schema: ClassConstructor<T>): T {
-  dotenv.config({ quiet: true });
-  const environment = plainToInstance(schema, process.env, { enableImplicitConversion: true });
-  const invalidKeys = validateSync(environment).map((error) => error.property);
-
-  if (invalidKeys.length > 0) {
-    throw new Error(`Invalid environment variables: ${invalidKeys.join(', ')}`);
-  }
-
-  return environment;
 }

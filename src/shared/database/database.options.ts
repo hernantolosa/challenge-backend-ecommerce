@@ -1,7 +1,10 @@
 import { type PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { CategoryOrmEntity, ProductOrmEntity, VariantOrmEntity } from '@catalog/catalog.entities';
-import { type DatabaseEnvironment } from '@config/environment';
-import { StockLevelOrmEntity, StockMovementOrmEntity } from '@stock/infrastructure/stock.entities';
+import { CategoryOrmEntity } from '@catalog/entities/category.entity';
+import { ProductOrmEntity } from '@catalog/entities/product.entity';
+import { VariantOrmEntity } from '@catalog/entities/variant.entity';
+import { type DatabaseEnvironment } from '@config/database-environment';
+import { StockLevelOrmEntity } from '@stock/adapters/persistence/entities/stock-level.entity';
+import { StockMovementOrmEntity } from '@stock/adapters/persistence/entities/stock-movement.entity';
 import { MIGRATIONS } from './migrations';
 
 export function databaseOptions(environment: DatabaseEnvironment): PostgresConnectionOptions {

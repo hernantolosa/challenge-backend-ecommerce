@@ -1,5 +1,7 @@
-import { InvariantViolated } from '@shared/invariant-violated';
-import { Err, Ok, type Result } from '@shared/result';
+import { InvariantViolated } from '@shared/errors/invariant-violated.error';
+import { Err } from '@shared/result/err';
+import { Ok } from '@shared/result/ok';
+import { type Result } from '@shared/result/result';
 import { IDEMPOTENCY_KEY_FORMAT_MESSAGE, UUID_PATTERN } from './stock.constants';
 
 export class IdempotencyKey {

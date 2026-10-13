@@ -1,8 +1,10 @@
 import { DataSource, type EntityManager } from 'typeorm';
-import { CategoryOrmEntity, ProductOrmEntity, VariantOrmEntity } from '@catalog/catalog.entities';
-import { loadDatabaseEnvironment } from '@config/environment';
+import { CategoryOrmEntity } from '@catalog/entities/category.entity';
+import { ProductOrmEntity } from '@catalog/entities/product.entity';
+import { VariantOrmEntity } from '@catalog/entities/variant.entity';
+import { loadDatabaseEnvironment } from '@config/load-environment';
 import { databaseOptions } from '@shared/database/database.options';
-import { StockLevelOrmEntity } from '@stock/infrastructure/stock.entities';
+import { StockLevelOrmEntity } from '@stock/adapters/persistence/entities/stock-level.entity';
 
 export interface CatalogVariantSeed {
   readonly sku: string;

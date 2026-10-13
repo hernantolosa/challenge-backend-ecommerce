@@ -11,7 +11,7 @@ import {
 import { type Environment } from '@config/environment';
 import { type LogDestination } from './log-destination';
 import { outcomeOf } from './request-outcome';
-import { startTrace, traceContextOf } from './trace-context';
+import { startTrace, traceContextOf } from './request-trace';
 
 const SERVICE_NAME = 'ecommerce-api';
 const TRACE_ID_HEADER = 'X-Trace-Id';

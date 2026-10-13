@@ -1,10 +1,8 @@
-import {
-  type RecordEntryError,
-  type LedgerEntry,
-  type StockLedger,
-} from '@stock/application/stock-ledger.port';
+import { type RecordEntryError } from '@stock/application/errors/record-entry.errors';
+import { type LedgerEntry } from '@stock/application/ports/ledger-entry';
+import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockMovement } from '@stock/domain/stock-movement';
-import { type Result } from '@shared/result';
+import { type Result } from '@shared/result/result';
 import { aQueryFailure } from '@test/fixtures/database-failure.fixtures';
 
 const INPUT_OUTPUT_ERROR = '58030';

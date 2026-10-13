@@ -1,8 +1,8 @@
 import { aQueryFailure } from '@test/fixtures/database-failure.fixtures';
 import { ForbiddenException, HttpStatus, NotFoundException } from '@nestjs/common';
-import { ProblemException } from '@shared/http/problem';
-import { internalErrorProblem, toProblemDetails } from '@shared/http/problem-details.filter';
-import { InvariantViolated } from '@shared/invariant-violated';
+import { ProblemException } from '@shared/http/problem.exception';
+import { internalErrorProblem, toProblemDetails } from '@shared/http/problem-details.converter';
+import { InvariantViolated } from '@shared/errors/invariant-violated.error';
 
 describe('toProblemDetails', () => {
   it('keeps the problem built from a business failure', () => {
