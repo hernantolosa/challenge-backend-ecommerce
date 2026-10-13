@@ -1,21 +1,33 @@
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
+import { LogDestination } from '@infrastructure/logging/logger/log-destination';
 import { AppModule } from '@src/app.module';
 import { configureApp } from '@src/configure-app';
+import { StockLedger } from '@stock/application/ports/stock-ledger.port';
+import { MemoryLogDestination } from '@test/fakes/memory-log-destination';
+import { type TestAppOptions } from './test-app-options.interface';
 
 export interface TestApp {
   readonly app: NestExpressApplication;
   readonly dataSource: DataSource;
+  readonly logs: MemoryLogDestination;
 }
 
-export async function startTestApp(): Promise<TestApp> {
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+export async function startTestApp(options: TestAppOptions = {}): Promise<TestApp> {
+  const logs = new MemoryLogDestination();
+  const builder = Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(LogDestination)
+    .useValue(logs);
+  if (options.stockLedger !== undefined) {
+    builder.overrideProvider(StockLedger).useValue(options.stockLedger);
+  }
+  const moduleRef = await builder.compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>({ bodyParser: false });
   configureApp(app);
   await app.init();
 
   const dataSource = app.get(DataSource);
   await dataSource.runMigrations();
-  return { app, dataSource };
+  return { app, dataSource, logs };
 }

@@ -1,4 +1,6 @@
 const TEST_ENVIRONMENT: Readonly<Record<string, string>> = {
+  NODE_ENV: 'test',
+  LOG_LEVEL: 'info',
   DB_HOST: 'localhost',
   DB_PORT: '5432',
   DB_USERNAME: 'postgres',
