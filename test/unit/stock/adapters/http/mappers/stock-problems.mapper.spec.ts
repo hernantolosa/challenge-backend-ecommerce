@@ -1,5 +1,5 @@
 import { ProblemException } from '@shared/http/problem.exception';
-import { StockProblems } from '@stock/adapters/http/stock.problems';
+import { StockProblems } from '@stock/adapters/http/mappers/stock-problems.mapper';
 import { IdempotencyKeyReused } from '@stock/domain/errors/idempotency-key-reused.error';
 import { InsufficientStock } from '@stock/domain/errors/insufficient-stock.error';
 import { StockCapacityExceeded } from '@stock/domain/errors/stock-capacity-exceeded.error';

@@ -6,14 +6,17 @@ import { ProblemException } from '@shared/http/problem.exception';
 import { exhaustiveMatchGuard } from '@shared/result/match';
 import { GetStockLevel } from '@stock/application/use-cases/get-stock-level.use-case';
 import { RecordStockMovement } from '@stock/application/use-cases/record-stock-movement.use-case';
-import { IdempotencyKeyHeader } from './idempotency-key.decorator';
+import { IdempotencyKeyHeader } from '@stock/adapters/http/decorators/idempotency-key.decorator';
 import { IdempotencyKeyHeaderDto } from '@stock/adapters/http/dto/idempotency-key-header.dto';
 import { RecordStockMovementRequestDto } from '@stock/adapters/http/dto/record-stock-movement-request.dto';
 import { type StockLevelResponseDto } from '@stock/adapters/http/dto/stock-level-response.dto';
 import { StockLevelParamsDto } from '@stock/adapters/http/dto/stock-level-params.dto';
 import { type StockMovementResponseDto } from '@stock/adapters/http/dto/stock-movement-response.dto';
-import { toStockLevelResponseDto, toStockMovementResponseDto } from './stock-response.mapper';
-import { StockProblems } from './stock.problems';
+import {
+  toStockLevelResponseDto,
+  toStockMovementResponseDto,
+} from '@stock/adapters/http/mappers/stock-response.mapper';
+import { StockProblems } from '@stock/adapters/http/mappers/stock-problems.mapper';
 import { StockScope } from './stock.scopes';
 
 @Controller('stock')

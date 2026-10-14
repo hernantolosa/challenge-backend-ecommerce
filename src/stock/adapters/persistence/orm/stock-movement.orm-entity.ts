@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { VariantOrmEntity } from '@catalog/entities/variant.orm-entity';
+import { VariantOrmEntity } from '@catalog/orm/variant.orm-entity';
 import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/persistence/stock-ledger.sql';
 import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/enums/movement-reason.enum';
 
