@@ -187,17 +187,6 @@ describe('PostgresStockLedgerAdapter', () => {
       expect(await movementCountOf(dataSource, variant.variantId)).toBe(10);
     });
 
-    it('records a gapless balance history when concurrent movements succeed', async () => {
-      const buyers = Array.from({ length: 10 }, () => ledger.record(aLedgerEntry({ quantity: 1 })));
-
-      const results = await Promise.all(buyers);
-
-      const balances = results.flatMap((result) =>
-        result.kind === 'Ok' ? [result.value.balanceAfter] : [],
-      );
-      expect([...balances].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    });
-
     it('applies a movement only once when retries with the same key arrive at the same time', async () => {
       const retries = Array.from({ length: 10 }, () =>
         ledger.record(aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY })),

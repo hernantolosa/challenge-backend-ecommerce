@@ -187,6 +187,7 @@ describe('Unexpected failures', () => {
       code: 'InternalServerError',
       traceId,
     });
+    expect(JSON.stringify(response.body)).not.toMatch(/stack|QueryFailedError|SELECT/);
     expect(JSON.stringify(response.body)).not.toContain(DATABASE_FAILURE);
 
     const failure = await waitForLog(

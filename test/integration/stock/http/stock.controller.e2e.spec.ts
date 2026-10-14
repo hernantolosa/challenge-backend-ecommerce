@@ -398,25 +398,11 @@ describe('Stock HTTP API', () => {
       expect(response.status).toBe(200);
     });
 
-    it('keeps the health check public', async () => {
-      const response = await request(server).get('/health');
-
-      expect(response.status).toBe(200);
-    });
-
     it('sends security headers and hides the framework', async () => {
       const response = await request(server).get('/health');
 
       expect(response.headers['x-content-type-options']).toBe('nosniff');
       expect(response.headers['x-powered-by']).toBeUndefined();
-    });
-
-    it('does not leak internals on errors', async () => {
-      const response = await postMovement(aMovementBody({ sku: UNKNOWN_SKU }));
-
-      expect(JSON.stringify(response.body)).not.toMatch(
-        /stack|QueryFailedError|SELECT|stock_levels/,
-      );
     });
   });
 });

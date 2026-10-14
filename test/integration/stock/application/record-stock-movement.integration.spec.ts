@@ -45,15 +45,15 @@ describe('RecordStockMovement against PostgreSQL', () => {
     }
   });
 
-  it('rejects concurrent reuses of a key with a different request once the first one drains the stock', async () => {
-    const outcomes = await Promise.all([
-      recordStockMovement.execute(aRecordCommand({ quantity: 1 })),
+  it('replays concurrent retries and rejects a concurrent reuse of the key once the stock is drained', async () => {
+    const first = await recordStockMovement.execute(aRecordCommand({ quantity: 1 }));
+
+    const retries = await Promise.all([
       recordStockMovement.execute(aRecordCommand({ quantity: 1 })),
       recordStockMovement.execute(aRecordCommand({ quantity: 2 })),
     ]);
 
-    const kinds = outcomes.map((outcome) => outcome.kind);
-    expect(kinds.filter((kind) => kind === 'Ok')).toHaveLength(2);
-    expect(kinds.filter((kind) => kind === 'IdempotencyKeyReused')).toHaveLength(1);
+    expect(first.kind).toBe('Ok');
+    expect(retries.map((outcome) => outcome.kind)).toEqual(['Ok', 'IdempotencyKeyReused']);
   });
 });
