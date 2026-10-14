@@ -1,4 +1,5 @@
 export const VALID_ENVIRONMENT: Readonly<Record<string, string>> = {
+  NODE_ENV: 'production',
   DB_HOST: 'localhost',
   DB_USERNAME: 'app',
   DB_PASSWORD: 'app-password',

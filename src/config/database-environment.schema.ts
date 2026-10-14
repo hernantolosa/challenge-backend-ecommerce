@@ -2,7 +2,7 @@ import { IsIn, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 
 export class DatabaseEnvironment {
   @IsIn(['development', 'test', 'production'])
-  readonly NODE_ENV: string = 'development';
+  readonly NODE_ENV!: string;
 
   @IsString()
   @IsNotEmpty()
