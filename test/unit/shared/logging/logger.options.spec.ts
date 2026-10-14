@@ -46,8 +46,23 @@ describe('logger options', () => {
     expect(destination.raw).not.toContain(LEAKED_PARAMETER);
   });
 
-  it('redacts credentials even if a caller logs them by mistake', () => {
-    logger.info({ headers: { authorization: 'Bearer secret-token' } }, 'incoming request');
+  it.each([['a thrown string'], [null], [{ message: 'a plain object' }]])(
+    'logs %p thrown as an error without failing',
+    (thrown) => {
+      logger.error({ err: thrown }, 'unexpected failure');
+
+      expect(destination.entries()[0]).toMatchObject({
+        err: { type: expect.any(String) as unknown, message: expect.any(String) as unknown },
+      });
+    },
+  );
+
+  it.each([
+    [{ headers: { authorization: 'Bearer secret-token' } }],
+    [{ authorization: 'Bearer secret-token' }],
+    [{ password: 'secret-token' }],
+  ])('redacts credentials even if a caller logs them by mistake: %p', (fields) => {
+    logger.info(fields, 'incoming request');
 
     expect(destination.raw).not.toContain('secret-token');
   });

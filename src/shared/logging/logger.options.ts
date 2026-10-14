@@ -1,13 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { type IncomingMessage, type ServerResponse } from 'node:http';
 import { type Options } from 'pino-http';
-import {
-  pino,
-  type LevelWithSilent,
-  type SerializedError,
-  type SerializedRequest,
-  type SerializedResponse,
-} from 'pino';
+import { pino, type LevelWithSilent, type SerializedRequest, type SerializedResponse } from 'pino';
 import { type Environment } from '@config/environment.schema';
 import { outcomeOf } from './request-outcome';
 import { startTrace, traceContextOf } from './request-trace';
@@ -21,6 +15,7 @@ const SECURITY_STATUSES: ReadonlySet<number> = new Set([
   HttpStatus.TOO_MANY_REQUESTS,
 ]);
 const FIRST_SERVER_ERROR: number = HttpStatus.INTERNAL_SERVER_ERROR;
+const REDACTED_KEYS: readonly string[] = ['authorization', 'password', 'token', 'secret'];
 
 export function httpLoggerOptions(environment: Environment): Options {
   return {
@@ -30,7 +25,7 @@ export function httpLoggerOptions(environment: Environment): Options {
     timestamp: pino.stdTimeFunctions.isoTime,
     formatters: { level: (label: string): { level: string } => ({ level: label }) },
     redact: {
-      paths: ['*.authorization', '*.password', '*.token', '*.secret'],
+      paths: REDACTED_KEYS.flatMap((key: string): string[] => [key, `*.${key}`]),
       censor: '[REDACTED]',
     },
     serializers: { req: serializeRequest, res: serializeResponse, err: serializeError },
@@ -95,14 +90,25 @@ function serializeResponse(response: SerializedResponse): object {
   return { statusCode: response.statusCode };
 }
 
-function serializeError(value: Error | SerializedError): object {
-  const error = value instanceof Error ? value : value.raw;
+function serializeError(value: unknown): object {
+  const error = errorOf(value);
+  if (error === undefined) {
+    return { type: typeof value, message: String(value), stack: null, code: null };
+  }
   return {
     type: error.constructor.name,
     message: error.message,
     stack: error.stack ?? null,
     code: codeOf(error),
   };
+}
+
+function errorOf(value: unknown): Error | undefined {
+  if (value instanceof Error) return value;
+  if (typeof value === 'object' && value !== null && 'raw' in value && value.raw instanceof Error) {
+    return value.raw;
+  }
+  return undefined;
 }
 
 function codeOf(error: Error): string | null {
