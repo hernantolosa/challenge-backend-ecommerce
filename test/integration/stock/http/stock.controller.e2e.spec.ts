@@ -134,6 +134,31 @@ describe('Stock HTTP API', () => {
         expect(response.body).toMatchObject({ code: 'IdempotencyKeyReused' });
       });
 
+      it('treats an uppercase key as the same key', async () => {
+        await postMovement(aMovementBody(), IDEMPOTENCY_KEY);
+
+        const retry = await postMovement(aMovementBody(), IDEMPOTENCY_KEY.toUpperCase());
+
+        expect(retry.status).toBe(200);
+        expect(await onHandOf(testApp.dataSource, variant.variantId)).toBe(8);
+      });
+
+      it('scopes keys to the creator so two clients cannot collide', async () => {
+        const first = await postMovement(
+          aMovementBody(),
+          IDEMPOTENCY_KEY,
+          issueToken({ subject: 'store-a' }),
+        );
+        const second = await postMovement(
+          aMovementBody(),
+          IDEMPOTENCY_KEY,
+          issueToken({ subject: 'store-b' }),
+        );
+
+        expect([first.status, second.status]).toEqual([201, 201]);
+        expect(await onHandOf(testApp.dataSource, variant.variantId)).toBe(6);
+      });
+
       it('returns 400 when the Idempotency-Key header is missing', async () => {
         const response = await postMovement(aMovementBody(), null);
 
