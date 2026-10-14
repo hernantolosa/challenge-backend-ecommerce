@@ -27,7 +27,9 @@ export class GetStockLevel {
 
   private async findStockLevel(sku: Sku): Promise<Result<StockLevel, GetStockLevelError>> {
     const level = await this.levels.findLevel(sku);
-    if (level === null) return Err.make(VariantNotFound.make(sku.value));
+    if (level === null) {
+      return Err.make(VariantNotFound.make(sku.value));
+    }
 
     return Ok.make(level);
   }

@@ -24,7 +24,9 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     if (problem.status >= FIRST_SERVER_ERROR) {
       this.logger.error({ err: exception }, 'Request failed with a server error');
     }
-    if (problem.status === SERVICE_UNAVAILABLE) response.setHeader('Retry-After', '1');
+    if (problem.status === SERVICE_UNAVAILABLE) {
+      response.setHeader('Retry-After', '1');
+    }
     recordOutcome(response, problem.code);
 
     const body = trace === undefined ? problem : { ...problem, traceId: trace.traceId };

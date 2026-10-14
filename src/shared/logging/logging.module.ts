@@ -16,7 +16,9 @@ const PRETTY_OPTIONS: PrettyOptions = {
 };
 
 async function logDestinationFor(environment: Environment): Promise<LogDestination> {
-  if (environment.NODE_ENV !== 'development') return process.stdout;
+  if (environment.NODE_ENV !== 'development') {
+    return process.stdout;
+  }
   const { build } = await import('pino-pretty');
   return build(PRETTY_OPTIONS);
 }

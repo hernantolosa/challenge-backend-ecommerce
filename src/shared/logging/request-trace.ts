@@ -27,9 +27,15 @@ function incomingTraceOf(
   header: string | string[] | undefined,
 ): Pick<TraceContext, 'traceId' | 'parentSpanId'> | null {
   const [, version, traceId, parentSpanId] = TRACEPARENT_PATTERN.exec(String(header)) ?? [];
-  if (version === undefined || traceId === undefined || parentSpanId === undefined) return null;
-  if (version === FORBIDDEN_VERSION || traceId === INVALID_TRACE_ID) return null;
-  if (parentSpanId === INVALID_SPAN_ID) return null;
+  if (version === undefined || traceId === undefined || parentSpanId === undefined) {
+    return null;
+  }
+  if (version === FORBIDDEN_VERSION || traceId === INVALID_TRACE_ID) {
+    return null;
+  }
+  if (parentSpanId === INVALID_SPAN_ID) {
+    return null;
+  }
 
   return { traceId, parentSpanId };
 }

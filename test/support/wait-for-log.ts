@@ -7,11 +7,15 @@ export function waitForLog(
   matches: (entry: LogEntry) => boolean,
 ): Promise<LogEntry> {
   const written = logs.entries().find(matches);
-  if (written !== undefined) return Promise.resolve(written);
+  if (written !== undefined) {
+    return Promise.resolve(written);
+  }
 
   return new Promise<LogEntry>((resolve, reject) => {
     const stopListening = logs.onWrite((entry) => {
-      if (!matches(entry)) return;
+      if (!matches(entry)) {
+        return;
+      }
       clearTimeout(timeout);
       stopListening();
       resolve(entry);

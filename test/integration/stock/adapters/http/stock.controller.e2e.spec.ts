@@ -26,8 +26,12 @@ describe('Stock HTTP API', () => {
     token: string | null = issueToken(),
   ): request.Test {
     const call = request(server).post(MOVEMENTS_PATH).send(body);
-    if (idempotencyKey !== null) void call.set('Idempotency-Key', idempotencyKey);
-    if (token !== null) void call.set('Authorization', `Bearer ${token}`);
+    if (idempotencyKey !== null) {
+      void call.set('Idempotency-Key', idempotencyKey);
+    }
+    if (token !== null) {
+      void call.set('Authorization', `Bearer ${token}`);
+    }
     return call;
   }
 

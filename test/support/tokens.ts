@@ -16,7 +16,9 @@ const DEFAULT_LIFETIME_SECONDS = 300;
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
-  if (value === undefined) throw new Error(`Missing test environment variable ${name}`);
+  if (value === undefined) {
+    throw new Error(`Missing test environment variable ${name}`);
+  }
   return value;
 }
 

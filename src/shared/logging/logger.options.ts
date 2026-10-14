@@ -58,8 +58,12 @@ export function httpLoggerOptions(environment: Environment): Options {
 }
 
 export function accessLogLevelFor(status: number): LevelWithSilent {
-  if (status >= FIRST_SERVER_ERROR) return 'error';
-  if (SECURITY_STATUSES.has(status)) return 'warn';
+  if (status >= FIRST_SERVER_ERROR) {
+    return 'error';
+  }
+  if (SECURITY_STATUSES.has(status)) {
+    return 'warn';
+  }
   return 'info';
 }
 
@@ -72,7 +76,9 @@ function withoutError(log: object): object {
 }
 
 function userOf(request: IncomingMessage): string | null {
-  if (!('principal' in request)) return null;
+  if (!('principal' in request)) {
+    return null;
+  }
   const { principal } = request;
   return typeof principal === 'object' &&
     principal !== null &&
@@ -104,7 +110,9 @@ function serializeError(value: unknown): object {
 }
 
 function errorOf(value: unknown): Error | undefined {
-  if (value instanceof Error) return value;
+  if (value instanceof Error) {
+    return value;
+  }
   if (typeof value === 'object' && value !== null && 'raw' in value && value.raw instanceof Error) {
     return value.raw;
   }

@@ -41,7 +41,9 @@ describe('When the database cannot serve a request in time', () => {
   });
 
   afterEach(async () => {
-    if (blocker.isTransactionActive) await blocker.rollbackTransaction();
+    if (blocker.isTransactionActive) {
+      await blocker.rollbackTransaction();
+    }
     await blocker.release();
   });
 

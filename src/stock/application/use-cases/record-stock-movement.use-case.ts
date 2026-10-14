@@ -87,7 +87,9 @@ function replayOrAccept(
   entry: LedgerEntry,
 ): Result<RecordStockMovementOutputDto, IdempotencyKeyReused> {
   const { movement, alreadyRecorded } = recorded;
-  if (!alreadyRecorded) return Ok.make({ movement, replayed: false });
+  if (!alreadyRecorded) {
+    return Ok.make({ movement, replayed: false });
+  }
   if (!entry.adjustment.isSameRequestAs(movement)) {
     return Err.make(IdempotencyKeyReused.make(entry.idempotencyKey.value));
   }

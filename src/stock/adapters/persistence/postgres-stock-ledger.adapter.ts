@@ -53,7 +53,9 @@ export class PostgresStockLedgerAdapter implements StockLedger, StockLevelReader
     try {
       [row] = await this.applyAdjustmentAndAppendMovement(entry);
     } catch (error) {
-      if (!isUniqueViolation(error, IDEMPOTENCY_CONSTRAINT)) throw error;
+      if (!isUniqueViolation(error, IDEMPOTENCY_CONSTRAINT)) {
+        throw error;
+      }
       return this.movementRecordedConcurrently(entry);
     }
     return this.outcomeOf(entry, row);
@@ -92,7 +94,9 @@ export class PostgresStockLedgerAdapter implements StockLedger, StockLevelReader
 
   private async movementRecordedConcurrently(entry: LedgerEntry): Promise<RecordResult> {
     const winner = await this.findMovement(entry);
-    if (winner === null) return unreachable('an idempotency key was taken without a movement');
+    if (winner === null) {
+      return unreachable('an idempotency key was taken without a movement');
+    }
     return Ok.make({ movement: winner, alreadyRecorded: true });
   }
 

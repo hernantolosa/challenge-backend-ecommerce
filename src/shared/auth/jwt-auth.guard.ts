@@ -30,7 +30,9 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (this.metadataOf<boolean>(PUBLIC_ROUTE, context) === true) return true;
+    if (this.metadataOf<boolean>(PUBLIC_ROUTE, context) === true) {
+      return true;
+    }
 
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const principal = await this.authenticate(request.headers.authorization);
@@ -59,10 +61,14 @@ export class JwtAuthGuard implements CanActivate {
 
   private async authenticate(authorization: string | undefined): Promise<Principal> {
     const token = BEARER_PATTERN.exec(authorization ?? '')?.[1];
-    if (token === undefined) throw new UnauthorizedException(AUTHENTICATION_REQUIRED);
+    if (token === undefined) {
+      throw new UnauthorizedException(AUTHENTICATION_REQUIRED);
+    }
 
     const claims = await this.verify(token);
-    if (!hasRequiredClaims(claims)) throw new UnauthorizedException(AUTHENTICATION_REQUIRED);
+    if (!hasRequiredClaims(claims)) {
+      throw new UnauthorizedException(AUTHENTICATION_REQUIRED);
+    }
 
     return {
       subject: claims.sub,

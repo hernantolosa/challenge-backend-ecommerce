@@ -9,10 +9,18 @@ const VALIDATION_FAILED = 'Request validation failed';
 const BAD_REQUEST: number = HttpStatus.BAD_REQUEST;
 
 export function toProblemDetails(exception: unknown): ProblemDetails | null {
-  if (exception instanceof ProblemException) return exception.problem;
-  if (exception instanceof HttpException) return problemFromHttpException(exception);
-  if (isClientHttpError(exception)) return problemFromStatus(exception.status, exception.message);
-  if (isDatabaseUnavailable(exception)) return serviceUnavailableProblem();
+  if (exception instanceof ProblemException) {
+    return exception.problem;
+  }
+  if (exception instanceof HttpException) {
+    return problemFromHttpException(exception);
+  }
+  if (isClientHttpError(exception)) {
+    return problemFromStatus(exception.status, exception.message);
+  }
+  if (isDatabaseUnavailable(exception)) {
+    return serviceUnavailableProblem();
+  }
 
   return null;
 }
@@ -42,11 +50,17 @@ function problemFromStatus(status: number, detail: string): ProblemDetails {
 }
 
 function extractMessages(response: string | object): string[] {
-  if (typeof response === 'string') return [response];
-  if (!('message' in response)) return [];
+  if (typeof response === 'string') {
+    return [response];
+  }
+  if (!('message' in response)) {
+    return [];
+  }
 
   const { message } = response;
-  if (typeof message === 'string') return [message];
+  if (typeof message === 'string') {
+    return [message];
+  }
   return Array.isArray(message) ? message.filter((item) => typeof item === 'string') : [];
 }
 

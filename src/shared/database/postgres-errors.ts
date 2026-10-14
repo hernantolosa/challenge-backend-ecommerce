@@ -10,7 +10,9 @@ const POOL_TIMEOUT_MESSAGES: ReadonlySet<string> = new Set([
 ]);
 
 export function isUniqueViolation(error: unknown, constraint: string): boolean {
-  if (!(error instanceof QueryFailedError)) return false;
+  if (!(error instanceof QueryFailedError)) {
+    return false;
+  }
 
   const driverError: unknown = error.driverError;
   return (
@@ -33,8 +35,9 @@ export function isDatabaseUnavailable(error: unknown): boolean {
 }
 
 function driverCodeOf(driverError: unknown): string {
-  if (typeof driverError !== 'object' || driverError === null || !('code' in driverError))
+  if (typeof driverError !== 'object' || driverError === null || !('code' in driverError)) {
     return '';
+  }
 
   return typeof driverError.code === 'string' ? driverError.code : '';
 }

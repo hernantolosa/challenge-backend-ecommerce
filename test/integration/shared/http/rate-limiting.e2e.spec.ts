@@ -30,7 +30,9 @@ describe('Rate limiting', () => {
   });
 
   it('answers 429 as problem details once a client exceeds the limit', async () => {
-    for (let call = 0; call < LIMIT; call++) expect((await getStock()).status).toBe(200);
+    for (let call = 0; call < LIMIT; call++) {
+      expect((await getStock()).status).toBe(200);
+    }
 
     const response = await getStock();
 

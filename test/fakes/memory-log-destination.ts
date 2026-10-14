@@ -36,7 +36,9 @@ export class MemoryLogDestination extends LogDestination {
 
 function parseLogLine(line: string): LogEntry {
   const parsed: unknown = JSON.parse(line);
-  if (typeof parsed !== 'object' || parsed === null) throw new Error(`Invalid log line: ${line}`);
+  if (typeof parsed !== 'object' || parsed === null) {
+    throw new Error(`Invalid log line: ${line}`);
+  }
 
   return parsed as LogEntry;
 }

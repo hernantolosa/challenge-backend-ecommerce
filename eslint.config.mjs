@@ -41,6 +41,7 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/prefer-readonly': 'error',
       'no-console': 'error',
+      curly: ['error', 'all'],
       'no-restricted-imports': [
         'error',
         {

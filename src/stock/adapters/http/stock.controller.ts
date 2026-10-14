@@ -42,8 +42,9 @@ export class StockController {
 
     switch (outcome.kind) {
       case 'Ok':
-        if (outcome.value.replayed)
+        if (outcome.value.replayed) {
           response.status(HttpStatus.OK).setHeader('Idempotent-Replayed', 'true');
+        }
         return toStockMovementResponseDto(outcome.value.movement);
       case 'InvariantViolated':
         throw ProblemException.invariantViolated(outcome.error);

@@ -58,7 +58,9 @@ async function seedProduct(manager: EntityManager, seed: CatalogProductSeed): Pr
       priceCents: seed.priceCents,
     }));
 
-  for (const variant of seed.variants) await seedVariant(manager, product.id, variant);
+  for (const variant of seed.variants) {
+    await seedVariant(manager, product.id, variant);
+  }
 }
 
 async function seedVariant(
@@ -66,7 +68,9 @@ async function seedVariant(
   productId: string,
   seed: CatalogVariantSeed,
 ): Promise<void> {
-  if (await manager.existsBy(VariantOrmEntity, { sku: seed.sku })) return;
+  if (await manager.existsBy(VariantOrmEntity, { sku: seed.sku })) {
+    return;
+  }
 
   const variant = await manager.save(VariantOrmEntity, {
     productId,
@@ -85,7 +89,9 @@ async function main(): Promise<void> {
   const dataSource = await new DataSource(databaseOptions(environment)).initialize();
   try {
     await dataSource.transaction(async (manager) => {
-      for (const product of CATALOG) await seedProduct(manager, product);
+      for (const product of CATALOG) {
+        await seedProduct(manager, product);
+      }
     });
     process.stdout.write(`Seeded ${CATALOG.length} products\n`);
   } finally {

@@ -37,10 +37,14 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
 
   async record(entry: LedgerEntry): Promise<Result<RecordedMovement, RecordEntryError>> {
     const previous = this.recorded.find((movement) => isRecordedUnder(movement, entry));
-    if (previous !== undefined) return Ok.make({ movement: previous, alreadyRecorded: true });
+    if (previous !== undefined) {
+      return Ok.make({ movement: previous, alreadyRecorded: true });
+    }
 
     const onHand = this.levels.get(entry.adjustment.sku.value);
-    if (onHand === undefined) return Err.make(VariantNotFound.make(entry.adjustment.sku.value));
+    if (onHand === undefined) {
+      return Err.make(VariantNotFound.make(entry.adjustment.sku.value));
+    }
     if (!fitsWithin(onHand + entry.adjustment.stockDelta)) {
       return entry.adjustment.rejectionAgainst(onHand);
     }
