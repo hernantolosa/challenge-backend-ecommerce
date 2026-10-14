@@ -1,19 +1,34 @@
 export const IDEMPOTENCY_CONSTRAINT = 'UQ_stock_movements_created_by_idempotency_key';
 
 export const APPLY_ADJUSTMENT_AND_APPEND_MOVEMENT_SQL = `
-  WITH adjusted AS (
+  WITH target AS (
+    SELECT level.variant_id, level.on_hand
+    FROM stock_levels AS level
+    JOIN variants AS variant ON variant.id = level.variant_id
+    WHERE variant.sku = $1
+    FOR UPDATE OF level
+  ),
+  adjusted AS (
     UPDATE stock_levels AS level
-    SET on_hand = level.on_hand + $2, updated_at = now()
-    FROM variants AS variant
-    WHERE variant.id = level.variant_id
-      AND variant.sku = $1
-      AND level.on_hand::bigint + $2 BETWEEN 0 AND $7
+    SET on_hand = target.on_hand + $2, updated_at = now()
+    FROM target
+    WHERE level.variant_id = target.variant_id
+      AND target.on_hand::bigint + $2 BETWEEN 0 AND $7
     RETURNING level.variant_id, level.on_hand
+  ),
+  appended AS (
+    INSERT INTO stock_movements (variant_id, quantity, reason, balance_after, created_by, idempotency_key)
+    SELECT adjusted.variant_id, $3, $4, adjusted.on_hand, $5, $6
+    FROM adjusted
+    RETURNING id, balance_after, occurred_at
   )
-  INSERT INTO stock_movements (variant_id, quantity, reason, balance_after, created_by, idempotency_key)
-  SELECT adjusted.variant_id, $3, $4, adjusted.on_hand, $5, $6
-  FROM adjusted
-  RETURNING id, balance_after AS "balanceAfter", occurred_at AS "occurredAt"
+  SELECT
+    target.on_hand AS "onHand",
+    appended.id,
+    appended.balance_after AS "balanceAfter",
+    appended.occurred_at AS "occurredAt"
+  FROM target
+  LEFT JOIN appended ON true
 `;
 
 export const FIND_LEVEL_SQL = `

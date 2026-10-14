@@ -244,21 +244,21 @@ describe('RecordStockMovement', () => {
     });
   });
 
-  describe('when a concurrent request with the same key wins the race', () => {
-    it('replays the movement recorded by the winner', async () => {
-      const winner = aStockMovement({ id: 'winner', balanceAfter: 8 });
-      ledger.simulateConcurrentWinner(winner);
+  describe('when the ledger already holds a movement under the key', () => {
+    it('replays it without touching the stock', async () => {
+      ledger.withRecordedMovement(aStockMovement({ id: 'previous', balanceAfter: 8 }));
 
       const result = await recordStockMovement.execute(aRecordCommand());
 
       expect(result).toMatchObject({
         kind: 'Ok',
-        value: { replayed: true, movement: { id: 'winner' } },
+        value: { replayed: true, movement: { id: 'previous' } },
       });
+      expect(ledger.stockOf(SNEAKER_SKU)).toBe(10);
     });
 
-    it('rejects the request when the winner used the key for a different request', async () => {
-      ledger.simulateConcurrentWinner(aStockMovement({ quantity: 9 }));
+    it('rejects the request when the key was used for a different request', async () => {
+      ledger.withRecordedMovement(aStockMovement({ quantity: 9 }));
 
       const result = await recordStockMovement.execute(aRecordCommand({ quantity: 2 }));
 

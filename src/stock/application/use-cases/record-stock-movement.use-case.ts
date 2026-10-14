@@ -1,17 +1,17 @@
 import { type InvariantViolated } from '@shared/errors/invariant-violated.error';
 import { Err } from '@shared/result/err';
-import { exhaustiveMatchGuard, unreachable } from '@shared/result/match';
+import { exhaustiveMatchGuard } from '@shared/result/match';
 import { Ok } from '@shared/result/ok';
 import { type Result } from '@shared/result/result.type';
 import { type RecordStockMovementError } from '@stock/application/errors/record-stock-movement.errors';
 import { type RecordStockMovementInputDto } from '@stock/application/dto/record-stock-movement-input.dto';
 import { type RecordStockMovementOutputDto } from '@stock/application/dto/record-stock-movement-output.dto';
 import { type LedgerEntry } from '@stock/application/ports/ledger-entry.interface';
+import { type RecordedMovement } from '@stock/application/ports/recorded-movement.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { IdempotencyKeyReused } from '@stock/domain/errors/idempotency-key-reused.error';
 import { IdempotencyKey } from '@stock/domain/value-objects/idempotency-key.value-object';
 import { StockAdjustment } from '@stock/domain/value-objects/stock-adjustment.value-object';
-import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
 
 type RecordStockMovementResult = Result<RecordStockMovementOutputDto, RecordStockMovementError>;
 
@@ -23,7 +23,7 @@ export class RecordStockMovement {
 
     switch (entry.kind) {
       case 'Ok':
-        return this.replayOrRecordMovement(entry.value);
+        return this.recordMovement(entry.value);
       case 'InvariantViolated':
         return entry;
       default:
@@ -31,21 +31,12 @@ export class RecordStockMovement {
     }
   }
 
-  private async replayOrRecordMovement(entry: LedgerEntry): Promise<RecordStockMovementResult> {
-    const previous = await this.ledger.findMovement(entry.createdBy, entry.idempotencyKey);
-    if (previous !== null) return replayPreviousMovement(previous, entry);
-
-    return this.recordNewMovement(entry);
-  }
-
-  private async recordNewMovement(entry: LedgerEntry): Promise<RecordStockMovementResult> {
+  private async recordMovement(entry: LedgerEntry): Promise<RecordStockMovementResult> {
     const recorded = await this.ledger.record(entry);
 
     switch (recorded.kind) {
       case 'Ok':
-        return Ok.make({ movement: recorded.value, replayed: false });
-      case 'IdempotencyKeyTaken':
-        return this.replayMovementRecordedConcurrently(entry);
+        return replayOrAccept(recorded.value, entry);
       case 'VariantNotFound':
       case 'InsufficientStock':
       case 'StockCapacityExceeded':
@@ -53,15 +44,6 @@ export class RecordStockMovement {
       default:
         return exhaustiveMatchGuard(recorded);
     }
-  }
-
-  private async replayMovementRecordedConcurrently(
-    entry: LedgerEntry,
-  ): Promise<RecordStockMovementResult> {
-    const winner = await this.ledger.findMovement(entry.createdBy, entry.idempotencyKey);
-    if (winner === null) return unreachable('an idempotency key was taken without a movement');
-
-    return replayPreviousMovement(winner, entry);
   }
 }
 
@@ -100,13 +82,15 @@ function buildLedgerEntryWithKey(
   }
 }
 
-function replayPreviousMovement(
-  previous: StockMovement,
+function replayOrAccept(
+  recorded: RecordedMovement,
   entry: LedgerEntry,
 ): Result<RecordStockMovementOutputDto, IdempotencyKeyReused> {
-  if (!entry.adjustment.isSameRequestAs(previous)) {
+  const { movement, alreadyRecorded } = recorded;
+  if (!alreadyRecorded) return Ok.make({ movement, replayed: false });
+  if (!entry.adjustment.isSameRequestAs(movement)) {
     return Err.make(IdempotencyKeyReused.make(entry.idempotencyKey.value));
   }
 
-  return Ok.make({ movement: previous, replayed: true });
+  return Ok.make({ movement, replayed: true });
 }
