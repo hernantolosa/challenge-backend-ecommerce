@@ -6,15 +6,35 @@ El enunciado original está al final de este archivo.
 
 ## Índice
 
-1. [Cómo correrlo](#cómo-correrlo)
-2. [Cómo usar la API](#cómo-usar-la-api)
-3. [Arquitectura](#arquitectura)
-4. [Recorrido de un request](#recorrido-de-un-request)
-5. [Manejo de errores](#manejo-de-errores)
-6. [Concurrencia e idempotencia](#concurrencia-e-idempotencia)
-7. [Convenciones y nombres](#convenciones-y-nombres)
-8. [Tests](#tests)
-9. [Decisiones y lo que quedó afuera](#decisiones-y-lo-que-quedó-afuera)
+1. [Alcance](#alcance)
+2. [Cómo correrlo](#cómo-correrlo)
+3. [Cómo usar la API](#cómo-usar-la-api)
+4. [Arquitectura](#arquitectura)
+5. [Recorrido de un request](#recorrido-de-un-request)
+6. [Manejo de errores](#manejo-de-errores)
+7. [Concurrencia e idempotencia](#concurrencia-e-idempotencia)
+8. [Convenciones y nombres](#convenciones-y-nombres)
+9. [Tests](#tests)
+10. [Decisiones y lo que quedó afuera](#decisiones-y-lo-que-quedó-afuera)
+
+---
+
+## Alcance
+
+**Lo que pide el enunciado y cómo se resuelve:**
+- Registrar cada cambio de stock con cuándo, cuántas unidades y por qué: `POST /stock/movimientos`.
+- Que el sistema siempre pueda responder cuánto stock hay: `GET /stock/:sku`.
+- Que una variante sin stock no pueda agregarse al carrito: el carrito consulta `GET /stock/:sku` antes de agregar.
+
+**Lo que no está y por qué.** No hay carrito ni reservas. `SALE` representa una **venta confirmada**, por eso descuenta el stock en el momento. Bloquear unidades mientras el cliente decide requiere **reservas con vencimiento**, que exceden lo pedido. El modelo ya les deja lugar: el stock físico se llama `onHand` y no "disponible", porque con reservas disponible va a ser `onHand − reservado`.
+
+**Por qué no un controller y un service.** El endpoint se podría resolver así, pero un ecommerce es, por naturaleza, concurrente y de crecimiento rápido. Lo que se buscó es una base que escale sin reescribirse:
+- **Reglas del stock en el dominio:** se testean sin base ni HTTP.
+- **Contratos HTTP y de persistencia separados:** cambiar uno no rompe el otro.
+- **Errores tipados:** agregar un caso nuevo obliga, en compilación, a decidir qué responder.
+- **Correctitud bajo concurrencia desde el día uno:** es lo más caro de agregar después.
+
+Sumar reservas, depósitos o el kardex es agregar piezas, no reescribir las que ya existen. Ver [cómo agregar algo](#cómo-agregar-algo).
 
 ---
 
@@ -232,7 +252,7 @@ La consigna es que el stock no puede fallar. Estas son las garantías y cómo se
 | **Un pedido se aplica una sola vez** | Restricción `UNIQUE (created_by, idempotency_key)`. Si la key ya existe, se devuelve el movimiento original (200) o `IdempotencyKeyReused` si el pedido es otro (422). |
 | **Las keys de un cliente no chocan con las de otro** | La key es única **por autor** (`sub` del JWT): un cliente no puede bloquear ni leer los pedidos de otro. |
 | **El error informa lo que realmente pasó** | La sentencia devuelve el stock con el que decidió, así que un 409 nunca dice "pediste 3, hay 5". |
-| **El historial cierra siempre** | `stock_movements.sequence` (identity) ordena el kardex por orden de aplicación; cada `balance_after` es el anterior más el movimiento. |
+| **El historial cierra siempre** | `stock_movements.sequence` (identity) ordena el kardex **de cada variante** por orden de aplicación; cada `balance_after` es el anterior más el movimiento. Una secuencia asigna el número al insertar, no al confirmar, pero acá el `INSERT` ocurre después de tomar el lock de la fila de stock: dos movimientos de la misma variante no pueden intercalarse. Entre variantes distintas el orden no tiene significado de negocio. |
 | **Sin overflow** | Una reposición que pasaría el máximo de la columna se rechaza con 409, en lugar de un 500. |
 | **Sin conexiones colgadas** | Pool con timeouts de conexión, sentencia y lock; si la base no responde, 503 con `Retry-After`. |
 
