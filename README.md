@@ -40,22 +40,39 @@ Sumar reservas, depósitos o el kardex es agregar piezas, no reescribir las que 
 
 ## Cómo correrlo
 
+### Todo en Docker
+
+Requisito: solo Docker.
+
+```bash
+cp .env.example .env               # completar JWT_SECRET con: openssl rand -hex 32
+docker compose up -d --build --wait
+```
+
+Levanta Postgres, corre la migración, carga el catálogo de ejemplo y deja la API en http://localhost:3000, ya compilada y con logs JSON de producción. El seed no pisa el stock existente, así que volver a correr `up` es seguro.
+
+```bash
+TOKEN=$(docker compose run --rm tools npm run -s token)   # token de desarrollo con stock:read y stock:write
+docker compose down                                       # baja todo; con -v borra también la base
+```
+
+### Para desarrollar
+
 Requisitos: Node 22 (`nvm use`), Docker.
 
 ```bash
 npm install
 cp .env.example .env               # completar JWT_SECRET con: openssl rand -hex 32
-docker compose up -d --wait        # Postgres 17 en 127.0.0.1:5432 (crea también la base de tests)
+docker compose up -d --wait postgres   # Postgres 17 en 127.0.0.1:5432 (crea también la base de tests)
 npm run migration:run
 npm run seed                       # catálogo de ejemplo: zapatillas y remeras con stock
 npm run start:dev                  # http://localhost:3000
+TOKEN=$(npm run -s token)          # token de desarrollo con stock:read y stock:write
 ```
 
-Probarlo:
+### Probarlo
 
 ```bash
-TOKEN=$(npm run -s token)          # token de desarrollo con stock:read y stock:write
-
 curl -s localhost:3000/stock/SNK-TRAIL-42-BLK -H "Authorization: Bearer $TOKEN"
 
 curl -s -X POST localhost:3000/stock/movimientos \
@@ -65,9 +82,9 @@ curl -s -X POST localhost:3000/stock/movimientos \
   -d '{"sku":"SNK-TRAIL-42-BLK","quantity":2,"reason":"SALE"}'
 ```
 
-`npm run token -- <usuario> <scopes...>` genera tokens para otro usuario o con otros permisos; por ejemplo, `npm run token -- auditor stock:read` emite uno solo de lectura. El script y el seed se niegan a correr si `NODE_ENV` no es `development`.
+`npm run token -- <usuario> <scopes...>` genera tokens para otro usuario o con otros permisos; por ejemplo, `npm run token -- auditor stock:read` emite uno solo de lectura. Con Docker es igual, anteponiendo `docker compose run --rm tools`. El script y el seed se niegan a correr si `NODE_ENV` no es `development`.
 
-> Si ya tenés un Postgres local en el puerto 5432, frenalo o cambiá el puerto en `docker-compose.yml` y en `.env`. El script que crea la base de tests corre solo la primera vez que se crea el volumen.
+> Si ya tenés un Postgres local en el puerto 5432 o algo escuchando en el 3000, frenalo o cambiá el puerto en `docker-compose.yml` y en `.env`. Para desarrollar con `npm run start:dev`, frená antes la API del contenedor con `docker compose stop api`. El script que crea la base de tests corre solo la primera vez que se crea el volumen.
 
 ## Cómo usar la API
 

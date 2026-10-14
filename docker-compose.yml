@@ -1,3 +1,16 @@
+x-database-environment: &database-environment
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_DATABASE: ecommerce_challenge
+
+x-api-environment: &api-environment
+  <<: *database-environment
+  JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env}
+  JWT_ISSUER: ${JWT_ISSUER:-https://auth.ecommerce.local}
+  JWT_AUDIENCE: ${JWT_AUDIENCE:-ecommerce-api}
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -15,6 +28,68 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+
+  migrate:
+    build:
+      context: .
+      target: runtime
+    image: ecommerce-api
+    command:
+      [
+        'node',
+        'node_modules/typeorm/cli.js',
+        'migration:run',
+        '-d',
+        'dist/shared/database/data-source.js',
+      ]
+    environment:
+      <<: *database-environment
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  seed:
+    build:
+      context: .
+      target: tools
+    image: ecommerce-api-tools
+    command: ['npm', 'run', 'seed']
+    environment:
+      <<: *database-environment
+      NODE_ENV: development
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  api:
+    build:
+      context: .
+      target: runtime
+    image: ecommerce-api
+    environment:
+      <<: *api-environment
+      NODE_ENV: production
+    ports:
+      - '127.0.0.1:3000:3000'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/health || exit 1']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+
+  tools:
+    profiles: [tools]
+    image: ecommerce-api-tools
+    environment:
+      <<: *api-environment
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
