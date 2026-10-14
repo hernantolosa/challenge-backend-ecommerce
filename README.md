@@ -231,7 +231,9 @@ switch (outcome.kind) {
 - **El controller documenta el endpoint:** cada resultado posible y la respuesta HTTP que le corresponde, en un solo lugar.
 - **Tests simples:** se compara un valor (`toMatchObject({ kind: 'InsufficientStock' })`) en vez de esperar excepciones.
 
-**Lo que cuesta:** TypeScript no tiene el operador `?` de Rust, así que propagar un error implica un `switch` explícito. Preferí ese poco de repetición antes que una librería o helpers propios que lo escondan.
+**Lo que cuesta:** TypeScript no tiene el operador `?` de Rust, así que propagar un error implica un `switch` explícito. Preferí ese poco de repetición antes que helpers que lo escondan.
+
+**Pensado para reutilizarse entre microservicios.** `shared/result/` (`Ok`, `Err`, `Result`, `exhaustiveMatchGuard`) no depende de nada del negocio. La idea es extraerlo a un **toolkit** versionado, un paquete npm interno que todos los servicios importen. Así cada equipo modela sus outcomes igual y un error se lee del mismo modo en cualquier servicio. Si hace falta algo nuevo, por ejemplo un helper para combinar resultados, se agrega al toolkit y se publica con un **bump de versión** (semver). Cada servicio adopta la versión nueva cuando le conviene, sin copiar código entre repos. Lo mismo aplica a `InvariantViolated` y a la conversión a Problem Details de `shared/http/`.
 
 ### Validación: una regla, un lugar
 
@@ -351,6 +353,7 @@ npm run migration:check     # verifica que las entidades y la migración no difi
 - **Negocio:** stock por depósito, reservas para el carrito (disponible = físico − reservado) y endpoint de kardex.
 - **Catálogo:** atributos de variante flexibles (`jsonb`) y baja lógica de productos.
 - **Auth:** RS256 con JWKS (tokens emitidos por un proveedor de identidad).
+- **Código compartido:** extraer `shared/result/` y Problem Details a un toolkit npm versionado, reutilizable entre microservicios.
 - **Infra:** rate limit por cliente en Redis, `trust proxy` detrás de un balanceador, TLS hacia la base, OpenTelemetry y UUIDv7 para ids ordenables.
 
 ---
