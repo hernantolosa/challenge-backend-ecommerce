@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { type IncomingMessage, type ServerResponse } from 'node:http';
-import { type Params } from 'nestjs-pino';
+import { type Options } from 'pino-http';
 import {
   pino,
   type LevelWithSilent,
@@ -9,7 +9,6 @@ import {
   type SerializedResponse,
 } from 'pino';
 import { type Environment } from '@config/environment.schema';
-import { type LogDestination } from './log-destination';
 import { outcomeOf } from './request-outcome';
 import { startTrace, traceContextOf } from './request-trace';
 
@@ -23,48 +22,43 @@ const SECURITY_STATUSES: ReadonlySet<number> = new Set([
 ]);
 const FIRST_SERVER_ERROR: number = HttpStatus.INTERNAL_SERVER_ERROR;
 
-export function loggerOptions(environment: Environment, destination: LogDestination): Params {
+export function httpLoggerOptions(environment: Environment): Options {
   return {
-    pinoHttp: [
-      {
-        level: environment.LOG_LEVEL,
-        base: { service: SERVICE_NAME, environment: environment.NODE_ENV },
-        messageKey: 'message',
-        timestamp: pino.stdTimeFunctions.isoTime,
-        formatters: { level: (label: string): { level: string } => ({ level: label }) },
-        redact: {
-          paths: ['*.authorization', '*.password', '*.token', '*.secret'],
-          censor: '[REDACTED]',
-        },
-        serializers: { req: serializeRequest, res: serializeResponse, err: serializeError },
-        customAttributeKeys: { responseTime: 'durationMs' },
-        genReqId: (request: IncomingMessage, response: ServerResponse): string => {
-          const { traceId } = startTrace(request);
-          response.setHeader(TRACE_ID_HEADER, traceId);
-          return traceId;
-        },
-        customProps: (request: IncomingMessage): object => traceContextOf(request) ?? {},
-        autoLogging: {
-          ignore: (request: IncomingMessage): boolean => UNLOGGED_PATHS.has(pathOf(request.url)),
-        },
-        customLogLevel: (_request: IncomingMessage, response: ServerResponse): LevelWithSilent =>
-          accessLogLevelFor(response.statusCode),
-        customSuccessMessage: (): string => 'request completed',
-        customErrorMessage: (): string => 'request completed',
-        customSuccessObject: (
-          request: IncomingMessage,
-          response: ServerResponse,
-          log: object,
-        ): object => withOutcome(request, response, log),
-        customErrorObject: (
-          request: IncomingMessage,
-          response: ServerResponse,
-          _error: Error,
-          log: object,
-        ): object => withOutcome(request, response, withoutError(log)),
-      },
-      destination,
-    ],
+    level: environment.LOG_LEVEL,
+    base: { service: SERVICE_NAME, environment: environment.NODE_ENV },
+    messageKey: 'message',
+    timestamp: pino.stdTimeFunctions.isoTime,
+    formatters: { level: (label: string): { level: string } => ({ level: label }) },
+    redact: {
+      paths: ['*.authorization', '*.password', '*.token', '*.secret'],
+      censor: '[REDACTED]',
+    },
+    serializers: { req: serializeRequest, res: serializeResponse, err: serializeError },
+    customAttributeKeys: { responseTime: 'durationMs' },
+    genReqId: (request: IncomingMessage, response: ServerResponse): string => {
+      const { traceId } = startTrace(request);
+      response.setHeader(TRACE_ID_HEADER, traceId);
+      return traceId;
+    },
+    customProps: (request: IncomingMessage): object => traceContextOf(request) ?? {},
+    autoLogging: {
+      ignore: (request: IncomingMessage): boolean => UNLOGGED_PATHS.has(pathOf(request.url)),
+    },
+    customLogLevel: (_request: IncomingMessage, response: ServerResponse): LevelWithSilent =>
+      accessLogLevelFor(response.statusCode),
+    customSuccessMessage: (): string => 'request completed',
+    customErrorMessage: (): string => 'request completed',
+    customSuccessObject: (
+      request: IncomingMessage,
+      response: ServerResponse,
+      log: object,
+    ): object => withOutcome(request, response, log),
+    customErrorObject: (
+      request: IncomingMessage,
+      response: ServerResponse,
+      _error: Error,
+      log: object,
+    ): object => withOutcome(request, response, withoutError(log)),
   };
 }
 

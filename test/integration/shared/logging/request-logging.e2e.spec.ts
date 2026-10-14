@@ -126,6 +126,17 @@ describe('Request logging and tracing', () => {
       });
     });
 
+    it('traces and logs requests whose path cannot be decoded', async () => {
+      const response = await request(server).get('/%');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ traceId: response.headers['x-trace-id'] });
+      expect(await waitForLog(testApp.logs, isAccessLog)).toMatchObject({
+        traceId: response.headers['x-trace-id'],
+        res: { statusCode: 400 },
+      });
+    });
+
     it('never writes tokens or request bodies', async () => {
       await postMovement(1);
       await waitForLog(testApp.logs, isAccessLog);

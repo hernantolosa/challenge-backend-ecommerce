@@ -1,6 +1,6 @@
-import { pino, type LoggerOptions } from 'pino';
+import { pino } from 'pino';
 import { type Environment } from '@config/environment.schema';
-import { accessLogLevelFor, loggerOptions } from '@shared/logging/logger.options';
+import { accessLogLevelFor, httpLoggerOptions } from '@shared/logging/logger.options';
 import { MemoryLogDestination } from '@test/fakes/memory-log-destination';
 import {
   aQueryFailure,
@@ -10,9 +10,7 @@ import {
 
 function aLoggerWritingTo(destination: MemoryLogDestination): pino.Logger {
   const environment = { LOG_LEVEL: 'info', NODE_ENV: 'test' } as Environment;
-  const { pinoHttp } = loggerOptions(environment, destination);
-  const [options] = pinoHttp as [LoggerOptions, MemoryLogDestination];
-  return pino(options, destination);
+  return pino(httpLoggerOptions(environment), destination);
 }
 
 describe('logger options', () => {

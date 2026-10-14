@@ -1,6 +1,6 @@
 import { Catch, HttpStatus, type ArgumentsHost, type ExceptionFilter } from '@nestjs/common';
 import { type Request, type Response } from 'express';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { PinoLogger } from 'nestjs-pino';
 import { recordOutcome } from '@shared/logging/request-outcome';
 import { traceContextOf } from '@shared/logging/request-trace';
 import { internalErrorProblem, toProblemDetails } from './problem-details.converter';
@@ -11,7 +11,9 @@ const SERVICE_UNAVAILABLE: number = HttpStatus.SERVICE_UNAVAILABLE;
 
 @Catch()
 export class ProblemDetailsFilter implements ExceptionFilter {
-  constructor(@InjectPinoLogger(ProblemDetailsFilter.name) private readonly logger: PinoLogger) {}
+  constructor(private readonly logger: PinoLogger) {
+    logger.setContext(ProblemDetailsFilter.name);
+  }
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
