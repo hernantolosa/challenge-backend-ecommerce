@@ -78,7 +78,11 @@ async function seedVariant(
 }
 
 async function main(): Promise<void> {
-  const dataSource = await new DataSource(databaseOptions(loadDatabaseEnvironment())).initialize();
+  const environment = loadDatabaseEnvironment();
+  if (environment.NODE_ENV !== 'development') {
+    throw new Error('The demo catalog can only be seeded with NODE_ENV=development');
+  }
+  const dataSource = await new DataSource(databaseOptions(environment)).initialize();
   try {
     await dataSource.transaction(async (manager) => {
       for (const product of CATALOG) await seedProduct(manager, product);

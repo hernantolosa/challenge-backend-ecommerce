@@ -56,11 +56,6 @@ export class StockAdjustment {
     return this.quantity.value * directionOf(this.reason);
   }
 
-  fitsWithin(onHand: number): boolean {
-    const balanceAfter = onHand + this.stockDelta;
-    return balanceAfter >= 0 && balanceAfter <= MAX_STOCK_LEVEL;
-  }
-
   rejectionAgainst(onHand: number): Err<InsufficientStock> | Err<StockCapacityExceeded> {
     if (this.stockDelta < 0) {
       return Err.make(InsufficientStock.make(this.sku.value, this.quantity.value, onHand));

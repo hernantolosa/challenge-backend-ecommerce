@@ -4,6 +4,7 @@ import { type RecordEntryError } from '@stock/application/errors/record-entry.er
 import { type LedgerEntry } from '@stock/application/ports/ledger-entry.interface';
 import { type StockLedger } from '@stock/application/ports/stock-ledger.port';
 import { type StockLevelReader } from '@stock/application/ports/stock-level-reader.port';
+import { MAX_STOCK_LEVEL } from '@stock/domain/constants/stock.constants';
 import { VariantNotFound } from '@stock/domain/errors/variant-not-found.error';
 import { type StockLevel } from '@stock/domain/entities/stock-level.entity';
 import { type StockMovement } from '@stock/domain/entities/stock-movement.entity';
@@ -39,7 +40,7 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     if (this.concurrentWinner !== null) return this.recordWinnerAndLoseRace(this.concurrentWinner);
 
     const onHand = this.levels.get(entry.adjustment.sku.value);
-    if (onHand === undefined || !entry.adjustment.fitsWithin(onHand)) {
+    if (onHand === undefined || !fitsWithin(onHand + entry.adjustment.stockDelta)) {
       return this.rejectionReasonFor(entry, onHand);
     }
     if (this.isKeyTakenBy(entry.createdBy, entry.idempotencyKey)) {
@@ -113,4 +114,8 @@ function belongsToCreatorAndKey(
   idempotencyKey: IdempotencyKey,
 ): boolean {
   return movement.createdBy === createdBy && movement.idempotencyKey === idempotencyKey.value;
+}
+
+function fitsWithin(balanceAfter: number): boolean {
+  return balanceAfter >= 0 && balanceAfter <= MAX_STOCK_LEVEL;
 }

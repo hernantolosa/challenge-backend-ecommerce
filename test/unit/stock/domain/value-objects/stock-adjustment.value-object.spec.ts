@@ -57,29 +57,6 @@ describe('StockAdjustment', () => {
     });
   });
 
-  describe('fitsWithin', () => {
-    it.each([
-      ['an outbound movement leaving stock at zero', MovementReason.SALE, 3, 3, true],
-      ['an outbound movement going below zero', MovementReason.SALE, 4, 3, false],
-      [
-        'an inbound movement reaching the capacity',
-        MovementReason.RESTOCK,
-        5,
-        MAX_STOCK_LEVEL - 5,
-        true,
-      ],
-      [
-        'an inbound movement above the capacity',
-        MovementReason.RESTOCK,
-        6,
-        MAX_STOCK_LEVEL - 5,
-        false,
-      ],
-    ])('accepts or rejects %s', (_case, reason, quantity, onHand, fits) => {
-      expect(adjustmentFor({ reason, quantity }).fitsWithin(onHand)).toBe(fits);
-    });
-  });
-
   describe('rejectionAgainst', () => {
     it('rejects an outbound movement for insufficient stock', () => {
       expect(

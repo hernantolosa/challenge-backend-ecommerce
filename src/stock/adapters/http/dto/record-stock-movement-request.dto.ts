@@ -5,10 +5,8 @@ import {
   MIN_MOVEMENT_QUANTITY,
   SKU_FORMAT_MESSAGE,
   SKU_MAX_LENGTH,
-  SKU_PATTERN,
 } from '@stock/domain/constants/stock.constants';
-
-const SKU_INPUT_PATTERN = new RegExp(SKU_PATTERN.source, 'i');
+import { SKU_INPUT_PATTERN } from '@stock/adapters/http/sku-input.constants';
 
 export class RecordStockMovementRequestDto {
   @IsString()
