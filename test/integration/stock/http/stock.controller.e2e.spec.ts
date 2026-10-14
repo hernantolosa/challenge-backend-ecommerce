@@ -240,13 +240,13 @@ describe('Stock HTTP API', () => {
         expect(response.status).toBe(403);
       });
 
-      it('records the token subject as the actor of the movement', async () => {
+      it('records the token subject as the creator of the movement', async () => {
         await postMovement(aMovementBody(), IDEMPOTENCY_KEY, issueToken({ subject: 'auditor-7' }));
 
-        const [row] = await testApp.dataSource.query<{ actor: string }[]>(
-          'SELECT actor FROM stock_movements',
+        const [row] = await testApp.dataSource.query<{ createdBy: string }[]>(
+          'SELECT created_by AS "createdBy" FROM stock_movements',
         );
-        expect(row?.actor).toBe('auditor-7');
+        expect(row?.createdBy).toBe('auditor-7');
       });
     });
 

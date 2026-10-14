@@ -14,7 +14,7 @@ import { IDEMPOTENCY_CONSTRAINT } from '@stock/adapters/persistence/stock-ledger
 import { MOVEMENT_REASONS, type MovementReason } from '@stock/domain/enums/movement-reason.enum';
 
 @Entity({ name: 'stock_movements' })
-@Unique(IDEMPOTENCY_CONSTRAINT, ['actor', 'idempotencyKey'])
+@Unique(IDEMPOTENCY_CONSTRAINT, ['createdBy', 'idempotencyKey'])
 @Index('IDX_stock_movements_variant_sequence', ['variantId', 'sequence'])
 @Check('CHK_stock_movements_quantity_positive', '"quantity" > 0')
 @Check('CHK_stock_movements_balance_after_non_negative', '"balance_after" >= 0')
@@ -42,8 +42,8 @@ export class StockMovementOrmEntity {
   @Column({ name: 'balance_after', type: 'integer' })
   balanceAfter!: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  actor!: string;
+  @Column({ name: 'created_by', type: 'varchar', length: 255 })
+  createdBy!: string;
 
   @Column({ name: 'idempotency_key', type: 'uuid' })
   idempotencyKey!: string;

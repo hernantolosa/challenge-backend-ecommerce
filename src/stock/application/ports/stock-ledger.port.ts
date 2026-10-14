@@ -8,7 +8,7 @@ export abstract class StockLedger {
   abstract record(entry: LedgerEntry): Promise<Result<StockMovement, RecordEntryError>>;
 
   abstract findMovement(
-    actor: string,
+    createdBy: string,
     idempotencyKey: IdempotencyKey,
   ): Promise<StockMovement | null>;
 }

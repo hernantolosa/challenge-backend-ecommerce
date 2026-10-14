@@ -75,14 +75,14 @@ export function accessLogLevelFor(status: number): LevelWithSilent {
 }
 
 function withOutcome(request: IncomingMessage, response: ServerResponse, log: object): object {
-  return { ...log, outcome: outcomeOf(response), actor: actorOf(request) };
+  return { ...log, outcome: outcomeOf(response), user: userOf(request) };
 }
 
 function withoutError(log: object): object {
   return Object.fromEntries(Object.entries(log).filter(([key]) => key !== 'err'));
 }
 
-function actorOf(request: IncomingMessage): string | null {
+function userOf(request: IncomingMessage): string | null {
   if (!('principal' in request)) return null;
   const { principal } = request;
   return typeof principal === 'object' &&

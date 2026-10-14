@@ -51,9 +51,12 @@ export class PostgresStockLedgerAdapter implements StockLedger, StockLevelReader
     }
   }
 
-  async findMovement(actor: string, idempotencyKey: IdempotencyKey): Promise<StockMovement | null> {
+  async findMovement(
+    createdBy: string,
+    idempotencyKey: IdempotencyKey,
+  ): Promise<StockMovement | null> {
     const [row] = await this.dataSource.query<StockMovementRow[]>(FIND_MOVEMENT_SQL, [
-      actor,
+      createdBy,
       idempotencyKey.value,
     ]);
     return row === undefined ? null : toStoredMovement(row);
@@ -71,7 +74,7 @@ export class PostgresStockLedgerAdapter implements StockLedger, StockLevelReader
       adjustment.stockDelta,
       adjustment.quantity.value,
       adjustment.reason,
-      entry.actor,
+      entry.createdBy,
       entry.idempotencyKey.value,
       MAX_STOCK_LEVEL,
     ]);
@@ -80,7 +83,7 @@ export class PostgresStockLedgerAdapter implements StockLedger, StockLevelReader
   private async rejectionReasonFor(
     entry: LedgerEntry,
   ): Promise<Result<StockMovement, RecordEntryError>> {
-    const previous = await this.findMovement(entry.actor, entry.idempotencyKey);
+    const previous = await this.findMovement(entry.createdBy, entry.idempotencyKey);
     if (previous !== null) return Err.make(IdempotencyKeyTaken.make());
 
     const level = await this.findLevel(entry.adjustment.sku);
@@ -97,7 +100,7 @@ function toAppliedMovement(entry: LedgerEntry, applied: AppliedAdjustmentRow): S
     quantity: entry.adjustment.quantity.value,
     reason: entry.adjustment.reason,
     balanceAfter: applied.balanceAfter,
-    actor: entry.actor,
+    createdBy: entry.createdBy,
     idempotencyKey: entry.idempotencyKey.value,
     occurredAt: applied.occurredAt,
   };

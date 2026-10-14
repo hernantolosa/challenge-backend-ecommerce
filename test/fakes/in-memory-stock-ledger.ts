@@ -42,17 +42,21 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     if (onHand === undefined || !entry.adjustment.fitsWithin(onHand)) {
       return this.rejectionReasonFor(entry, onHand);
     }
-    if (this.isKeyTakenBy(entry.actor, entry.idempotencyKey)) {
+    if (this.isKeyTakenBy(entry.createdBy, entry.idempotencyKey)) {
       return Err.make(IdempotencyKeyTaken.make());
     }
 
     return Ok.make(this.append(entry, onHand + entry.adjustment.stockDelta));
   }
 
-  async findMovement(actor: string, idempotencyKey: IdempotencyKey): Promise<StockMovement | null> {
+  async findMovement(
+    createdBy: string,
+    idempotencyKey: IdempotencyKey,
+  ): Promise<StockMovement | null> {
     return (
-      this.recorded.find((movement) => belongsToActorAndKey(movement, actor, idempotencyKey)) ??
-      null
+      this.recorded.find((movement) =>
+        belongsToCreatorAndKey(movement, createdBy, idempotencyKey),
+      ) ?? null
     );
   }
 
@@ -65,7 +69,7 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     entry: LedgerEntry,
     onHand: number | undefined,
   ): Result<StockMovement, RecordEntryError> {
-    if (this.isKeyTakenBy(entry.actor, entry.idempotencyKey)) {
+    if (this.isKeyTakenBy(entry.createdBy, entry.idempotencyKey)) {
       return Err.make(IdempotencyKeyTaken.make());
     }
     if (onHand === undefined) return Err.make(VariantNotFound.make(entry.adjustment.sku.value));
@@ -79,8 +83,10 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
     return Err.make(IdempotencyKeyTaken.make());
   }
 
-  private isKeyTakenBy(actor: string, idempotencyKey: IdempotencyKey): boolean {
-    return this.recorded.some((movement) => belongsToActorAndKey(movement, actor, idempotencyKey));
+  private isKeyTakenBy(createdBy: string, idempotencyKey: IdempotencyKey): boolean {
+    return this.recorded.some((movement) =>
+      belongsToCreatorAndKey(movement, createdBy, idempotencyKey),
+    );
   }
 
   private append(entry: LedgerEntry, balanceAfter: number): StockMovement {
@@ -90,7 +96,7 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
       quantity: entry.adjustment.quantity.value,
       reason: entry.adjustment.reason,
       balanceAfter,
-      actor: entry.actor,
+      createdBy: entry.createdBy,
       idempotencyKey: entry.idempotencyKey.value,
       occurredAt: FAKE_CLOCK,
     };
@@ -101,10 +107,10 @@ export class InMemoryStockLedger implements StockLedger, StockLevelReader {
   }
 }
 
-function belongsToActorAndKey(
+function belongsToCreatorAndKey(
   movement: StockMovement,
-  actor: string,
+  createdBy: string,
   idempotencyKey: IdempotencyKey,
 ): boolean {
-  return movement.actor === actor && movement.idempotencyKey === idempotencyKey.value;
+  return movement.createdBy === createdBy && movement.idempotencyKey === idempotencyKey.value;
 }

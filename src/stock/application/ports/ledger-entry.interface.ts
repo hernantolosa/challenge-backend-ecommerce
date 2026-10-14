@@ -3,6 +3,6 @@ import { type StockAdjustment } from '@stock/domain/value-objects/stock-adjustme
 
 export interface LedgerEntry {
   readonly adjustment: StockAdjustment;
-  readonly actor: string;
+  readonly createdBy: string;
   readonly idempotencyKey: IdempotencyKey;
 }

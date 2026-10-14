@@ -5,11 +5,11 @@ import { MovementReason } from '@stock/domain/enums/movement-reason.enum';
 import { InMemoryStockLedger } from '@test/fakes/in-memory-stock-ledger';
 import { FAKE_CLOCK } from '@test/fixtures/clock.fixtures';
 import {
-  ACTOR,
+  OPERATOR,
   aRecordCommand,
   aStockMovement,
   IDEMPOTENCY_KEY,
-  OTHER_ACTOR,
+  OTHER_OPERATOR,
   OTHER_IDEMPOTENCY_KEY,
   SNEAKER_SKU,
   UNKNOWN_SKU,
@@ -38,7 +38,7 @@ describe('RecordStockMovement', () => {
             quantity: 3,
             reason: MovementReason.SALE,
             balanceAfter: 7,
-            actor: ACTOR,
+            createdBy: OPERATOR,
             idempotencyKey: IDEMPOTENCY_KEY,
             occurredAt: FAKE_CLOCK,
           },
@@ -82,7 +82,7 @@ describe('RecordStockMovement', () => {
     it('records who performed the movement', async () => {
       await recordStockMovement.execute(aRecordCommand());
 
-      expect(ledger.movements.map((movement) => movement.actor)).toEqual([ACTOR]);
+      expect(ledger.movements.map((movement) => movement.createdBy)).toEqual([OPERATOR]);
     });
   });
 
@@ -232,10 +232,12 @@ describe('RecordStockMovement', () => {
       expect(ledger.stockOf(SNEAKER_SKU)).toBe(6);
     });
 
-    it('scopes keys per actor, so one actor cannot replay or block another', async () => {
+    it('scopes keys per creator, so one client cannot replay or block another', async () => {
       await recordStockMovement.execute(aRecordCommand());
 
-      const result = await recordStockMovement.execute(aRecordCommand({ actor: OTHER_ACTOR }));
+      const result = await recordStockMovement.execute(
+        aRecordCommand({ createdBy: OTHER_OPERATOR }),
+      );
 
       expect(result).toMatchObject({ kind: 'Ok', value: { replayed: false } });
       expect(ledger.stockOf(SNEAKER_SKU)).toBe(6);

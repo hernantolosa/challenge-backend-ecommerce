@@ -32,7 +32,7 @@ export class RecordStockMovement {
   }
 
   private async replayOrRecordMovement(entry: LedgerEntry): Promise<RecordStockMovementResult> {
-    const previous = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
+    const previous = await this.ledger.findMovement(entry.createdBy, entry.idempotencyKey);
     if (previous !== null) return replayPreviousMovement(previous, entry);
 
     return this.recordNewMovement(entry);
@@ -58,7 +58,7 @@ export class RecordStockMovement {
   private async replayMovementRecordedConcurrently(
     entry: LedgerEntry,
   ): Promise<RecordStockMovementResult> {
-    const winner = await this.ledger.findMovement(entry.actor, entry.idempotencyKey);
+    const winner = await this.ledger.findMovement(entry.createdBy, entry.idempotencyKey);
     if (winner === null) return unreachable('an idempotency key was taken without a movement');
 
     return replayPreviousMovement(winner, entry);
@@ -88,7 +88,11 @@ function buildLedgerEntryWithKey(
 
   switch (idempotencyKey.kind) {
     case 'Ok':
-      return Ok.make({ adjustment, actor: input.actor, idempotencyKey: idempotencyKey.value });
+      return Ok.make({
+        adjustment,
+        createdBy: input.createdBy,
+        idempotencyKey: idempotencyKey.value,
+      });
     case 'InvariantViolated':
       return idempotencyKey;
     default:

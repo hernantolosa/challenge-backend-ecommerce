@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { StockScope } from '@stock/adapters/http/stock.scopes';
-import { ACTOR } from '@test/fixtures/stock.fixtures';
+import { OPERATOR } from '@test/fixtures/stock.fixtures';
 
 export interface TokenSeed {
   readonly subject?: string;
@@ -37,7 +37,7 @@ export function issueToken(seed: TokenSeed = {}): string {
   return new JwtService().sign(claimsOf(seed), {
     secret: seed.secret ?? requiredEnv('JWT_SECRET'),
     algorithm: 'HS256',
-    subject: seed.subject ?? ACTOR,
+    subject: seed.subject ?? OPERATOR,
     issuer: seed.issuer ?? requiredEnv('JWT_ISSUER'),
     audience: seed.audience ?? requiredEnv('JWT_AUDIENCE'),
   });
@@ -48,7 +48,7 @@ export function forgeUnsignedToken(): string {
     Buffer.from(JSON.stringify(value)).toString('base64url');
   const header = encode({ alg: 'none', typ: 'JWT' });
   const payload = encode({
-    sub: ACTOR,
+    sub: OPERATOR,
     scope: StockScope.WRITE,
     iss: requiredEnv('JWT_ISSUER'),
     aud: requiredEnv('JWT_AUDIENCE'),

@@ -99,7 +99,7 @@ describe('Request logging and tracing', () => {
         req: { method: 'POST', path: MOVEMENTS_PATH },
         res: { statusCode: 201 },
         outcome: 'Ok',
-        actor: 'operator-42',
+        user: 'operator-42',
       });
       expect(entry.durationMs).toEqual(expect.any(Number));
       expect(testApp.logs.entries().filter(isAccessLog)).toHaveLength(1);
@@ -122,7 +122,7 @@ describe('Request logging and tracing', () => {
         level: 'warn',
         res: { statusCode: 401 },
         outcome: 'Unauthorized',
-        actor: null,
+        user: null,
       });
     });
 

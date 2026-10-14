@@ -10,10 +10,10 @@ import {
 } from '@test/fixtures/catalog.fixtures';
 import { aLedgerEntry } from '@test/fixtures/ledger-entry.fixtures';
 import {
-  ACTOR,
+  OPERATOR,
   aSku,
   IDEMPOTENCY_KEY,
-  OTHER_ACTOR,
+  OTHER_OPERATOR,
   SNEAKER_SKU,
   UNKNOWN_SKU,
 } from '@test/fixtures/stock.fixtures';
@@ -50,7 +50,7 @@ describe('PostgresStockLedgerAdapter', () => {
           quantity: 3,
           reason: MovementReason.SALE,
           balanceAfter: 7,
-          actor: ACTOR,
+          createdBy: OPERATOR,
         },
       });
       expect(unwrap(result).id).toMatch(/^[0-9a-f-]{36}$/);
@@ -112,11 +112,11 @@ describe('PostgresStockLedgerAdapter', () => {
       expect(await movementCountOf(dataSource, variant.variantId)).toBe(1);
     });
 
-    it('accepts the same idempotency key from a different actor', async () => {
+    it('accepts the same idempotency key from a different creator', async () => {
       await ledger.record(aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY }));
 
       const result = await ledger.record(
-        aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY, actor: OTHER_ACTOR }),
+        aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY, createdBy: OTHER_OPERATOR }),
       );
 
       expect(result.kind).toBe('Ok');
@@ -278,20 +278,20 @@ describe('PostgresStockLedgerAdapter', () => {
   });
 
   describe('findMovement', () => {
-    it('finds a movement by actor and idempotency key', async () => {
+    it('finds a movement by creator and idempotency key', async () => {
       const recorded = await ledger.record(aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY }));
       const idempotencyKey = aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY }).idempotencyKey;
 
-      const found = await ledger.findMovement(ACTOR, idempotencyKey);
+      const found = await ledger.findMovement(OPERATOR, idempotencyKey);
 
       expect(found).toEqual(unwrap(recorded));
     });
 
-    it('does not reveal a movement to another actor', async () => {
+    it('does not reveal a movement to another creator', async () => {
       await ledger.record(aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY }));
       const idempotencyKey = aLedgerEntry({ idempotencyKey: IDEMPOTENCY_KEY }).idempotencyKey;
 
-      expect(await ledger.findMovement(OTHER_ACTOR, idempotencyKey)).toBeNull();
+      expect(await ledger.findMovement(OTHER_OPERATOR, idempotencyKey)).toBeNull();
     });
   });
 

@@ -6,7 +6,7 @@ export interface StockMovement {
   readonly quantity: number;
   readonly reason: MovementReason;
   readonly balanceAfter: number;
-  readonly actor: string;
+  readonly createdBy: string;
   readonly idempotencyKey: string;
   readonly occurredAt: Date;
 }

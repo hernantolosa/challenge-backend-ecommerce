@@ -5,5 +5,5 @@ export class RecordStockMovementInputDto {
   readonly quantity!: number;
   readonly reason!: MovementReason;
   readonly idempotencyKey!: string;
-  readonly actor!: string;
+  readonly createdBy!: string;
 }

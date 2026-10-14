@@ -34,7 +34,7 @@ export class StockController {
     const outcome = await this.recordStockMovement.execute({
       ...body,
       idempotencyKey: header.idempotencyKey,
-      actor: principal.subject,
+      createdBy: principal.subject,
     });
 
     switch (outcome.kind) {
