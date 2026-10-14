@@ -11,6 +11,10 @@ import { resetTestDatabase } from '@test/support/test-database';
 import { forgeUnsignedToken, issueToken } from '@test/support/tokens';
 import * as request from 'supertest';
 
+const SKU_FORMAT = 'must contain only letters, digits and single hyphens';
+const SKU_LENGTH = 'must have between 1 and 64 characters';
+const QUANTITY_RANGE = 'must be an integer between 1 and 100000';
+
 describe('Stock HTTP API', () => {
   let testApp: TestApp;
   let server: Server;
@@ -170,8 +174,9 @@ describe('Stock HTTP API', () => {
 
         expect(response.status).toBe(400);
         expect(response.body).toMatchObject({
-          code: 'BadRequest',
-          errors: ['Idempotency-Key must be a valid UUID'],
+          code: 'InvariantViolated',
+          field: 'idempotencyKey',
+          detail: 'must be a valid UUID',
         });
       });
     });
@@ -193,27 +198,27 @@ describe('Stock HTTP API', () => {
       });
 
       it.each([
-        ['a zero quantity', aMovementBody({ quantity: 0 }), 'quantity must not be less than 1'],
-        [
-          'a negative quantity',
-          aMovementBody({ quantity: -5 }),
-          'quantity must not be less than 1',
-        ],
+        ['a zero quantity', aMovementBody({ quantity: 0 }), 'quantity', QUANTITY_RANGE],
+        ['a negative quantity', aMovementBody({ quantity: -5 }), 'quantity', QUANTITY_RANGE],
         [
           'a quantity above the limit',
           aMovementBody({ quantity: 100_001 }),
-          'quantity must not be greater than 100000',
+          'quantity',
+          QUANTITY_RANGE,
         ],
         [
           'a malformed sku',
           aMovementBody({ sku: "SNK'; DROP TABLE variants;--" }),
-          'sku must contain only letters, digits and single hyphens',
+          'sku',
+          SKU_FORMAT,
         ],
-      ])('rejects %s at the edge before reaching the domain', async (_case, body, error) => {
+        ['a sku that is too long', aMovementBody({ sku: 'A'.repeat(65) }), 'sku', SKU_LENGTH],
+      ])('rejects %s naming the field whose rule it breaks', async (_case, body, field, detail) => {
         const response = await postMovement(body);
 
         expect(response.status).toBe(400);
-        expect(response.body).toMatchObject({ code: 'BadRequest', errors: [error] });
+        expect(response.body).toMatchObject({ code: 'InvariantViolated', field, detail });
+        expect(await onHandOf(testApp.dataSource, variant.variantId)).toBe(10);
       });
 
       it('drops a __proto__ key without polluting object prototypes', async () => {
@@ -324,8 +329,9 @@ describe('Stock HTTP API', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toMatchObject({
-        code: 'BadRequest',
-        errors: ['sku must contain only letters, digits and single hyphens'],
+        code: 'InvariantViolated',
+        field: 'sku',
+        detail: SKU_FORMAT,
       });
     });
 
@@ -369,9 +375,9 @@ describe('Stock HTTP API', () => {
       expect(response.body).toHaveProperty('detail');
     });
 
-    it('reports every invalid field of the request at once', async () => {
+    it('reports every field with the wrong shape at once', async () => {
       const response = await postMovement(
-        aMovementBody({ sku: 'NOT A SKU', quantity: 0, reason: 'THEFT' }),
+        aMovementBody({ sku: 123, quantity: '0', reason: 'THEFT' }),
       );
 
       expect(response.body).toMatchObject({
@@ -380,8 +386,8 @@ describe('Stock HTTP API', () => {
       });
       expect((response.body as { errors: string[] }).errors).toEqual(
         expect.arrayContaining([
-          'sku must contain only letters, digits and single hyphens',
-          'quantity must not be less than 1',
+          'sku must be a string',
+          'quantity must be an integer number',
           expect.stringContaining('reason must be one of the following values') as unknown,
         ]),
       );
