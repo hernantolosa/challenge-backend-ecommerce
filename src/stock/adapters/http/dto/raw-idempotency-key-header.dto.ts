@@ -1,3 +1,3 @@
-export interface RawIdempotencyKeyHeaderDto {
-  readonly idempotencyKey: string | undefined;
+export class RawIdempotencyKeyHeaderDto {
+  readonly idempotencyKey!: string | undefined;
 }

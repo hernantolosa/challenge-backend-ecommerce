@@ -1,3 +1,3 @@
-export interface HealthResponseDto {
-  readonly status: string;
+export class HealthResponseDto {
+  readonly status!: string;
 }

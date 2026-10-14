@@ -1,4 +1,4 @@
-export interface StockLevelResponseDto {
-  readonly sku: string;
-  readonly onHand: number;
+export class StockLevelResponseDto {
+  readonly sku!: string;
+  readonly onHand!: number;
 }

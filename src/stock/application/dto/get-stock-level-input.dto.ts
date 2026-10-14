@@ -1,3 +1,3 @@
-export interface GetStockLevelInputDto {
-  readonly sku: string;
+export class GetStockLevelInputDto {
+  readonly sku!: string;
 }
